@@ -8,8 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"weekendprojectapp/authful/users/config"
+
 	"github.com/google/uuid"
-	"weekendproject.app/authful/users/config"
 )
 
 type userRepository struct{}

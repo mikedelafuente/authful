@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"time"
 
+	"weekendprojectapp/authful/users/config"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-	"weekendproject.app/authful/users/config"
 )
 
 var myRouter = mux.NewRouter().StrictSlash(true)

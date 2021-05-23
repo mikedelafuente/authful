@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"weekendproject.app/authful/users/config"
+	"weekendprojectapp/authful/users/config"
 )
 
 func handleResponse(w http.ResponseWriter, b []byte, statusCode int) {
@@ -17,4 +17,6 @@ func marshalFormat(v interface{}) ([]byte, error) {
 	return json.MarshalIndent(v, config.JsonMarshalPrefix, config.JsonMarshalIndent)
 }
 
-func handleError(w http.ResponseWriter)
+func handleError(w http.ResponseWriter) {
+
+}

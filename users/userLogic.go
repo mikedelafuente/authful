@@ -5,8 +5,11 @@ import (
 	"errors"
 	"strings"
 
+	"weekendprojectapp/authful/users/config"
+
+	"weekendprojectapp/serverutilities"
+
 	"golang.org/x/crypto/bcrypt"
-	"weekendproject.app/authful/users/config"
 )
 
 type userLogic struct {
@@ -26,7 +29,7 @@ func (l *userLogic) createUser(ctx context.Context, username string, password st
 	}
 
 	if strings.TrimSpace(password) == "" {
-		return userDto{}, errors.New("username cannot be blank")
+		return userDto{}, serverutilities.NewServiceError(300, "test")
 	}
 
 	username = strings.ToLower(username)
