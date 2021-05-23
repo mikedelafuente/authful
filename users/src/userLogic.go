@@ -31,6 +31,10 @@ func (l *userLogic) createUser(ctx context.Context, username string, password st
 
 	username = strings.ToLower(username)
 
+	if !l.isUniqueUsername(ctx, username) {
+		return userDto{}, errors.New("username is not valid")
+	}
+
 	// bcrypt the password
 	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(password), config.GetAuthfulConfig().Security.PasswordCostFactor)
 	if err != nil {
@@ -42,4 +46,14 @@ func (l *userLogic) createUser(ctx context.Context, username string, password st
 
 func (l *userLogic) getUsers(ctx context.Context) ([]userDto, error) {
 	return l.repo.getUsers(ctx)
+}
+
+func (l *userLogic) isUniqueUsername(ctx context.Context, username string) bool {
+	user, err := l.repo.getUserByUsername(ctx, username)
+	if err != nil {
+		return false
+	}
+
+	// If the strings are equal, than the user exists...
+	return !strings.EqualFold(user.Username, username)
 }
