@@ -4,16 +4,21 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
+
+	"weekendprojectapp/authful/users/config"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-	"weekendproject.app/authful/users/config"
 )
 
 var myRouter = mux.NewRouter().StrictSlash(true)
 var userSvc *userService
+var startTime time.Time
 
 func init() {
+	startTime = time.Now()
+	fmt.Printf("Process started at %s\n", startTime)
 	config.GetAuthfulConfig() // just attempt to get the config at startup
 	config.GetDbConnection()  // just attempt to connect to the database at startup
 }
@@ -22,7 +27,7 @@ func main() {
 	userSvc = newUserService()
 
 	myConfig := config.GetAuthfulConfig()
-	fmt.Printf("Authful: User Server running at %s:%v", myConfig.WebServer.Address, myConfig.WebServer.Port)
+	fmt.Printf("\n\nAuthful: User Server running at %s:%v\n\n", myConfig.WebServer.Address, myConfig.WebServer.Port)
 	setupRequestHandlers()
 }
 
@@ -40,7 +45,12 @@ func setupRequestHandlers() {
 	myConfig := config.GetAuthfulConfig()
 
 	defer dbShutdown()
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%v", myConfig.WebServer.Address, myConfig.WebServer.Port), myRouter))
+	err := http.ListenAndServe(fmt.Sprintf("%s:%v", myConfig.WebServer.Address, myConfig.WebServer.Port), myRouter)
+	endTime := time.Now()
+	fmt.Printf("Process stopped at %s\n", endTime)
+	elapsed := endTime.Sub(startTime)
+	fmt.Printf("Server uptime was: %s", elapsed)
+	log.Fatal(err)
 
 }
 

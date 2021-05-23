@@ -5,8 +5,11 @@ import (
 	"errors"
 	"strings"
 
+	"weekendprojectapp/authful/users/config"
+
+	"weekendprojectapp/serverutilities"
+
 	"golang.org/x/crypto/bcrypt"
-	"weekendproject.app/authful/users/config"
 )
 
 type userLogic struct {
@@ -26,10 +29,14 @@ func (l *userLogic) createUser(ctx context.Context, username string, password st
 	}
 
 	if strings.TrimSpace(password) == "" {
-		return userDto{}, errors.New("username cannot be blank")
+		return userDto{}, serverutilities.NewServiceError(300, "test")
 	}
 
 	username = strings.ToLower(username)
+
+	if !l.isUniqueUsername(ctx, username) {
+		return userDto{}, errors.New("username is not valid")
+	}
 
 	// bcrypt the password
 	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(password), config.GetAuthfulConfig().Security.PasswordCostFactor)
@@ -42,4 +49,14 @@ func (l *userLogic) createUser(ctx context.Context, username string, password st
 
 func (l *userLogic) getUsers(ctx context.Context) ([]userDto, error) {
 	return l.repo.getUsers(ctx)
+}
+
+func (l *userLogic) isUniqueUsername(ctx context.Context, username string) bool {
+	user, err := l.repo.getUserByUsername(ctx, username)
+	if err != nil {
+		return false
+	}
+
+	// If the strings are equal, than the user exists...
+	return !strings.EqualFold(user.Username, username)
 }

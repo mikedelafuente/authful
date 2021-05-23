@@ -8,8 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"weekendprojectapp/authful/users/config"
+
 	"github.com/google/uuid"
-	"weekendproject.app/authful/users/config"
 )
 
 type userRepository struct{}
@@ -43,36 +44,66 @@ func (d *userRepository) createUser(ctx context.Context, username string, passwo
 
 	return newUser, nil
 }
+func (d *userRepository) getUserByUsername(ctx context.Context, username string) (userDto, error) {
+	db := config.GetDbConnection()
+	result, err := db.Query("SELECT id, username, create_datetime, update_datetime FROM users WHERE username = ? LIMIT 1", username)
+	if err != nil {
+		log.Print(err)
+		return userDto{}, err
+	}
+
+	if result.Next() {
+		return mapResultToUser(result)
+	} else {
+		return userDto{}, nil
+	}
+
+}
 
 func (d *userRepository) getUsers(ctx context.Context) ([]userDto, error) {
 	users := []userDto{}
 
 	db := config.GetDbConnection()
 
-	result, _ := db.Query("SELECT id, username, create_datetime, update_datetime FROM users")
+	result, err := db.Query("SELECT id, username, create_datetime, update_datetime FROM users")
 
-	var user userDto
-	var ntCreate sql.NullTime
-	var ntUpdate sql.NullTime
+	if err != nil {
+		return users, err
+	}
+
 	for result.Next() {
 
-		err := result.Scan(&user.Id, &user.Username, &ntCreate, &ntUpdate)
+		user, err := mapResultToUser(result)
 
 		if err != nil {
 			log.Print(err)
-			return []userDto{}, err
+		} else {
+			users = append(users, user)
 		}
+	}
+	return users, nil
+}
 
-		if ntCreate.Valid {
-			user.CreateDate = ntCreate.Time
-		}
+func mapResultToUser(result *sql.Rows) (userDto, error) {
 
-		if ntUpdate.Valid {
-			user.UpdateDate = ntUpdate.Time
-		}
+	var user userDto = userDto{}
+	var ntCreate sql.NullTime
+	var ntUpdate sql.NullTime
 
-		users = append(users, user)
+	err := result.Scan(&user.Id, &user.Username, &ntCreate, &ntUpdate)
+
+	if err != nil {
+		log.Print(err)
+		return userDto{}, err
 	}
 
-	return users, nil
+	if ntCreate.Valid {
+		user.CreateDate = ntCreate.Time
+	}
+
+	if ntUpdate.Valid {
+		user.UpdateDate = ntUpdate.Time
+	}
+
+	return user, nil
 }

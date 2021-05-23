@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"weekendproject.app/authful/users/config"
+	"weekendprojectapp/authful/users/config"
 )
 
 type userService struct {
