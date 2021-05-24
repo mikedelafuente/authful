@@ -45,3 +45,14 @@ func HandleResponse(w http.ResponseWriter, b []byte, statusCode int) {
 func MarshalFormat(v interface{}) ([]byte, error) {
 	return json.MarshalIndent(v, "", "  ")
 }
+
+func ProcessResponse(v interface{}, w http.ResponseWriter, statusCode int) {
+	b, err := MarshalFormat(v)
+	if err != nil {
+		// Handle as a server error?
+		HandleError(err, w)
+		return
+	}
+
+	HandleResponse(w, b, statusCode)
+}

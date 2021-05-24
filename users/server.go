@@ -1,11 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
+	"github.com/weekendprojectapp/authful/serverutils"
 	"github.com/weekendprojectapp/authful/users/config"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -35,12 +40,14 @@ func setupRequestHandlers() {
 
 	// Unsecured endpoints
 	openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
+	openR.HandleFunc("/api/v1/account:signin", userSvc.authorizeUser).Methods(http.MethodPost)
+	openR.HandleFunc("/api/v1/account:signup", userSvc.createUser).Methods(http.MethodPost)
 
 	// ------------ UNPROTECTED API ENDPOINTS ------------
 	// User signup/signin services
-	openR.HandleFunc("/api/v1/users", userSvc.getUsers).Methods(http.MethodGet)
-	openR.HandleFunc("/api/v1/users:signin", userSvc.authorizeUser).Methods(http.MethodPost)
-	openR.HandleFunc("/api/v1/users:signup", userSvc.createUser).Methods(http.MethodPost)
+	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
+	secureUserR.HandleFunc("/api/v1/users", userSvc.getUsers).Methods(http.MethodGet)
+	secureUserR.Use(bearerJwtHandler)
 
 	myConfig := config.GetAuthfulConfig()
 
@@ -58,4 +65,83 @@ func dbShutdown() {
 	fmt.Println("shutting down database")
 	db := config.GetDbConnection()
 	db.Close()
+}
+
+func cookieJwtHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		isValid := false
+
+		cookie, err := r.Cookie("userSessionToken")
+		if err != nil {
+			// Redirect
+			isValid = false
+		}
+
+		if isValid {
+			rawToken := cookie.Value
+			isValid, r = processToken(rawToken, r)
+		}
+
+		if !isValid {
+			var loginRedirectUri = url.QueryEscape(r.URL.String())
+			http.Redirect(w, r, "/login?redirect_uri="+loginRedirectUri, http.StatusFound)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func bearerJwtHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		// uh.logger.Debug("validating access token")
+		authHeader := r.Header.Values("Authorization")
+		isValid := false
+
+		if len(authHeader) > 0 {
+			if strings.HasPrefix(authHeader[0], "Bearer ") {
+				parts := strings.Split(authHeader[0], " ")
+				rawToken := parts[1]
+
+				isValid, r = processToken(rawToken, r)
+			}
+		}
+
+		if !isValid {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
+	systemId := ""
+	systemType := ""
+	isValid := false
+
+	var claims serverutils.Claims
+	token, err := jwt.ParseWithClaims(rawToken, &claims, func(t *jwt.Token) (interface{}, error) {
+		localClaim := t.Claims.(*serverutils.Claims)
+		systemId = localClaim.SystemId
+		systemType = localClaim.Type
+		return []byte(config.GetAuthfulConfig().Security.JwtKey), nil
+	})
+
+	if err == nil {
+		if token.Valid {
+			isValid = true
+		}
+	} else {
+		fmt.Println("Error happened: " + err.Error())
+	}
+
+	ctx := context.WithValue(r.Context(), serverutils.ContextKeySystemId, systemId)
+	ctx = context.WithValue(ctx, serverutils.ContextKeySystemType, systemType)
+	r = r.WithContext(ctx)
+
+	return isValid, r
 }

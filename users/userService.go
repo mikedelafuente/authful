@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/weekendprojectapp/authful/serverutils"
-	"github.com/weekendprojectapp/authful/users/config"
 )
 
 type userService struct {
@@ -26,14 +25,17 @@ func (s *userService) authorizeUser(w http.ResponseWriter, r *http.Request) {
 	var userRequest userCredentialsDto
 	json.NewDecoder(r.Body).Decode(&userRequest)
 
-	if s.logic.IsValidUsernamePassword(userRequest.Username, userRequest.Password) {
+	if s.logic.isValidUsernamePassword(r.Context(), userRequest.Username, userRequest.Password) {
 		// Generate a JWT and return it
-		foundUser := s.logic.GetUserByUsername(userRequest.Username)
-
-		tokenString, expirationTime, err := s.logic.ProduceJwtTokenForUser(foundUser.Username, foundUser.Id)
+		foundUser, err := s.logic.getUserByUsername(r.Context(), userRequest.Username)
+		if err != nil {
+			serverutils.HandleError(err, w)
+			return
+		}
+		tokenString, expirationTime, err := s.logic.produceJwtTokenForUser(r.Context(), foundUser.Username, foundUser.Id)
 		if err != nil {
 			// If there is an error in creating the JWT return an internal server error
-			serverutils.HandleError(err)
+			serverutils.HandleError(err, w)
 			return
 		}
 
@@ -48,9 +50,8 @@ func (s *userService) authorizeUser(w http.ResponseWriter, r *http.Request) {
 		t := map[string]interface{}{}
 		t["jwt"] = tokenString
 		t["expires"] = expirationTime
-		b, _ := serverutils.MarshalFormat(t)
 
-		serverutils.HandleResponse(w, b, http.StatusOK)
+		serverutils.ProcessResponse(t, w, http.StatusOK)
 	} else {
 		serverutils.HandleResponse(w, []byte{}, http.StatusUnauthorized)
 	}
@@ -67,9 +68,8 @@ func (s *userService) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	b, _ := json.MarshalIndent(user, config.JsonMarshalPrefix, config.JsonMarshalPrefix)
-	w.Write(b)
+	serverutils.ProcessResponse(user, w, http.StatusOK)
+
 }
 
 func (s *userService) getUsers(w http.ResponseWriter, r *http.Request) {
@@ -79,13 +79,5 @@ func (s *userService) getUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := json.MarshalIndent(users, config.JsonMarshalPrefix, config.JsonMarshalPrefix)
-	if err != nil {
-		// Handle as a server error?
-		serverutils.HandleError(err, w)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(b)
+	serverutils.ProcessResponse(users, w, http.StatusOK)
 }

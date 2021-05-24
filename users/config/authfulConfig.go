@@ -7,7 +7,7 @@ type AuthfulConfig struct {
 }
 
 type SecurityConfig struct {
-	JwtSalt            string `json:"jwt_salt"`
+	JwtKey             string `json:"jwt_key"`
 	PasswordCostFactor int    `json:"password_cost_factor"`
 }
 type WebServerConfig struct {
@@ -22,8 +22,3 @@ type DatabaseServerConfig struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
-
-const (
-	JsonMarshalPrefix = ""
-	JsonMarshalIndent = "  "
-)

@@ -11,7 +11,7 @@
         "password": ""
     },
     "security" : {
-        "jwt_salt": "change_this_to_whatever_you_want_but_make_sure_to_change_it",
+        "jwt_key": "change_this_to_whatever_you_want_but_make_sure_to_change_it",
         "password_cost_factor": 14
     }
 }

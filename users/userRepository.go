@@ -60,6 +60,42 @@ func (d *userRepository) getUserByUsername(ctx context.Context, username string)
 
 }
 
+func (d *userRepository) getUserWithPasswordByUsername(ctx context.Context, username string) (userDto, string, error) {
+	db := config.GetDbConnection()
+	result, err := db.Query("SELECT id, username, create_datetime, update_datetime, password FROM users WHERE username = ? LIMIT 1", username)
+	if err != nil {
+		log.Print(err)
+		return userDto{}, "", err
+	}
+
+	if result.Next() {
+		var user userDto = userDto{}
+		var ntCreate sql.NullTime
+		var ntUpdate sql.NullTime
+		var password string
+
+		err := result.Scan(&user.Id, &user.Username, &ntCreate, &ntUpdate, &password)
+
+		if err != nil {
+			log.Print(err)
+			return userDto{}, "", err
+		}
+
+		if ntCreate.Valid {
+			user.CreateDate = ntCreate.Time
+		}
+
+		if ntUpdate.Valid {
+			user.UpdateDate = ntUpdate.Time
+		}
+
+		return user, password, err
+	} else {
+		return userDto{}, "", nil
+	}
+
+}
+
 func (d *userRepository) getUsers(ctx context.Context) ([]userDto, error) {
 	users := []userDto{}
 
