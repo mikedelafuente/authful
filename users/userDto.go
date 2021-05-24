@@ -9,7 +9,7 @@ type userDto struct {
 	UpdateDate time.Time `json:"update_datetime" db:"update_datetime"`
 }
 
-type userCreateDto struct {
+type userCredentialsDto struct {
 	Username string `json:"username" db:"username"`
 	Password string `json:"password" db:"password"`
 }
