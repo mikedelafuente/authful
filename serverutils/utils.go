@@ -1,7 +1,7 @@
 package serverutils
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 )
 
@@ -12,22 +12,36 @@ func NewServiceError(httpStatusCode int, error_description string) *ServiceError
 	}
 }
 
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
 type ServiceError struct {
 	Description string
 	StatusCode  int
 }
 
 func (e *ServiceError) Error() string {
-	return fmt.Sprintf("%v: %s", e.StatusCode, e.Description)
+	return e.Description
 }
 
 func HandleError(err error, w http.ResponseWriter) {
+	statusCode := http.StatusInternalServerError
+	w.Header().Add("Content-Type", "application/json;charset=UTF-8")
 	if e, ok := err.(*ServiceError); ok {
-		w.WriteHeader(e.StatusCode)
-		w.Write([]byte(e.Description))
-		return
+		statusCode = e.StatusCode
 	}
+	resp := ErrorResponse{Error: err.Error()}
+	b, _ := MarshalFormat(resp)
+	HandleResponse(w, b, statusCode)
+}
 
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte(err.Error()))
+func HandleResponse(w http.ResponseWriter, b []byte, statusCode int) {
+	w.Header().Add("Content-Type", "application/json;charset=UTF-8")
+	w.WriteHeader(statusCode)
+	w.Write(b)
+}
+
+func MarshalFormat(v interface{}) ([]byte, error) {
+	return json.MarshalIndent(v, "", "  ")
 }
