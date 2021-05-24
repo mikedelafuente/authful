@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"weekendprojectapp/authful/users/config"
+	"github.com/weekendprojectapp/authful/users/config"
 
 	"github.com/google/uuid"
 )

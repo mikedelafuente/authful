@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
-	"errors"
+	"net/http"
 	"strings"
 
-	"weekendprojectapp/authful/users/config"
-
-	"weekendprojectapp/serverutilities"
+	"github.com/weekendprojectapp/authful/serverutils"
+	"github.com/weekendprojectapp/authful/users/config"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -25,17 +24,17 @@ func newUserLogic() *userLogic {
 
 func (l *userLogic) createUser(ctx context.Context, username string, password string) (userDto, error) {
 	if strings.TrimSpace(username) == "" {
-		return userDto{}, errors.New("username cannot be blank")
+		return userDto{}, serverutils.NewServiceError(http.StatusBadRequest, "username cannot be blank")
 	}
 
 	if strings.TrimSpace(password) == "" {
-		return userDto{}, serverutilities.NewServiceError(300, "test")
+		return userDto{}, serverutils.NewServiceError(http.StatusBadRequest, "password cannot be blank")
 	}
 
 	username = strings.ToLower(username)
 
 	if !l.isUniqueUsername(ctx, username) {
-		return userDto{}, errors.New("username is not valid")
+		return userDto{}, serverutils.NewServiceError(http.StatusBadRequest, "username is not valid")
 	}
 
 	// bcrypt the password

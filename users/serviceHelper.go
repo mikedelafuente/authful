@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"weekendprojectapp/authful/users/config"
+	"github.com/weekendprojectapp/authful/users/config"
 )
 
 func handleResponse(w http.ResponseWriter, b []byte, statusCode int) {

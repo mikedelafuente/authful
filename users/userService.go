@@ -2,10 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
-	"weekendprojectapp/authful/users/config"
+	"github.com/weekendprojectapp/authful/serverutils"
+	"github.com/weekendprojectapp/authful/users/config"
 )
 
 type userService struct {
@@ -34,7 +34,7 @@ func (s *userService) createUser(w http.ResponseWriter, r *http.Request) {
 	// Make sure the username is unique
 	user, err := s.logic.createUser(r.Context(), userRequest.Username, userRequest.Password)
 	if err != nil {
-		log.Print(err)
+		serverutils.HandleError(err, w)
 		return
 	}
 
@@ -46,15 +46,14 @@ func (s *userService) createUser(w http.ResponseWriter, r *http.Request) {
 func (s *userService) getUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := s.logic.getUsers(r.Context())
 	if err != nil {
-		// Handle as a server error?
-		log.Print(err)
+		serverutils.HandleError(err, w)
 		return
 	}
 
 	b, err := json.MarshalIndent(users, config.JsonMarshalPrefix, config.JsonMarshalPrefix)
 	if err != nil {
 		// Handle as a server error?
-		log.Print(err)
+		serverutils.HandleError(err, w)
 		return
 	}
 

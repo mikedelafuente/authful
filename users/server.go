@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"weekendprojectapp/authful/users/config"
+	"github.com/weekendprojectapp/authful/users/config"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
