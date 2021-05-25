@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/weekendprojectapp/authful/servertools"
-	"github.com/weekendprojectapp/authful/signin/internal/config"
-	"github.com/weekendprojectapp/authful/signin/internal/web"
+	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/signin/internal/config"
+	"github.com/mikedelafuente/authful/signin/internal/web"
 
 	"github.com/gorilla/mux"
 )
@@ -32,22 +32,23 @@ func main() {
 }
 
 func setupRequestHandlers() {
-
 	// Unsecured endpoints
-	openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
+	openR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
 	openR.HandleFunc("/login", web.DisplayLogin).Methods(http.MethodGet)
 	openR.HandleFunc("/login", web.AuthorizeUser).Methods(http.MethodPost)
-	openR.HandleFunc("/", web.Index).Methods(http.MethodGet)
-	fileServer := http.FileServer(http.Dir("./Static"))
-	openR.PathPrefix("/").Handler(http.StripPrefix("/resources", fileServer))
-
-	// openR.Handle("/resources/", http.StripPrefix("/resources", fileServer))
-	// openR.HandleFunc("/", renderTemplate)
 
 	// User signup/signin services
 	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
+	secureUserR.HandleFunc("/", web.Index).Methods(http.MethodGet)
 	secureUserR.HandleFunc("/profile", web.GetProfile).Methods(http.MethodGet)
 	secureUserR.Use(cookieJwtHandler)
+
+	fileR := myRouter.Methods(http.MethodGet).Subrouter()
+	fileServer := http.FileServer(http.Dir("./Static"))
+	fileR.PathPrefix("/").Handler(http.StripPrefix("/resources", fileServer))
+
+	// openR.Handle("/resources/", http.StripPrefix("/resources", fileServer))
+	// openR.HandleFunc("/", renderTemplate)
 
 	myConfig := config.GetConfig()
 

@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/weekendprojectapp/authful/servertools"
-	"github.com/weekendprojectapp/authful/signin/internal/service"
+	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/signin/internal/service"
 )
 
 type Student struct {

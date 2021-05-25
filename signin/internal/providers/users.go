@@ -8,9 +8,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/weekendprojectapp/authful/servertools"
-	"github.com/weekendprojectapp/authful/signin/internal/config"
-	"github.com/weekendprojectapp/authful/signin/pkg/models"
+	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/signin/internal/config"
+	"github.com/mikedelafuente/authful/signin/pkg/models"
 )
 
 func IsValidUsernamePassword(ctx context.Context, username string, password string) (bool, models.SigninJwt, error) {

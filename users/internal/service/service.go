@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/weekendprojectapp/authful/servertools"
-	"github.com/weekendprojectapp/authful/users/internal/config"
-	"github.com/weekendprojectapp/authful/users/internal/repo"
-	"github.com/weekendprojectapp/authful/users/pkg/models"
+	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/users/internal/config"
+	"github.com/mikedelafuente/authful/users/internal/repo"
+	"github.com/mikedelafuente/authful/users/pkg/models"
 
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"

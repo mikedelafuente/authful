@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/weekendprojectapp/authful/users/internal/config"
-	"github.com/weekendprojectapp/authful/users/pkg/models"
+	"github.com/mikedelafuente/authful/users/internal/config"
+	"github.com/mikedelafuente/authful/users/pkg/models"
 
 	"github.com/google/uuid"
 )

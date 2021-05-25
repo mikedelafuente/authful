@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/weekendprojectapp/authful/servertools"
-	"github.com/weekendprojectapp/authful/users/internal/config"
-	"github.com/weekendprojectapp/authful/users/internal/rest"
+	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/users/internal/config"
+	"github.com/mikedelafuente/authful/users/internal/rest"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"

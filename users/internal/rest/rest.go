@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/weekendprojectapp/authful/servertools"
-	"github.com/weekendprojectapp/authful/users/internal/service"
-	"github.com/weekendprojectapp/authful/users/pkg/models"
+	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/users/internal/service"
+	"github.com/mikedelafuente/authful/users/pkg/models"
 )
 
 func AccountSigninPost(w http.ResponseWriter, r *http.Request) {
