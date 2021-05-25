@@ -1,13 +1,13 @@
 package web
 
 import (
-	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 
 	"github.com/weekendprojectapp/authful/servertools"
-	"github.com/weekendprojectapp/authful/signin/pkg/models"
+	"github.com/weekendprojectapp/authful/signin/internal/service"
 )
 
 type Student struct {
@@ -26,10 +26,23 @@ func DisplayLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func AuthorizeUser(w http.ResponseWriter, r *http.Request) {
-	var loginRequest models.SigninCredentials
-	json.NewDecoder(r.Body).Decode(&loginRequest)
+	//redirectUri := r.FormValue("redirect_uri")
 
-	servertools.HandleResponse(w, []byte{}, http.StatusUnauthorized)
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
+	fmt.Println("Authorizing user")
+	validLogin, jwt, err := service.IsValidUsernamePassword(r.Context(), username, password)
+	if err != nil {
+		servertools.HandleError(err, w)
+		return
+	}
+
+	if validLogin {
+		servertools.ProcessResponse(jwt, w, http.StatusOK)
+	} else {
+		servertools.HandleResponse(w, []byte("bad credentials"), http.StatusUnauthorized)
+	}
 
 }
 

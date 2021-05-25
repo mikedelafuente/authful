@@ -40,3 +40,8 @@ func ProcessResponse(v interface{}, w http.ResponseWriter, statusCode int) {
 
 	HandleResponse(w, b, statusCode)
 }
+
+// Validates that the response code is a 2xx
+func IsOkResponse(resp *http.Response) bool {
+	return resp.StatusCode >= 200 && resp.StatusCode < 300
+}
