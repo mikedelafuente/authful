@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"net/url"
@@ -32,33 +31,13 @@ func main() {
 	setupRequestHandlers()
 }
 
-type Student struct {
-	Name       string
-	College    string
-	RollNumber int
-}
-
-func renderTemplate(w http.ResponseWriter, r *http.Request) {
-	student := Student{
-		Name:       "GB",
-		College:    "GolangBlogs",
-		RollNumber: 1,
-	}
-	parsedTemplate, _ := template.ParseFiles("Template/index.html")
-	err := parsedTemplate.Execute(w, student)
-	if err != nil {
-		log.Println("Error executing template :", err)
-		return
-	}
-}
-
 func setupRequestHandlers() {
 
 	// Unsecured endpoints
 	openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
 	openR.HandleFunc("/login", web.DisplayLogin).Methods(http.MethodGet)
 	openR.HandleFunc("/login", web.AuthorizeUser).Methods(http.MethodPost)
-	openR.HandleFunc("/blah", renderTemplate).Methods(http.MethodGet)
+	openR.HandleFunc("/", web.Index).Methods(http.MethodGet)
 	fileServer := http.FileServer(http.Dir("./Static"))
 	openR.PathPrefix("/").Handler(http.StripPrefix("/resources", fileServer))
 
