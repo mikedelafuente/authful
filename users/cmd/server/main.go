@@ -12,7 +12,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/weekendprojectapp/authful/server"
 	"github.com/weekendprojectapp/authful/users/internal/config"
-	"github.com/weekendprojectapp/authful/users/internal/users/rest"
+	"github.com/weekendprojectapp/authful/users/internal/rest"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"

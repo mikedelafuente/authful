@@ -8,7 +8,7 @@ import (
 
 	"github.com/weekendprojectapp/authful/server"
 	"github.com/weekendprojectapp/authful/users/internal/config"
-	"github.com/weekendprojectapp/authful/users/internal/users/repo"
+	"github.com/weekendprojectapp/authful/users/internal/repo"
 	"github.com/weekendprojectapp/authful/users/pkg/models"
 
 	"github.com/dgrijalva/jwt-go"

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/weekendprojectapp/authful/server"
-	"github.com/weekendprojectapp/authful/users/internal/users/service"
+	"github.com/weekendprojectapp/authful/users/internal/service"
 	"github.com/weekendprojectapp/authful/users/pkg/models"
 )
 
