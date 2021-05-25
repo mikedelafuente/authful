@@ -1,4 +1,4 @@
-package serverutils
+package server
 
 func NewServiceError(httpStatusCode int, error_description string) *ServiceError {
 	return &ServiceError{

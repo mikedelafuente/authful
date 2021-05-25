@@ -1,4 +1,4 @@
-package serverutils
+package server
 
 import (
 	"fmt"
