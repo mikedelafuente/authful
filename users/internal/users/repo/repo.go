@@ -14,14 +14,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type User struct{}
+// type User struct{}
 
-func New() *User {
-	d := User{}
-	return &d
-}
+// func New() *User {
+// 	d := User{}
+// 	return &d
+// }
 
-func (d *User) CreateUser(ctx context.Context, username string, password string) (models.User, error) {
+func CreateUser(ctx context.Context, username string, password string) (models.User, error) {
 	db := config.GetDbConnection()
 	id := uuid.New().String()
 	currentTime := time.Now().UTC()
@@ -45,7 +45,7 @@ func (d *User) CreateUser(ctx context.Context, username string, password string)
 
 	return newUser, nil
 }
-func (d *User) GetUserByUsername(ctx context.Context, username string) (models.User, error) {
+func GetUserByUsername(ctx context.Context, username string) (models.User, error) {
 	db := config.GetDbConnection()
 	result, err := db.Query("SELECT id, username, create_datetime, update_datetime FROM users WHERE username = ? LIMIT 1", username)
 	if err != nil {
@@ -61,7 +61,7 @@ func (d *User) GetUserByUsername(ctx context.Context, username string) (models.U
 
 }
 
-func (d *User) GetUserWithPasswordByUsername(ctx context.Context, username string) (models.User, string, error) {
+func GetUserWithPasswordByUsername(ctx context.Context, username string) (models.User, string, error) {
 	db := config.GetDbConnection()
 	result, err := db.Query("SELECT id, username, create_datetime, update_datetime, password FROM users WHERE username = ? LIMIT 1", username)
 	if err != nil {
@@ -97,7 +97,7 @@ func (d *User) GetUserWithPasswordByUsername(ctx context.Context, username strin
 
 }
 
-func (d *User) GetUsers(ctx context.Context) ([]models.User, error) {
+func GetUsers(ctx context.Context) ([]models.User, error) {
 	users := []models.User{}
 
 	db := config.GetDbConnection()

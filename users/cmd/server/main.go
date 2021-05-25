@@ -19,7 +19,6 @@ import (
 )
 
 var myRouter = mux.NewRouter().StrictSlash(true)
-var userRest *rest.User
 var startTime time.Time
 
 func init() {
@@ -30,8 +29,6 @@ func init() {
 }
 
 func main() {
-	userRest = rest.New()
-
 	myConfig := config.GetConfig()
 	fmt.Printf("\n\nAuthful: User Server running at %s:%v\n\n", myConfig.WebServer.Address, myConfig.WebServer.Port)
 	setupRequestHandlers()
@@ -41,13 +38,13 @@ func setupRequestHandlers() {
 
 	// Unsecured endpoints
 	openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
-	openR.HandleFunc("/api/v1/account:signin", userRest.AccountSigninPost).Methods(http.MethodPost)
-	openR.HandleFunc("/api/v1/account:signup", userRest.AccountSignupPost).Methods(http.MethodPost)
+	openR.HandleFunc("/api/v1/account:signin", rest.AccountSigninPost).Methods(http.MethodPost)
+	openR.HandleFunc("/api/v1/account:signup", rest.AccountSignupPost).Methods(http.MethodPost)
 
 	// ------------ UNPROTECTED API ENDPOINTS ------------
 	// User signup/signin services
 	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
-	secureUserR.HandleFunc("/api/v1/users", userRest.UsersGet).Methods(http.MethodGet)
+	secureUserR.HandleFunc("/api/v1/users", rest.UsersGet).Methods(http.MethodGet)
 	secureUserR.Use(bearerJwtHandler)
 
 	myConfig := config.GetConfig()

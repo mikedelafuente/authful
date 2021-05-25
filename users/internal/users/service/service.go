@@ -8,25 +8,14 @@ import (
 
 	"github.com/weekendprojectapp/authful/serverutils"
 	"github.com/weekendprojectapp/authful/users/internal/config"
-	repo "github.com/weekendprojectapp/authful/users/internal/users/repo"
+	"github.com/weekendprojectapp/authful/users/internal/users/repo"
 	"github.com/weekendprojectapp/authful/users/pkg/models"
 
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type User struct {
-	repo repo.User
-}
-
-func New() *User {
-	d := User{
-		repo: *repo.New(),
-	}
-	return &d
-}
-
-func (l *User) CreateUser(ctx context.Context, username string, password string) (models.User, error) {
+func CreateUser(ctx context.Context, username string, password string) (models.User, error) {
 	if strings.TrimSpace(username) == "" {
 		return models.User{}, serverutils.NewServiceError(http.StatusBadRequest, "username cannot be blank")
 	}
@@ -37,7 +26,7 @@ func (l *User) CreateUser(ctx context.Context, username string, password string)
 
 	username = strings.ToLower(username)
 
-	if !l.IsUniqueUsername(ctx, username) {
+	if !IsUniqueUsername(ctx, username) {
 		return models.User{}, serverutils.NewServiceError(http.StatusBadRequest, "username is not valid")
 	}
 
@@ -47,23 +36,23 @@ func (l *User) CreateUser(ctx context.Context, username string, password string)
 		return models.User{}, err
 	}
 
-	return l.repo.CreateUser(ctx, username, string(passwordBytes))
+	return repo.CreateUser(ctx, username, string(passwordBytes))
 }
 
-func (l *User) GetUserByUsername(ctx context.Context, username string) (models.User, error) {
+func GetUserByUsername(ctx context.Context, username string) (models.User, error) {
 	if strings.TrimSpace(username) == "" {
 		return models.User{}, serverutils.NewServiceError(http.StatusBadRequest, "username cannot be blank")
 	}
 
-	return l.repo.GetUserByUsername(ctx, username)
+	return repo.GetUserByUsername(ctx, username)
 }
 
-func (l *User) GetUsers(ctx context.Context) ([]models.User, error) {
-	return l.repo.GetUsers(ctx)
+func GetUsers(ctx context.Context) ([]models.User, error) {
+	return repo.GetUsers(ctx)
 }
 
 // Produces a JWT token for the user. Returns the token, the expiration time (UTC) and any error
-func (l *User) ProduceJwtTokenForUser(ctx context.Context, username string, userId string) (string, time.Time, error) {
+func ProduceJwtTokenForUser(ctx context.Context, username string, userId string) (string, time.Time, error) {
 	// Declare the expiration time of the token
 	// here, we have kept it as 5 minutes
 	expirationTime := time.Now().UTC().Add(30 * time.Minute)
@@ -87,8 +76,8 @@ func (l *User) ProduceJwtTokenForUser(ctx context.Context, username string, user
 	return tokenString, expirationTime, err
 }
 
-func (l *User) IsUniqueUsername(ctx context.Context, username string) bool {
-	user, err := l.repo.GetUserByUsername(ctx, username)
+func IsUniqueUsername(ctx context.Context, username string) bool {
+	user, err := repo.GetUserByUsername(ctx, username)
 	if err != nil {
 		return false
 	}
@@ -97,8 +86,8 @@ func (l *User) IsUniqueUsername(ctx context.Context, username string) bool {
 	return !strings.EqualFold(user.Username, username)
 }
 
-func (l *User) IsValidUsernamePassword(ctx context.Context, username string, password string) bool {
-	user, bcryptPassword, err := l.repo.GetUserWithPasswordByUsername(ctx, username)
+func IsValidUsernamePassword(ctx context.Context, username string, password string) bool {
+	user, bcryptPassword, err := repo.GetUserWithPasswordByUsername(ctx, username)
 	if err != nil {
 		return false
 	}
