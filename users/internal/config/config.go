@@ -1,6 +1,6 @@
 package config
 
-type AuthfulConfig struct {
+type UserServerConfig struct {
 	WebServer      WebServerConfig      `json:"web_server"`
 	DatabaseServer DatabaseServerConfig `json:"database_server"`
 	Security       SecurityConfig       `json:"security"`

@@ -1,4 +1,4 @@
-package serverutils
+package servertools
 
 import (
 	"github.com/dgrijalva/jwt-go"

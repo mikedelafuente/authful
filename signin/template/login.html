@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/resources/css/style.css">
+    <title>Go Template</title>
+</head>
+
+<body>
+    {{ if .FailedLogin }}
+    <span class="error">{{  .ErrorMessage }}</span><br /><br />
+    {{ end }}
+    <form method="post" id="loginForm" role="form" data-qa="login-form">
+        <h2>Login</h2>
+        Username:<br />
+        <input type="text" name="username" data-qa="login-username" value="{{ .Username }}" /><br /><br />
+        Password:<br />
+        <input type="password" name="password" data-qa="login-password" /><br /><br />
+        <button id="btn-login" type="submit" data-qa="login-button">Log In</button>
+    </form>
+</body>
+</html>

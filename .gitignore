@@ -24,3 +24,4 @@ vendor/
 
 # Local History for Visual Studio Code
 .history/
+.DS_Store

@@ -10,28 +10,26 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/weekendprojectapp/authful/serverutils"
-	"github.com/weekendprojectapp/authful/users/config"
+	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/users/internal/config"
+	"github.com/mikedelafuente/authful/users/internal/rest"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 )
 
 var myRouter = mux.NewRouter().StrictSlash(true)
-var userSvc *userService
 var startTime time.Time
 
 func init() {
 	startTime = time.Now()
 	fmt.Printf("Process started at %s\n", startTime)
-	config.GetAuthfulConfig() // just attempt to get the config at startup
-	config.GetDbConnection()  // just attempt to connect to the database at startup
+	config.GetConfig()       // just attempt to get the config at startup
+	config.GetDbConnection() // just attempt to connect to the database at startup
 }
 
 func main() {
-	userSvc = newUserService()
-
-	myConfig := config.GetAuthfulConfig()
+	myConfig := config.GetConfig()
 	fmt.Printf("\n\nAuthful: User Server running at %s:%v\n\n", myConfig.WebServer.Address, myConfig.WebServer.Port)
 	setupRequestHandlers()
 }
@@ -40,16 +38,16 @@ func setupRequestHandlers() {
 
 	// Unsecured endpoints
 	openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
-	openR.HandleFunc("/api/v1/account:signin", userSvc.authorizeUser).Methods(http.MethodPost)
-	openR.HandleFunc("/api/v1/account:signup", userSvc.createUser).Methods(http.MethodPost)
+	openR.HandleFunc("/api/v1/account:signin", rest.AccountSigninPost).Methods(http.MethodPost)
+	openR.HandleFunc("/api/v1/account:signup", rest.AccountSignupPost).Methods(http.MethodPost)
 
 	// ------------ UNPROTECTED API ENDPOINTS ------------
 	// User signup/signin services
 	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
-	secureUserR.HandleFunc("/api/v1/users", userSvc.getUsers).Methods(http.MethodGet)
+	secureUserR.HandleFunc("/api/v1/users", rest.UsersGet).Methods(http.MethodGet)
 	secureUserR.Use(bearerJwtHandler)
 
-	myConfig := config.GetAuthfulConfig()
+	myConfig := config.GetConfig()
 
 	defer dbShutdown()
 	err := http.ListenAndServe(fmt.Sprintf("%s:%v", myConfig.WebServer.Address, myConfig.WebServer.Port), myRouter)
@@ -123,12 +121,12 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 	systemType := ""
 	isValid := false
 
-	var claims serverutils.Claims
+	var claims servertools.Claims
 	token, err := jwt.ParseWithClaims(rawToken, &claims, func(t *jwt.Token) (interface{}, error) {
-		localClaim := t.Claims.(*serverutils.Claims)
+		localClaim := t.Claims.(*servertools.Claims)
 		systemId = localClaim.SystemId
 		systemType = localClaim.Type
-		return []byte(config.GetAuthfulConfig().Security.JwtKey), nil
+		return []byte(config.GetConfig().Security.JwtKey), nil
 	})
 
 	if err == nil {
@@ -139,8 +137,8 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 		fmt.Println("Error happened: " + err.Error())
 	}
 
-	ctx := context.WithValue(r.Context(), serverutils.ContextKeySystemId, systemId)
-	ctx = context.WithValue(ctx, serverutils.ContextKeySystemType, systemType)
+	ctx := context.WithValue(r.Context(), servertools.ContextKeySystemId, systemId)
+	ctx = context.WithValue(ctx, servertools.ContextKeySystemType, systemType)
 	r = r.WithContext(ctx)
 
 	return isValid, r
