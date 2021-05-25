@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/weekendprojectapp/authful/server"
+	srvr "github.com/weekendprojectapp/authful/server"
 	"github.com/weekendprojectapp/authful/signin/internal/config"
 	"github.com/weekendprojectapp/authful/signin/internal/web"
 
@@ -31,12 +32,38 @@ func main() {
 	setupRequestHandlers()
 }
 
+type Student struct {
+	Name       string
+	College    string
+	RollNumber int
+}
+
+func renderTemplate(w http.ResponseWriter, r *http.Request) {
+	student := Student{
+		Name:       "GB",
+		College:    "GolangBlogs",
+		RollNumber: 1,
+	}
+	parsedTemplate, _ := template.ParseFiles("Template/index.html")
+	err := parsedTemplate.Execute(w, student)
+	if err != nil {
+		log.Println("Error executing template :", err)
+		return
+	}
+}
+
 func setupRequestHandlers() {
 
 	// Unsecured endpoints
 	openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
 	openR.HandleFunc("/login", web.DisplayLogin).Methods(http.MethodGet)
 	openR.HandleFunc("/login", web.AuthorizeUser).Methods(http.MethodPost)
+	openR.HandleFunc("/blah", renderTemplate).Methods(http.MethodGet)
+	fileServer := http.FileServer(http.Dir("./Static"))
+	openR.PathPrefix("/").Handler(http.StripPrefix("/resources", fileServer))
+
+	// openR.Handle("/resources/", http.StripPrefix("/resources", fileServer))
+	// openR.HandleFunc("/", renderTemplate)
 
 	// User signup/signin services
 	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
@@ -85,9 +112,9 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 	systemType := ""
 	isValid := false
 
-	var claims server.Claims
+	var claims srvr.Claims
 	token, err := jwt.ParseWithClaims(rawToken, &claims, func(t *jwt.Token) (interface{}, error) {
-		localClaim := t.Claims.(*server.Claims)
+		localClaim := t.Claims.(*srvr.Claims)
 		systemId = localClaim.SystemId
 		systemType = localClaim.Type
 		return []byte(config.GetConfig().Security.JwtKey), nil
@@ -101,8 +128,8 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 		fmt.Println("Error happened: " + err.Error())
 	}
 
-	ctx := context.WithValue(r.Context(), server.ContextKeySystemId, systemId)
-	ctx = context.WithValue(ctx, server.ContextKeySystemType, systemType)
+	ctx := context.WithValue(r.Context(), srvr.ContextKeySystemId, systemId)
+	ctx = context.WithValue(ctx, srvr.ContextKeySystemType, systemType)
 	r = r.WithContext(ctx)
 
 	return isValid, r
