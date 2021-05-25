@@ -64,7 +64,7 @@ func setupRequestHandlers() {
 func cookieJwtHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		isValid := false
+		isValid := true
 
 		cookie, err := r.Cookie("userSessionToken")
 		if err != nil {
