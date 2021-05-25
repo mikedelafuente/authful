@@ -2,7 +2,7 @@ package config
 
 type ServerConfig struct {
 	WebServer WebServerConfig `json:"web_server"`
-	Services  ServicesConfig  `json:"services"`
+	Providers ProvidersConfig `json:"providers"`
 	Security  SecurityConfig  `json:"security"`
 }
 
@@ -15,7 +15,7 @@ type WebServerConfig struct {
 	Port    string `json:"server_port"`
 }
 
-type ServicesConfig struct {
+type ProvidersConfig struct {
 	UserServerUri      string `json:"user_server_uri"`
 	DeveloperServerUri string `json:"developer_server_uri"`
 }

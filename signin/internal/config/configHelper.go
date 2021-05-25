@@ -46,7 +46,7 @@ func getConfigInstance() (*ServerConfig, error) {
 		return nil, errors.New("empty web server address")
 	}
 
-	if myConfig.Services.UserServerUri == "" {
+	if myConfig.Providers.UserServerUri == "" {
 		return nil, errors.New("empty user service uri")
 	}
 
