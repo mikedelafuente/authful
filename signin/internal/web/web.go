@@ -1,10 +1,10 @@
 package web
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/weekendprojectapp/authful/servertools"
 	"github.com/weekendprojectapp/authful/signin/internal/service"
@@ -16,9 +16,21 @@ type Student struct {
 	RollNumber int
 }
 
+type loginBag struct {
+	ErrorMessage string
+	Username     string
+	FailedLogin  bool
+}
+
 func DisplayLogin(w http.ResponseWriter, r *http.Request) {
+	bag := loginBag{
+		ErrorMessage: "",
+		Username:     "",
+		FailedLogin:  false,
+	}
+
 	parsedTemplate, _ := template.ParseFiles("template/login.html")
-	err := parsedTemplate.Execute(w, nil)
+	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
 		log.Println("Error executing template :", err)
 		return
@@ -26,22 +38,45 @@ func DisplayLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func AuthorizeUser(w http.ResponseWriter, r *http.Request) {
-	//redirectUri := r.FormValue("redirect_uri")
+	redirectUri := r.FormValue("redirect_uri")
 
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	fmt.Println("Authorizing user")
+	bag := loginBag{
+		ErrorMessage: "",
+		Username:     username,
+		FailedLogin:  false,
+	}
+
 	validLogin, jwt, err := service.IsValidUsernamePassword(r.Context(), username, password)
 	if err != nil {
-		servertools.HandleError(err, w)
-		return
+		bag.ErrorMessage = err.Error()
 	}
 
 	if validLogin {
-		servertools.ProcessResponse(jwt, w, http.StatusOK)
-	} else {
-		servertools.HandleResponse(w, []byte("bad credentials"), http.StatusUnauthorized)
+		http.SetCookie(w, &http.Cookie{
+			Name:    "userSessionToken",
+			Value:   jwt.Jwt,
+			Expires: jwt.Expires,
+		})
+
+		if len(redirectUri) > 0 {
+			redirectUri, _ = url.QueryUnescape(redirectUri)
+			http.Redirect(w, r, redirectUri, http.StatusFound)
+		} else {
+			http.Redirect(w, r, "/", http.StatusFound)
+		}
+		return
+	}
+
+	bag.Username = username
+	bag.FailedLogin = true
+	parsedTemplate, _ := template.ParseFiles("template/login.html")
+	err = parsedTemplate.Execute(w, bag)
+	if err != nil {
+		log.Println("Error executing template :", err)
+		return
 	}
 
 }
