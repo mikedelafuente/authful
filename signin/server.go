@@ -13,23 +13,21 @@ import (
 	"github.com/weekendprojectapp/authful/serverutils"
 	"github.com/weekendprojectapp/authful/users/config"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 )
 
 var myRouter = mux.NewRouter().StrictSlash(true)
-var userSvc *userService
+var authSvc *authService
 var startTime time.Time
 
 func init() {
 	startTime = time.Now()
 	fmt.Printf("Process started at %s\n", startTime)
 	config.GetAuthfulConfig() // just attempt to get the config at startup
-	config.GetDbConnection()  // just attempt to connect to the database at startup
 }
 
 func main() {
-	userSvc = newUserService()
+	authSvc = newAuthService()
 
 	myConfig := config.GetAuthfulConfig()
 	fmt.Printf("\n\nAuthful: User Server running at %s:%v\n\n", myConfig.WebServer.Address, myConfig.WebServer.Port)
@@ -40,18 +38,16 @@ func setupRequestHandlers() {
 
 	// Unsecured endpoints
 	openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
-	openR.HandleFunc("/api/v1/account:signin", userSvc.authorizeUser).Methods(http.MethodPost)
-	openR.HandleFunc("/api/v1/account:signup", userSvc.createUser).Methods(http.MethodPost)
+	openR.HandleFunc("/login", authSvc.loginGet).Methods(http.MethodGet)
+	openR.HandleFunc("/login", authSvc.loginPost).Methods(http.MethodPost)
 
-	// ------------ UNPROTECTED API ENDPOINTS ------------
 	// User signup/signin services
 	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
-	secureUserR.HandleFunc("/api/v1/users", userSvc.getUsers).Methods(http.MethodGet)
+	secureUserR.HandleFunc("/api/v1/users", authSvc.usersGet).Methods(http.MethodGet)
 	secureUserR.Use(bearerJwtHandler)
 
 	myConfig := config.GetAuthfulConfig()
 
-	defer dbShutdown()
 	err := http.ListenAndServe(fmt.Sprintf("%s:%v", myConfig.WebServer.Address, myConfig.WebServer.Port), myRouter)
 	endTime := time.Now()
 	fmt.Printf("Process stopped at %s\n", endTime)
@@ -59,12 +55,6 @@ func setupRequestHandlers() {
 	fmt.Printf("Server uptime was: %s", elapsed)
 	log.Fatal(err)
 
-}
-
-func dbShutdown() {
-	fmt.Println("shutting down database")
-	db := config.GetDbConnection()
-	db.Close()
 }
 
 func cookieJwtHandler(next http.Handler) http.Handler {

@@ -11,15 +11,15 @@ import (
 )
 
 var configOnce sync.Once
-var configInstance *AuthfulConfig
+var configInstance *UserServerConfig
 
 var dbOnce sync.Once
 var dbInstance *sql.DB
 
-func GetAuthfulConfig() *AuthfulConfig {
+func GetConfig() *UserServerConfig {
 	configOnce.Do(func() {
 		var err error
-		configInstance, err = getAuthfulConfigInstance()
+		configInstance, err = getConfigInstance()
 		if err != nil {
 			panic(err)
 		}
@@ -28,7 +28,7 @@ func GetAuthfulConfig() *AuthfulConfig {
 	return configInstance
 }
 
-func getAuthfulConfigInstance() (*AuthfulConfig, error) {
+func getConfigInstance() (*UserServerConfig, error) {
 	var err error
 
 	currDir, _ := os.Getwd()
@@ -39,7 +39,7 @@ func getAuthfulConfigInstance() (*AuthfulConfig, error) {
 		return nil, err
 	}
 
-	var myConfig *AuthfulConfig = &AuthfulConfig{}
+	var myConfig *UserServerConfig = &UserServerConfig{}
 	err = json.Unmarshal(f, &myConfig)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func getAuthfulConfigInstance() (*AuthfulConfig, error) {
 
 func getDbConnectionInstance() (*sql.DB, error) {
 
-	config := GetAuthfulConfig()
+	config := GetConfig()
 	fmt.Printf("Instantiating database connection to %s:%s \n", config.DatabaseServer.Address, config.DatabaseServer.Port)
 	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/authful_users?parseTime=true", config.DatabaseServer.Username, config.DatabaseServer.Password, config.DatabaseServer.Address, config.DatabaseServer.Port))
 

@@ -1,4 +1,4 @@
-package main
+package repo
 
 import (
 	"context"
@@ -8,19 +8,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/weekendprojectapp/authful/users/config"
+	"github.com/weekendprojectapp/authful/users/internal/config"
+	"github.com/weekendprojectapp/authful/users/pkg/models"
 
 	"github.com/google/uuid"
 )
 
-type userRepository struct{}
+type User struct{}
 
-func newUserRepository() *userRepository {
-	d := userRepository{}
+func New() *User {
+	d := User{}
 	return &d
 }
 
-func (d *userRepository) createUser(ctx context.Context, username string, password string) (userDto, error) {
+func (d *User) CreateUser(ctx context.Context, username string, password string) (models.User, error) {
 	db := config.GetDbConnection()
 	id := uuid.New().String()
 	currentTime := time.Now().UTC()
@@ -28,14 +29,14 @@ func (d *userRepository) createUser(ctx context.Context, username string, passwo
 
 	result, err := db.Exec("INSERT INTO users (id, username, password, create_datetime, update_datetime) VALUES (?, ?, ?, ?, ?)", id, username, password, currentTime, currentTime)
 	if err != nil {
-		return userDto{}, err
+		return models.User{}, err
 	}
 
 	if rows, _ := result.RowsAffected(); rows == 0 {
-		return userDto{}, errors.New("failed to create a new user")
+		return models.User{}, errors.New("failed to create a new user")
 	}
 
-	newUser := userDto{
+	newUser := models.User{
 		Id:         id,
 		Username:   username,
 		CreateDate: currentTime,
@@ -44,32 +45,32 @@ func (d *userRepository) createUser(ctx context.Context, username string, passwo
 
 	return newUser, nil
 }
-func (d *userRepository) getUserByUsername(ctx context.Context, username string) (userDto, error) {
+func (d *User) GetUserByUsername(ctx context.Context, username string) (models.User, error) {
 	db := config.GetDbConnection()
 	result, err := db.Query("SELECT id, username, create_datetime, update_datetime FROM users WHERE username = ? LIMIT 1", username)
 	if err != nil {
 		log.Print(err)
-		return userDto{}, err
+		return models.User{}, err
 	}
 
 	if result.Next() {
 		return mapResultToUser(result)
 	} else {
-		return userDto{}, nil
+		return models.User{}, nil
 	}
 
 }
 
-func (d *userRepository) getUserWithPasswordByUsername(ctx context.Context, username string) (userDto, string, error) {
+func (d *User) GetUserWithPasswordByUsername(ctx context.Context, username string) (models.User, string, error) {
 	db := config.GetDbConnection()
 	result, err := db.Query("SELECT id, username, create_datetime, update_datetime, password FROM users WHERE username = ? LIMIT 1", username)
 	if err != nil {
 		log.Print(err)
-		return userDto{}, "", err
+		return models.User{}, "", err
 	}
 
 	if result.Next() {
-		var user userDto = userDto{}
+		var user models.User = models.User{}
 		var ntCreate sql.NullTime
 		var ntUpdate sql.NullTime
 		var password string
@@ -78,7 +79,7 @@ func (d *userRepository) getUserWithPasswordByUsername(ctx context.Context, user
 
 		if err != nil {
 			log.Print(err)
-			return userDto{}, "", err
+			return models.User{}, "", err
 		}
 
 		if ntCreate.Valid {
@@ -91,13 +92,13 @@ func (d *userRepository) getUserWithPasswordByUsername(ctx context.Context, user
 
 		return user, password, err
 	} else {
-		return userDto{}, "", nil
+		return models.User{}, "", nil
 	}
 
 }
 
-func (d *userRepository) getUsers(ctx context.Context) ([]userDto, error) {
-	users := []userDto{}
+func (d *User) GetUsers(ctx context.Context) ([]models.User, error) {
+	users := []models.User{}
 
 	db := config.GetDbConnection()
 
@@ -120,9 +121,9 @@ func (d *userRepository) getUsers(ctx context.Context) ([]userDto, error) {
 	return users, nil
 }
 
-func mapResultToUser(result *sql.Rows) (userDto, error) {
+func mapResultToUser(result *sql.Rows) (models.User, error) {
 
-	var user userDto = userDto{}
+	var user models.User = models.User{}
 	var ntCreate sql.NullTime
 	var ntUpdate sql.NullTime
 
@@ -130,7 +131,7 @@ func mapResultToUser(result *sql.Rows) (userDto, error) {
 
 	if err != nil {
 		log.Print(err)
-		return userDto{}, err
+		return models.User{}, err
 	}
 
 	if ntCreate.Valid {

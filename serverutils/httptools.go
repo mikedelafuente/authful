@@ -5,24 +5,8 @@ import (
 	"net/http"
 )
 
-func NewServiceError(httpStatusCode int, error_description string) *ServiceError {
-	return &ServiceError{
-		Description: error_description,
-		StatusCode:  httpStatusCode,
-	}
-}
-
-type ErrorResponse struct {
+type errorResponse struct {
 	Error string `json:"error"`
-}
-
-type ServiceError struct {
-	Description string
-	StatusCode  int
-}
-
-func (e *ServiceError) Error() string {
-	return e.Description
 }
 
 func HandleError(err error, w http.ResponseWriter) {
@@ -31,7 +15,7 @@ func HandleError(err error, w http.ResponseWriter) {
 	if e, ok := err.(*ServiceError); ok {
 		statusCode = e.StatusCode
 	}
-	resp := ErrorResponse{Error: err.Error()}
+	resp := errorResponse{Error: err.Error()}
 	b, _ := MarshalFormat(resp)
 	HandleResponse(w, b, statusCode)
 }
