@@ -1,4 +1,4 @@
-module github.com/weekendprojectapp/authful/server
+module github.com/weekendprojectapp/authful/servertools
 
 go 1.16
 

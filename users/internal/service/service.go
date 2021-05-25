@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/weekendprojectapp/authful/server"
+	"github.com/weekendprojectapp/authful/servertools"
 	"github.com/weekendprojectapp/authful/users/internal/config"
 	"github.com/weekendprojectapp/authful/users/internal/repo"
 	"github.com/weekendprojectapp/authful/users/pkg/models"
@@ -17,17 +17,17 @@ import (
 
 func CreateUser(ctx context.Context, username string, password string) (models.User, error) {
 	if strings.TrimSpace(username) == "" {
-		return models.User{}, server.NewServiceError(http.StatusBadRequest, "username cannot be blank")
+		return models.User{}, servertools.NewServiceError(http.StatusBadRequest, "username cannot be blank")
 	}
 
 	if strings.TrimSpace(password) == "" {
-		return models.User{}, server.NewServiceError(http.StatusBadRequest, "password cannot be blank")
+		return models.User{}, servertools.NewServiceError(http.StatusBadRequest, "password cannot be blank")
 	}
 
 	username = strings.ToLower(username)
 
 	if !IsUniqueUsername(ctx, username) {
-		return models.User{}, server.NewServiceError(http.StatusBadRequest, "username is not valid")
+		return models.User{}, servertools.NewServiceError(http.StatusBadRequest, "username is not valid")
 	}
 
 	// bcrypt the password
@@ -41,7 +41,7 @@ func CreateUser(ctx context.Context, username string, password string) (models.U
 
 func GetUserByUsername(ctx context.Context, username string) (models.User, error) {
 	if strings.TrimSpace(username) == "" {
-		return models.User{}, server.NewServiceError(http.StatusBadRequest, "username cannot be blank")
+		return models.User{}, servertools.NewServiceError(http.StatusBadRequest, "username cannot be blank")
 	}
 
 	return repo.GetUserByUsername(ctx, username)
@@ -57,7 +57,7 @@ func ProduceJwtTokenForUser(ctx context.Context, username string, userId string)
 	// here, we have kept it as 5 minutes
 	expirationTime := time.Now().UTC().Add(30 * time.Minute)
 	// Create the JWT claims, which includes the username and expiry time
-	claims := &server.Claims{
+	claims := &servertools.Claims{
 		Username: username,
 		SystemId: userId,
 		Type:     "user",

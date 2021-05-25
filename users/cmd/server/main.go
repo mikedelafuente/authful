@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/weekendprojectapp/authful/server"
+	"github.com/weekendprojectapp/authful/servertools"
 	"github.com/weekendprojectapp/authful/users/internal/config"
 	"github.com/weekendprojectapp/authful/users/internal/rest"
 
@@ -121,9 +121,9 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 	systemType := ""
 	isValid := false
 
-	var claims server.Claims
+	var claims servertools.Claims
 	token, err := jwt.ParseWithClaims(rawToken, &claims, func(t *jwt.Token) (interface{}, error) {
-		localClaim := t.Claims.(*server.Claims)
+		localClaim := t.Claims.(*servertools.Claims)
 		systemId = localClaim.SystemId
 		systemType = localClaim.Type
 		return []byte(config.GetConfig().Security.JwtKey), nil
@@ -137,8 +137,8 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 		fmt.Println("Error happened: " + err.Error())
 	}
 
-	ctx := context.WithValue(r.Context(), server.ContextKeySystemId, systemId)
-	ctx = context.WithValue(ctx, server.ContextKeySystemType, systemType)
+	ctx := context.WithValue(r.Context(), servertools.ContextKeySystemId, systemId)
+	ctx = context.WithValue(ctx, servertools.ContextKeySystemType, systemType)
 	r = r.WithContext(ctx)
 
 	return isValid, r

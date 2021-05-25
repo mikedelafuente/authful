@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/weekendprojectapp/authful/server"
+	"github.com/weekendprojectapp/authful/servertools"
 	"github.com/weekendprojectapp/authful/users/internal/service"
 	"github.com/weekendprojectapp/authful/users/pkg/models"
 )
@@ -17,13 +17,13 @@ func AccountSigninPost(w http.ResponseWriter, r *http.Request) {
 		// Generate a JWT and return it
 		foundUser, err := service.GetUserByUsername(r.Context(), userRequest.Username)
 		if err != nil {
-			server.HandleError(err, w)
+			servertools.HandleError(err, w)
 			return
 		}
 		tokenString, expirationTime, err := service.ProduceJwtTokenForUser(r.Context(), foundUser.Username, foundUser.Id)
 		if err != nil {
 			// If there is an error in creating the JWT return an internal server error
-			server.HandleError(err, w)
+			servertools.HandleError(err, w)
 			return
 		}
 
@@ -39,9 +39,9 @@ func AccountSigninPost(w http.ResponseWriter, r *http.Request) {
 		t["jwt"] = tokenString
 		t["expires"] = expirationTime
 
-		server.ProcessResponse(t, w, http.StatusOK)
+		servertools.ProcessResponse(t, w, http.StatusOK)
 	} else {
-		server.HandleResponse(w, []byte{}, http.StatusUnauthorized)
+		servertools.HandleResponse(w, []byte{}, http.StatusUnauthorized)
 	}
 }
 
@@ -52,19 +52,19 @@ func AccountSignupPost(w http.ResponseWriter, r *http.Request) {
 	// Make sure the username is unique
 	user, err := service.CreateUser(r.Context(), userRequest.Username, userRequest.Password)
 	if err != nil {
-		server.HandleError(err, w)
+		servertools.HandleError(err, w)
 		return
 	}
 
-	server.ProcessResponse(user, w, http.StatusOK)
+	servertools.ProcessResponse(user, w, http.StatusOK)
 }
 
 func UsersGet(w http.ResponseWriter, r *http.Request) {
 	users, err := service.GetUsers(r.Context())
 	if err != nil {
-		server.HandleError(err, w)
+		servertools.HandleError(err, w)
 		return
 	}
 
-	server.ProcessResponse(users, w, http.StatusOK)
+	servertools.ProcessResponse(users, w, http.StatusOK)
 }
