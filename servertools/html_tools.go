@@ -3,6 +3,20 @@ package servertools
 import (
 	"fmt"
 	"net/http"
+	"strings"
+)
+
+const replacement = "<br>\n"
+
+var replacer = strings.NewReplacer(
+	"\r\n", replacement,
+	"\r", replacement,
+	"\n", replacement,
+	"\v", replacement,
+	"\f", replacement,
+	"\u0085", replacement,
+	"\u2028", replacement,
+	"\u2029", replacement,
 )
 
 func GenerateHtmlHeader(w http.ResponseWriter) {
@@ -20,6 +34,10 @@ func GenerateHtmlFooter(w http.ResponseWriter) {
 	fmt.Fprintln(w, "</body>")
 	fmt.Fprintln(w, "</html>")
 
+}
+
+func ConvertLineBreaksToHtml(s string) string {
+	return replacer.Replace(s)
 }
 
 // func GenerateLoginFormHtml(w http.ResponseWriter, showLoginFailed bool) {

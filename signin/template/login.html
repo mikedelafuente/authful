@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    {{ if .FailedLogin }}
+    {{ if .ErrorMessage }}
     <span class="error">{{  .ErrorMessage }}</span><br /><br />
     {{ end }}
     <form method="post" id="loginForm" role="form" data-qa="login-form">
