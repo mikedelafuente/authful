@@ -35,7 +35,9 @@ func setupRequestHandlers() {
 	// Unsecured endpoints
 	openR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
 	openR.HandleFunc("/login", web.DisplayLogin).Methods(http.MethodGet)
-	openR.HandleFunc("/login", web.AuthorizeUser).Methods(http.MethodPost)
+	openR.HandleFunc("/login", web.ProcessLogin).Methods(http.MethodPost)
+	openR.HandleFunc("/signup", web.DisplaySignup).Methods(http.MethodGet)
+	openR.HandleFunc("/signup", web.ProcessSignup).Methods(http.MethodPost)
 
 	// User signup/signin services
 	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()

@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/users/internal/models"
 	"github.com/mikedelafuente/authful/users/internal/service"
-	"github.com/mikedelafuente/authful/users/pkg/models"
 )
 
 func AccountSigninPost(w http.ResponseWriter, r *http.Request) {

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/mikedelafuente/authful/users/internal/config"
-	"github.com/mikedelafuente/authful/users/pkg/models"
+	"github.com/mikedelafuente/authful/users/internal/models"
 
 	"github.com/google/uuid"
 )

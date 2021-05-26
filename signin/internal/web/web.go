@@ -22,10 +22,14 @@ type loginBag struct {
 	FailedLogin  bool
 }
 
+type signupBag struct {
+	ErrorMessage string
+}
+
 func DisplayLogin(w http.ResponseWriter, r *http.Request) {
 	bag := loginBag{
 		ErrorMessage: "",
-		Username:     "",
+		Username:     r.FormValue("username"),
 		FailedLogin:  false,
 	}
 
@@ -37,7 +41,7 @@ func DisplayLogin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AuthorizeUser(w http.ResponseWriter, r *http.Request) {
+func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 	redirectUri := r.FormValue("redirect_uri")
 
 	username := r.FormValue("username")
@@ -73,6 +77,51 @@ func AuthorizeUser(w http.ResponseWriter, r *http.Request) {
 	bag.Username = username
 	bag.FailedLogin = true
 	parsedTemplate, _ := template.ParseFiles("template/login.html")
+	err = parsedTemplate.Execute(w, bag)
+	if err != nil {
+		log.Println("Error executing template :", err)
+		return
+	}
+
+}
+
+func DisplaySignup(w http.ResponseWriter, r *http.Request) {
+	bag := loginBag{
+		ErrorMessage: "",
+		Username:     "",
+		FailedLogin:  false,
+	}
+
+	parsedTemplate, _ := template.ParseFiles("template/register.html")
+	err := parsedTemplate.Execute(w, bag)
+	if err != nil {
+		log.Println("Error executing template :", err)
+		return
+	}
+}
+
+func ProcessSignup(w http.ResponseWriter, r *http.Request) {
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
+	bag := signupBag{
+		ErrorMessage: "",
+	}
+
+	user, err := service.Signup(r.Context(), username, password)
+
+	if err != nil {
+		bag.ErrorMessage = err.Error()
+	}
+
+	if len(user.Id) == 0 {
+		bag.ErrorMessage = "unable to register"
+	} else {
+		http.Redirect(w, r, "/login?username="+user.Username, http.StatusFound)
+		return
+	}
+
+	parsedTemplate, _ := template.ParseFiles("template/register.html")
 	err = parsedTemplate.Execute(w, bag)
 	if err != nil {
 		log.Println("Error executing template :", err)
