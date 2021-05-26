@@ -50,10 +50,10 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 
 	if len(password) == 0 {
 		bag.ErrorMessages = append(bag.ErrorMessages, "Enter a password.")
-	}
-
-	if password != verifyPassword {
-		bag.ErrorMessages = append(bag.ErrorMessages, "Please verify the password. Passwords do not match.")
+	} else {
+		if password != verifyPassword {
+			bag.ErrorMessages = append(bag.ErrorMessages, "Please verify the password. Passwords do not match.")
+		}
 	}
 
 	if len(bag.ErrorMessages) == 0 {

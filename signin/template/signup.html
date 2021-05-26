@@ -9,15 +9,7 @@
 </head>
 
 <body>
-    {{ if .ErrorMessages }}
-    <span class="error title">Error</h3>
-        <ul>
-        {{ range .ErrorMessages }}
-            <li class="error signup">{{  . }}</li>
-        {{ end }}
-        </ul>
-    </span>
-    {{ end }}
+
     
     <form method="post" id="loginForm" role="form" data-qa="login-form">
         <h2>Register</h2>
@@ -29,6 +21,18 @@
         <input type="password" name="verify-password" data-qa="signup-verify-password" /><br /><br />
         
         <button id="btn-login" type="submit" data-qa="login-button">Log In</button>
+        
+        {{ if .ErrorMessages }}
+        <br />
+        <span class="error title">Error</h3>
+            <ul>
+            {{ range .ErrorMessages }}
+                <li class="error signup">{{  . }}</li>
+            {{ end }}
+            </ul>
+        </span>
+        {{ end }}
     </form>
+
 </body>
 </html>

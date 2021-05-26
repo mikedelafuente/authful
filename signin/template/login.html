@@ -9,9 +9,7 @@
 </head>
 
 <body>
-    {{ if .ErrorMessage }}
-    <span class="error">{{  .ErrorMessage }}</span><br /><br />
-    {{ end }}
+
     <form method="post" id="loginForm" role="form" data-qa="login-form">
         <h2>Login</h2>
         Username:<br />
@@ -19,6 +17,17 @@
         Password:<br />
         <input type="password" name="password" data-qa="login-password" /><br /><br />
         <button id="btn-login" type="submit" data-qa="login-button">Log In</button>
+
+        {{ if .ErrorMessages }}
+        <br />
+        <span class="error title">Error</h3>
+            <ul>
+            {{ range .ErrorMessages }}
+                <li class="error signup">{{  . }}</li>
+            {{ end }}
+            </ul>
+        </span>
+        {{ end }}
     </form>
 </body>
 </html>

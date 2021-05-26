@@ -6,22 +6,20 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/mikedelafuente/authful/servertools"
 	"github.com/mikedelafuente/authful/signin/internal/service"
 )
 
 type loginBag struct {
-	ErrorMessage string
-	Username     string
+	ErrorMessages []string
+	Username      string
 }
 
 func DisplayLogin(w http.ResponseWriter, r *http.Request) {
 	bag := loginBag{
-		ErrorMessage: "",
-		Username:     r.FormValue("username"),
+		ErrorMessages: []string{},
+		Username:      r.FormValue("username"),
 	}
 
-	bag.ErrorMessage = servertools.ConvertLineBreaksToHtml(bag.ErrorMessage)
 	parsedTemplate, _ := template.ParseFiles("template/login.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
@@ -37,13 +35,13 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	bag := loginBag{
-		ErrorMessage: "",
-		Username:     username,
+		ErrorMessages: []string{},
+		Username:      username,
 	}
 
 	validLogin, jwt, err := service.IsValidUsernamePassword(r.Context(), username, password)
 	if err != nil {
-		bag.ErrorMessage = err.Error()
+		bag.ErrorMessages = append(bag.ErrorMessages, err.Error())
 	}
 
 	if validLogin {
@@ -63,7 +61,6 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	bag.Username = username
-	bag.ErrorMessage = servertools.ConvertLineBreaksToHtml(bag.ErrorMessage)
 	parsedTemplate, _ := template.ParseFiles("template/login.html")
 	err = parsedTemplate.Execute(w, bag)
 	if err != nil {
