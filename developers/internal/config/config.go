@@ -1,6 +1,6 @@
 package config
 
-type UserServerConfig struct {
+type DeveloperServerConfig struct {
 	WebServer      WebServerConfig      `json:"web_server"`
 	DatabaseServer DatabaseServerConfig `json:"database_server"`
 	Security       SecurityConfig       `json:"security"`

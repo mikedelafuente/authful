@@ -1,4 +1,4 @@
-module github.com/mikedelafuente/authful/developer
+module github.com/mikedelafuente/authful/developers
 
 go 1.16
 

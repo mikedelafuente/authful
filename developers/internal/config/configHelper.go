@@ -11,12 +11,12 @@ import (
 )
 
 var configOnce sync.Once
-var configInstance *UserServerConfig
+var configInstance *DeveloperServerConfig
 
 var dbOnce sync.Once
 var dbInstance *sql.DB
 
-func GetConfig() *UserServerConfig {
+func GetConfig() *DeveloperServerConfig {
 	configOnce.Do(func() {
 		var err error
 		configInstance, err = getConfigInstance()
@@ -28,7 +28,7 @@ func GetConfig() *UserServerConfig {
 	return configInstance
 }
 
-func getConfigInstance() (*UserServerConfig, error) {
+func getConfigInstance() (*DeveloperServerConfig, error) {
 	var err error
 
 	currDir, _ := os.Getwd()
@@ -39,7 +39,7 @@ func getConfigInstance() (*UserServerConfig, error) {
 		return nil, err
 	}
 
-	var myConfig *UserServerConfig = &UserServerConfig{}
+	var myConfig *DeveloperServerConfig = &DeveloperServerConfig{}
 	err = json.Unmarshal(f, &myConfig)
 	if err != nil {
 		return nil, err
