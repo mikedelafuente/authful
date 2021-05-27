@@ -36,14 +36,14 @@ func main() {
 func setupRequestHandlers() {
 
 	// Unsecured endpoints
-	openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
-	openR.HandleFunc("/api/v1/account:signin", controllers.DeveloperSigninPost).Methods(http.MethodPost)
-	openR.HandleFunc("/api/v1/account:signup", controllers.DeveloperSignupPost).Methods(http.MethodPost)
+	//openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
+	//openR.HandleFunc("/api/v1/account:signup", controllers.DeveloperSignupPost).Methods(http.MethodPost)
 
 	// ------------ UNPROTECTED API ENDPOINTS ------------
 	// User signup/signin services
 	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
-	secureUserR.HandleFunc("/api/v1/users", controllers.DevelopersGet).Methods(http.MethodGet)
+	secureUserR.HandleFunc("/api/v1/developers", controllers.DeveloperSignupPost).Methods(http.MethodPost)
+	secureUserR.HandleFunc("/api/v1/developers", controllers.DevelopersGet).Methods(http.MethodGet)
 	secureUserR.Use(bearerJwtHandler)
 
 	myConfig := config.GetConfig()
@@ -89,15 +89,13 @@ func bearerJwtHandler(next http.Handler) http.Handler {
 }
 
 func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
-	systemId := ""
-	systemType := ""
+	userId := ""
 	isValid := false
 
 	var claims customclaims.Claims
 	token, err := jwt.ParseWithClaims(rawToken, &claims, func(t *jwt.Token) (interface{}, error) {
 		localClaim := t.Claims.(*customclaims.Claims)
-		systemId = localClaim.SystemId
-		systemType = localClaim.Type
+		userId = localClaim.UserId
 		return []byte(config.GetConfig().Security.JwtKey), nil
 	})
 
@@ -109,8 +107,7 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 		fmt.Println("Error happened: " + err.Error())
 	}
 
-	ctx := context.WithValue(r.Context(), customclaims.ContextKeySystemId, systemId)
-	ctx = context.WithValue(ctx, customclaims.ContextKeySystemType, systemType)
+	ctx := context.WithValue(r.Context(), customclaims.ContextKeyUserId, userId)
 	r = r.WithContext(ctx)
 
 	return isValid, r

@@ -63,7 +63,7 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 			bag.ErrorMessages = append(bag.ErrorMessages, err.Error())
 		}
 
-		if len(user.Id) == 0 {
+		if len(user.UserId) == 0 {
 			bag.ErrorMessages = append(bag.ErrorMessages, "Unable to register for an account")
 		} else {
 			http.Redirect(w, r, "/login?username="+user.Username, http.StatusFound)

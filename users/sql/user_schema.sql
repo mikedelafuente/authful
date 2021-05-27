@@ -1,3 +1,6 @@
+
+DROP TABLE `users`;
+
 CREATE TABLE `users` (
  `user_id` VARCHAR(64) NOT NULL,
  `username` varchar(320) NOT NULL,

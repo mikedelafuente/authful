@@ -89,15 +89,13 @@ func bearerJwtHandler(next http.Handler) http.Handler {
 }
 
 func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
-	systemId := ""
-	systemType := ""
+	userId := ""
 	isValid := false
 
 	var claims customclaims.Claims
 	token, err := jwt.ParseWithClaims(rawToken, &claims, func(t *jwt.Token) (interface{}, error) {
 		localClaim := t.Claims.(*customclaims.Claims)
-		systemId = localClaim.SystemId
-		systemType = localClaim.Type
+		userId = localClaim.UserId
 		return []byte(config.GetConfig().Security.JwtKey), nil
 	})
 
@@ -109,8 +107,7 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 		fmt.Println("Error happened: " + err.Error())
 	}
 
-	ctx := context.WithValue(r.Context(), customclaims.ContextKeySystemId, systemId)
-	ctx = context.WithValue(ctx, customclaims.ContextKeySystemType, systemType)
+	ctx := context.WithValue(r.Context(), customclaims.ContextKeyUserId, userId)
 	r = r.WithContext(ctx)
 
 	return isValid, r

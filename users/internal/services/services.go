@@ -61,8 +61,7 @@ func ProduceJwtTokenForUser(ctx context.Context, username string, userId string)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &customclaims.Claims{
 		Username: username,
-		SystemId: userId,
-		Type:     "user",
+		UserId:   userId,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			Id:        userId,

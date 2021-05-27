@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/mikedelafuente/authful/developers/internal/config"
@@ -14,40 +13,34 @@ import (
 	"github.com/google/uuid"
 )
 
-// type User struct{}
-
-// func New() *User {
-// 	d := User{}
-// 	return &d
-// }
-
-func CreateDeveloper(ctx context.Context, username string, password string) (models.Developer, error) {
+func CreateDeveloper(ctx context.Context, userId string, organizationName string, contactEmail string, agreeToTermsOfService bool) (models.Developer, error) {
 	db := config.GetDbConnection()
-	id := uuid.New().String()
+	devId := uuid.New().String()
 	currentTime := time.Now().UTC()
-	username = strings.ToLower(username)
 
-	result, err := db.Exec("INSERT INTO developers (dev_id, username, password, create_datetime, update_datetime) VALUES (?, ?, ?, ?, ?)", id, username, password, currentTime, currentTime)
+	result, err := db.Exec("INSERT INTO developers (dev_id, user_id, organization_name, contact_email, agree_to_tos, create_datetime, update_datetime) VALUES (?, ?, ?, ?, ?, ?, ?)", devId, userId, organizationName, contactEmail, agreeToTermsOfService, currentTime, currentTime)
 	if err != nil {
 		return models.Developer{}, err
 	}
 
 	if rows, _ := result.RowsAffected(); rows == 0 {
-		return models.Developer{}, errors.New("failed to create a new user")
+		return models.Developer{}, errors.New("failed to create a new developer")
 	}
 
 	newDeveloper := models.Developer{
-		Id:         id,
-		Username:   username,
-		CreateDate: currentTime,
-		UpdateDate: currentTime,
+		DeveloperId:      devId,
+		UserId:           userId,
+		OrganizationName: organizationName,
+		ContactEmail:     contactEmail,
+		CreateDate:       currentTime,
+		UpdateDate:       currentTime,
 	}
 
 	return newDeveloper, nil
 }
-func GetDeveloperByUsername(ctx context.Context, username string) (models.Developer, error) {
+func GetDeveloperByUserId(ctx context.Context, userId string) (models.Developer, error) {
 	db := config.GetDbConnection()
-	result, err := db.Query("SELECT dev_id, username, create_datetime, update_datetime FROM developers WHERE username = ? LIMIT 1", username)
+	result, err := db.Query("SELECT dev_id, user_id, organization_name, contact_email, create_datetime, update_datetime FROM developers WHERE user_id = ? LIMIT 1", userId)
 	if err != nil {
 		log.Print(err)
 		return models.Developer{}, err
@@ -58,43 +51,6 @@ func GetDeveloperByUsername(ctx context.Context, username string) (models.Develo
 	} else {
 		return models.Developer{}, nil
 	}
-
-}
-
-func GetDeveloperWithPasswordByUsername(ctx context.Context, username string) (models.Developer, string, error) {
-	db := config.GetDbConnection()
-	result, err := db.Query("SELECT dev_id, username, create_datetime, update_datetime, password FROM developers WHERE username = ? LIMIT 1", username)
-	if err != nil {
-		log.Print(err)
-		return models.Developer{}, "", err
-	}
-
-	if result.Next() {
-		var user models.Developer = models.Developer{}
-		var ntCreate sql.NullTime
-		var ntUpdate sql.NullTime
-		var password string
-
-		err := result.Scan(&user.Id, &user.Username, &ntCreate, &ntUpdate, &password)
-
-		if err != nil {
-			log.Print(err)
-			return models.Developer{}, "", err
-		}
-
-		if ntCreate.Valid {
-			user.CreateDate = ntCreate.Time
-		}
-
-		if ntUpdate.Valid {
-			user.UpdateDate = ntUpdate.Time
-		}
-
-		return user, password, err
-	} else {
-		return models.Developer{}, "", nil
-	}
-
 }
 
 func GetDevelopers(ctx context.Context) ([]models.Developer, error) {
@@ -102,7 +58,7 @@ func GetDevelopers(ctx context.Context) ([]models.Developer, error) {
 
 	db := config.GetDbConnection()
 
-	result, err := db.Query("SELECT dev_id, username, create_datetime, update_datetime FROM developers")
+	result, err := db.Query("SELECT dev_id, user_id, organization_name, contact_email, create_datetime, update_datetime FROM developers")
 
 	if err != nil {
 		return devs, err
@@ -127,7 +83,7 @@ func mapResultToDeveloper(result *sql.Rows) (models.Developer, error) {
 	var ntCreate sql.NullTime
 	var ntUpdate sql.NullTime
 
-	err := result.Scan(&dev.Id, &dev.Username, &ntCreate, &ntUpdate)
+	err := result.Scan(&dev.DeveloperId, &dev.UserId, &dev.OrganizationName, &dev.ContactEmail, &ntCreate, &ntUpdate)
 
 	if err != nil {
 		log.Print(err)
