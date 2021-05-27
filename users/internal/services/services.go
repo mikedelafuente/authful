@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"context"
@@ -6,10 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/servertools/pkg/customclaims"
+	"github.com/mikedelafuente/authful/servertools/pkg/customerrors"
 	"github.com/mikedelafuente/authful/users/internal/config"
+	"github.com/mikedelafuente/authful/users/internal/models"
 	"github.com/mikedelafuente/authful/users/internal/repo"
-	"github.com/mikedelafuente/authful/users/pkg/models"
 
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
@@ -17,17 +18,18 @@ import (
 
 func CreateUser(ctx context.Context, username string, password string) (models.User, error) {
 	if strings.TrimSpace(username) == "" {
-		return models.User{}, servertools.NewServiceError(http.StatusBadRequest, "username cannot be blank")
+
+		return models.User{}, customerrors.NewServiceError(http.StatusBadRequest, "username cannot be blank")
 	}
 
 	if strings.TrimSpace(password) == "" {
-		return models.User{}, servertools.NewServiceError(http.StatusBadRequest, "password cannot be blank")
+		return models.User{}, customerrors.NewServiceError(http.StatusBadRequest, "password cannot be blank")
 	}
 
 	username = strings.ToLower(username)
 
 	if !IsUniqueUsername(ctx, username) {
-		return models.User{}, servertools.NewServiceError(http.StatusBadRequest, "username is not valid")
+		return models.User{}, customerrors.NewServiceError(http.StatusBadRequest, "username is not valid")
 	}
 
 	// bcrypt the password
@@ -41,7 +43,7 @@ func CreateUser(ctx context.Context, username string, password string) (models.U
 
 func GetUserByUsername(ctx context.Context, username string) (models.User, error) {
 	if strings.TrimSpace(username) == "" {
-		return models.User{}, servertools.NewServiceError(http.StatusBadRequest, "username cannot be blank")
+		return models.User{}, customerrors.NewServiceError(http.StatusBadRequest, "username cannot be blank")
 	}
 
 	return repo.GetUserByUsername(ctx, username)
@@ -57,7 +59,7 @@ func ProduceJwtTokenForUser(ctx context.Context, username string, userId string)
 	// here, we have kept it as 5 minutes
 	expirationTime := time.Now().UTC().Add(30 * time.Minute)
 	// Create the JWT claims, which includes the username and expiry time
-	claims := &servertools.Claims{
+	claims := &customclaims.Claims{
 		Username: username,
 		SystemId: userId,
 		Type:     "user",

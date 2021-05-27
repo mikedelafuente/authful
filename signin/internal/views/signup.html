@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/resources/css/style.css">
+    <title>Register for an account</title>
+</head>
+
+<body>
+
+    
+    <form method="post" id="loginForm" role="form" data-qa="login-form">
+        <h2>Register</h2>
+        Username:<br />
+        <input type="text" name="username" data-qa="signup-username" value="{{ .Username }}" /><br /><br />
+        Password:<br />
+        <input type="password" name="password" data-qa="signup-password" /><br /><br />
+        Re-enter Password:<br />
+        <input type="password" name="verify-password" data-qa="signup-verify-password" /><br /><br />
+        
+        <button id="btn-login" type="submit" data-qa="login-button">Log In</button>
+        
+        {{ if .ErrorMessages }}
+        <br />
+        <span class="error title">Error</h3>
+            <ul>
+            {{ range .ErrorMessages }}
+                <li class="error signup">{{  . }}</li>
+            {{ end }}
+            </ul>
+        </span>
+        {{ end }}
+    </form>
+
+</body>
+</html>

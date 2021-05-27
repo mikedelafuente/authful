@@ -1,4 +1,4 @@
-package servertools
+package customclaims
 
 import (
 	"github.com/dgrijalva/jwt-go"
