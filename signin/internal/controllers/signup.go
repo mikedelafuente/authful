@@ -1,11 +1,11 @@
-package web
+package controllers
 
 import (
 	"html/template"
 	"log"
 	"net/http"
 
-	"github.com/mikedelafuente/authful/signin/internal/service"
+	"github.com/mikedelafuente/authful/signin/internal/services"
 )
 
 type signupBag struct {
@@ -23,8 +23,7 @@ func DisplaySignup(w http.ResponseWriter, r *http.Request) {
 		Blah:          []int{},
 	}
 
-	//bag.ErrorMessages = servertools.ConvertLineBreaksToHtml(bag.ErrorMessage)
-	parsedTemplate, _ := template.ParseFiles("template/signup.html")
+	parsedTemplate, _ := template.ParseFiles("internal/views/signup.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
 		log.Println("Error executing template :", err)
@@ -58,7 +57,7 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 
 	if len(bag.ErrorMessages) == 0 {
 
-		user, err := service.Signup(r.Context(), username, password)
+		user, err := services.Signup(r.Context(), username, password)
 
 		if err != nil {
 			bag.ErrorMessages = append(bag.ErrorMessages, err.Error())
@@ -72,7 +71,7 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	parsedTemplate, _ := template.ParseFiles("template/signup.html")
+	parsedTemplate, _ := template.ParseFiles("internal/views/signup.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
 		log.Println("Error executing template :", err)

@@ -1,12 +1,12 @@
-package rest
+package controllers
 
 import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/servertools/pkg/httptools"
 	"github.com/mikedelafuente/authful/users/internal/models"
-	"github.com/mikedelafuente/authful/users/internal/service"
+	service "github.com/mikedelafuente/authful/users/internal/services"
 )
 
 func AccountSigninPost(w http.ResponseWriter, r *http.Request) {
@@ -17,13 +17,13 @@ func AccountSigninPost(w http.ResponseWriter, r *http.Request) {
 		// Generate a JWT and return it
 		foundUser, err := service.GetUserByUsername(r.Context(), userRequest.Username)
 		if err != nil {
-			servertools.HandleError(err, w)
+			httptools.HandleError(err, w)
 			return
 		}
 		tokenString, expirationTime, err := service.ProduceJwtTokenForUser(r.Context(), foundUser.Username, foundUser.Id)
 		if err != nil {
 			// If there is an error in creating the JWT return an internal server error
-			servertools.HandleError(err, w)
+			httptools.HandleError(err, w)
 			return
 		}
 
@@ -39,9 +39,9 @@ func AccountSigninPost(w http.ResponseWriter, r *http.Request) {
 		t["jwt"] = tokenString
 		t["expires"] = expirationTime
 
-		servertools.ProcessResponse(t, w, http.StatusOK)
+		httptools.ProcessResponse(t, w, http.StatusOK)
 	} else {
-		servertools.HandleResponse(w, []byte{}, http.StatusUnauthorized)
+		httptools.HandleResponse(w, []byte{}, http.StatusUnauthorized)
 	}
 }
 
@@ -52,19 +52,19 @@ func AccountSignupPost(w http.ResponseWriter, r *http.Request) {
 	// Make sure the username is unique
 	user, err := service.CreateUser(r.Context(), userRequest.Username, userRequest.Password)
 	if err != nil {
-		servertools.HandleError(err, w)
+		httptools.HandleError(err, w)
 		return
 	}
 
-	servertools.ProcessResponse(user, w, http.StatusOK)
+	httptools.ProcessResponse(user, w, http.StatusOK)
 }
 
 func UsersGet(w http.ResponseWriter, r *http.Request) {
 	users, err := service.GetUsers(r.Context())
 	if err != nil {
-		servertools.HandleError(err, w)
+		httptools.HandleError(err, w)
 		return
 	}
 
-	servertools.ProcessResponse(users, w, http.StatusOK)
+	httptools.ProcessResponse(users, w, http.StatusOK)
 }

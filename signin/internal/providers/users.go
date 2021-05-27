@@ -8,7 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/servertools/pkg/customerrors"
+	"github.com/mikedelafuente/authful/servertools/pkg/httptools"
 	"github.com/mikedelafuente/authful/signin/internal/config"
 	"github.com/mikedelafuente/authful/signin/internal/models"
 )
@@ -26,7 +27,7 @@ func IsValidUsernamePassword(ctx context.Context, username string, password stri
 		Password: password,
 	}
 
-	requestBytes, err := servertools.MarshalFormat(requestModel)
+	requestBytes, err := httptools.MarshalFormat(requestModel)
 	if err != nil {
 		return false, models.SigninJwt{}, err
 	}
@@ -48,14 +49,15 @@ func IsValidUsernamePassword(ctx context.Context, username string, password stri
 		return false, models.SigninJwt{}, err
 	}
 
-	if !servertools.IsOkResponse(resp) {
+	if !httptools.IsOkResponse(resp) {
+
+		errorMessage := httptools.ExtractErrorMessageFromJsonBytes(bodyBytes, "authentication failed")
+
 		if resp.StatusCode == http.StatusUnauthorized {
-			// Bad username and password
-			return false, models.SigninJwt{}, nil
+			return false, models.SigninJwt{}, customerrors.NewServiceError(http.StatusUnauthorized, errorMessage)
 		}
 
-		// TODO: try to extract out an error from the body
-		return false, models.SigninJwt{}, servertools.NewServiceError(resp.StatusCode, "user service exception")
+		return false, models.SigninJwt{}, customerrors.NewServiceError(resp.StatusCode, errorMessage)
 	}
 
 	var responseObject models.SigninJwt
@@ -77,7 +79,7 @@ func Signup(ctx context.Context, username string, password string) (models.User,
 		Password: password,
 	}
 
-	requestBytes, err := servertools.MarshalFormat(requestModel)
+	requestBytes, err := httptools.MarshalFormat(requestModel)
 	if err != nil {
 		return models.User{}, err
 	}
@@ -100,9 +102,11 @@ func Signup(ctx context.Context, username string, password string) (models.User,
 		return models.User{}, err
 	}
 
-	if !servertools.IsOkResponse(resp) {
+	if !httptools.IsOkResponse(resp) {
 		// TODO: try to extract out an error from the body
-		return models.User{}, servertools.NewServiceError(resp.StatusCode, "user service exception")
+		errorMessage := httptools.ExtractErrorMessageFromJsonBytes(bodyBytes, "user service exception")
+
+		return models.User{}, customerrors.NewServiceError(resp.StatusCode, errorMessage)
 	}
 
 	var responseObject models.User

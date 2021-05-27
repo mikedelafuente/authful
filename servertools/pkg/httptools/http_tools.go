@@ -1,21 +1,42 @@
-package servertools
+package httptools
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+
+	"github.com/mikedelafuente/authful/servertools/pkg/customerrors"
 )
 
-type errorResponse struct {
+type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
+func ExtractErrorMessageFromJsonBytes(data []byte, defaultMessage string) string {
+	if len(data) == 0 {
+		return defaultMessage
+	}
+
+	var e ErrorResponse
+	body := string(data)
+	fmt.Printf("Body:\n%s\n", body)
+	err := json.Unmarshal(data, &e)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		return e.Error
+	}
+
+	return defaultMessage
+
+}
 func HandleError(err error, w http.ResponseWriter) {
 	statusCode := http.StatusInternalServerError
 	w.Header().Add("Content-Type", "application/json;charset=UTF-8")
-	if e, ok := err.(*ServiceError); ok {
+	if e, ok := err.(*customerrors.ServiceError); ok {
 		statusCode = e.StatusCode
 	}
-	resp := errorResponse{Error: err.Error()}
+	resp := ErrorResponse{Error: err.Error()}
 	b, _ := MarshalFormat(resp)
 	HandleResponse(w, b, statusCode)
 }

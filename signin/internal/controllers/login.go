@@ -1,4 +1,4 @@
-package web
+package controllers
 
 import (
 	"html/template"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/mikedelafuente/authful/signin/internal/service"
+	"github.com/mikedelafuente/authful/signin/internal/services"
 )
 
 type loginBag struct {
@@ -20,7 +20,7 @@ func DisplayLogin(w http.ResponseWriter, r *http.Request) {
 		Username:      r.FormValue("username"),
 	}
 
-	parsedTemplate, _ := template.ParseFiles("template/login.html")
+	parsedTemplate, _ := template.ParseFiles("internal/views/login.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
 		log.Println("Error executing template :", err)
@@ -39,7 +39,7 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 		Username:      username,
 	}
 
-	validLogin, jwt, err := service.IsValidUsernamePassword(r.Context(), username, password)
+	validLogin, jwt, err := services.IsValidUsernamePassword(r.Context(), username, password)
 	if err != nil {
 		bag.ErrorMessages = append(bag.ErrorMessages, err.Error())
 	}
@@ -61,7 +61,7 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	bag.Username = username
-	parsedTemplate, _ := template.ParseFiles("template/login.html")
+	parsedTemplate, _ := template.ParseFiles("internal/views/login.html")
 	err = parsedTemplate.Execute(w, bag)
 	if err != nil {
 		log.Println("Error executing template :", err)

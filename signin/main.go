@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/servertools/pkg/customclaims"
 	"github.com/mikedelafuente/authful/signin/internal/config"
-	"github.com/mikedelafuente/authful/signin/internal/web"
+	"github.com/mikedelafuente/authful/signin/internal/controllers"
 
 	"github.com/gorilla/mux"
 )
@@ -34,15 +34,15 @@ func main() {
 func setupRequestHandlers() {
 	// Unsecured endpoints
 	openR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
-	openR.HandleFunc("/login", web.DisplayLogin).Methods(http.MethodGet)
-	openR.HandleFunc("/login", web.ProcessLogin).Methods(http.MethodPost)
-	openR.HandleFunc("/signup", web.DisplaySignup).Methods(http.MethodGet)
-	openR.HandleFunc("/signup", web.ProcessSignup).Methods(http.MethodPost)
+	openR.HandleFunc("/login", controllers.DisplayLogin).Methods(http.MethodGet)
+	openR.HandleFunc("/login", controllers.ProcessLogin).Methods(http.MethodPost)
+	openR.HandleFunc("/signup", controllers.DisplaySignup).Methods(http.MethodGet)
+	openR.HandleFunc("/signup", controllers.ProcessSignup).Methods(http.MethodPost)
 
 	// User signup/signin services
 	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
-	secureUserR.HandleFunc("/", web.Index).Methods(http.MethodGet)
-	secureUserR.HandleFunc("/profile", web.GetProfile).Methods(http.MethodGet)
+	secureUserR.HandleFunc("/", controllers.Index).Methods(http.MethodGet)
+	secureUserR.HandleFunc("/profile", controllers.GetProfile).Methods(http.MethodGet)
 	secureUserR.Use(cookieJwtHandler)
 
 	fileR := myRouter.Methods(http.MethodGet).Subrouter()
@@ -94,9 +94,9 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 	systemType := ""
 	isValid := false
 
-	var claims servertools.Claims
+	var claims customclaims.Claims
 	token, err := jwt.ParseWithClaims(rawToken, &claims, func(t *jwt.Token) (interface{}, error) {
-		localClaim := t.Claims.(*servertools.Claims)
+		localClaim := t.Claims.(*customclaims.Claims)
 		systemId = localClaim.SystemId
 		systemType = localClaim.Type
 		return []byte(config.GetConfig().Security.JwtKey), nil
@@ -110,8 +110,8 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 		fmt.Println("Error happened: " + err.Error())
 	}
 
-	ctx := context.WithValue(r.Context(), servertools.ContextKeySystemId, systemId)
-	ctx = context.WithValue(ctx, servertools.ContextKeySystemType, systemType)
+	ctx := context.WithValue(r.Context(), customclaims.ContextKeySystemId, systemId)
+	ctx = context.WithValue(ctx, customclaims.ContextKeySystemType, systemType)
 	r = r.WithContext(ctx)
 
 	return isValid, r

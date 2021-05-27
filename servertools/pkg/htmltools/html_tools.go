@@ -1,4 +1,4 @@
-package servertools
+package htmltools
 
 import (
 	"fmt"

@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/mikedelafuente/authful/servertools"
+	"github.com/mikedelafuente/authful/servertools/pkg/customclaims"
 	"github.com/mikedelafuente/authful/users/internal/config"
-	"github.com/mikedelafuente/authful/users/internal/rest"
+	"github.com/mikedelafuente/authful/users/internal/controllers"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -38,13 +37,13 @@ func setupRequestHandlers() {
 
 	// Unsecured endpoints
 	openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
-	openR.HandleFunc("/api/v1/account:signin", rest.AccountSigninPost).Methods(http.MethodPost)
-	openR.HandleFunc("/api/v1/account:signup", rest.AccountSignupPost).Methods(http.MethodPost)
+	openR.HandleFunc("/api/v1/account:signin", controllers.AccountSigninPost).Methods(http.MethodPost)
+	openR.HandleFunc("/api/v1/account:signup", controllers.AccountSignupPost).Methods(http.MethodPost)
 
 	// ------------ UNPROTECTED API ENDPOINTS ------------
 	// User signup/signin services
 	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
-	secureUserR.HandleFunc("/api/v1/users", rest.UsersGet).Methods(http.MethodGet)
+	secureUserR.HandleFunc("/api/v1/users", controllers.UsersGet).Methods(http.MethodGet)
 	secureUserR.Use(bearerJwtHandler)
 
 	myConfig := config.GetConfig()
@@ -56,39 +55,12 @@ func setupRequestHandlers() {
 	elapsed := endTime.Sub(startTime)
 	fmt.Printf("Server uptime was: %s", elapsed)
 	log.Fatal(err)
-
 }
 
 func dbShutdown() {
 	fmt.Println("shutting down database")
 	db := config.GetDbConnection()
 	db.Close()
-}
-
-func cookieJwtHandler(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		isValid := false
-
-		cookie, err := r.Cookie("userSessionToken")
-		if err != nil {
-			// Redirect
-			isValid = false
-		}
-
-		if isValid {
-			rawToken := cookie.Value
-			isValid, r = processToken(rawToken, r)
-		}
-
-		if !isValid {
-			var loginRedirectUri = url.QueryEscape(r.URL.String())
-			http.Redirect(w, r, "/login?redirect_uri="+loginRedirectUri, http.StatusFound)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
 }
 
 func bearerJwtHandler(next http.Handler) http.Handler {
@@ -121,9 +93,9 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 	systemType := ""
 	isValid := false
 
-	var claims servertools.Claims
+	var claims customclaims.Claims
 	token, err := jwt.ParseWithClaims(rawToken, &claims, func(t *jwt.Token) (interface{}, error) {
-		localClaim := t.Claims.(*servertools.Claims)
+		localClaim := t.Claims.(*customclaims.Claims)
 		systemId = localClaim.SystemId
 		systemType = localClaim.Type
 		return []byte(config.GetConfig().Security.JwtKey), nil
@@ -137,8 +109,8 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 		fmt.Println("Error happened: " + err.Error())
 	}
 
-	ctx := context.WithValue(r.Context(), servertools.ContextKeySystemId, systemId)
-	ctx = context.WithValue(ctx, servertools.ContextKeySystemType, systemType)
+	ctx := context.WithValue(r.Context(), customclaims.ContextKeySystemId, systemId)
+	ctx = context.WithValue(ctx, customclaims.ContextKeySystemType, systemType)
 	r = r.WithContext(ctx)
 
 	return isValid, r
