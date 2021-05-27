@@ -29,7 +29,7 @@ func init() {
 
 func main() {
 	myConfig := config.GetConfig()
-	fmt.Printf("\n\nAuthful: User Server running at %s:%v\n\n", myConfig.WebServer.Address, myConfig.WebServer.Port)
+	fmt.Printf("\n\nAuthful: Developer Server running at %s:%v\n\n", myConfig.WebServer.Address, myConfig.WebServer.Port)
 	setupRequestHandlers()
 }
 
