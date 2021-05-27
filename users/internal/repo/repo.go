@@ -27,7 +27,7 @@ func CreateUser(ctx context.Context, username string, password string) (models.U
 	currentTime := time.Now().UTC()
 	username = strings.ToLower(username)
 
-	result, err := db.Exec("INSERT INTO users (id, username, password, create_datetime, update_datetime) VALUES (?, ?, ?, ?, ?)", id, username, password, currentTime, currentTime)
+	result, err := db.Exec("INSERT INTO users (user_id, username, password, create_datetime, update_datetime) VALUES (?, ?, ?, ?, ?)", id, username, password, currentTime, currentTime)
 	if err != nil {
 		return models.User{}, err
 	}
@@ -47,7 +47,7 @@ func CreateUser(ctx context.Context, username string, password string) (models.U
 }
 func GetUserByUsername(ctx context.Context, username string) (models.User, error) {
 	db := config.GetDbConnection()
-	result, err := db.Query("SELECT id, username, create_datetime, update_datetime FROM users WHERE username = ? LIMIT 1", username)
+	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime FROM users WHERE username = ? LIMIT 1", username)
 	if err != nil {
 		log.Print(err)
 		return models.User{}, err
@@ -63,7 +63,7 @@ func GetUserByUsername(ctx context.Context, username string) (models.User, error
 
 func GetUserWithPasswordByUsername(ctx context.Context, username string) (models.User, string, error) {
 	db := config.GetDbConnection()
-	result, err := db.Query("SELECT id, username, create_datetime, update_datetime, password FROM users WHERE username = ? LIMIT 1", username)
+	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime, password FROM users WHERE username = ? LIMIT 1", username)
 	if err != nil {
 		log.Print(err)
 		return models.User{}, "", err
@@ -102,7 +102,7 @@ func GetUsers(ctx context.Context) ([]models.User, error) {
 
 	db := config.GetDbConnection()
 
-	result, err := db.Query("SELECT id, username, create_datetime, update_datetime FROM users")
+	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime FROM users")
 
 	if err != nil {
 		return users, err
