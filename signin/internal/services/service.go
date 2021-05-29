@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/mikedelafuente/authful/servertools/pkg/customerrors"
+	"github.com/mikedelafuente/authful-servertools/pkg/customerrors"
 	"github.com/mikedelafuente/authful/signin/internal/models"
 	"github.com/mikedelafuente/authful/signin/internal/providers"
 )

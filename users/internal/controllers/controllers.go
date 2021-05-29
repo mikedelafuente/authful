@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/mikedelafuente/authful/servertools/pkg/httptools"
+	"github.com/mikedelafuente/authful-servertools/pkg/httptools"
 	"github.com/mikedelafuente/authful/users/internal/models"
 	service "github.com/mikedelafuente/authful/users/internal/services"
 )

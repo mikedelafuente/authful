@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/mikedelafuente/authful-servertools/pkg/customclaims"
 	"github.com/mikedelafuente/authful/developers/internal/config"
 	"github.com/mikedelafuente/authful/developers/internal/controllers"
-	"github.com/mikedelafuente/authful/servertools/pkg/customclaims"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"

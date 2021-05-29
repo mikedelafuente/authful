@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/mikedelafuente/authful-servertools/pkg/customerrors"
 	"github.com/mikedelafuente/authful/developers/internal/models"
 	"github.com/mikedelafuente/authful/developers/internal/repo"
-	"github.com/mikedelafuente/authful/servertools/pkg/customerrors"
 )
 
 func CreateDeveloper(ctx context.Context, userId string, organizationName string, contactEmail string, agreeToTermsOfService bool) (models.Developer, error) {

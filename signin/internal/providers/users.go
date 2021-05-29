@@ -8,8 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/mikedelafuente/authful/servertools/pkg/customerrors"
-	"github.com/mikedelafuente/authful/servertools/pkg/httptools"
+	"github.com/mikedelafuente/authful-servertools/pkg/customerrors"
+	"github.com/mikedelafuente/authful-servertools/pkg/httptools"
 	"github.com/mikedelafuente/authful/signin/internal/config"
 	"github.com/mikedelafuente/authful/signin/internal/models"
 )

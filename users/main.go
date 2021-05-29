@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/mikedelafuente/authful/servertools/pkg/customclaims"
+	"github.com/mikedelafuente/authful-servertools/pkg/customclaims"
 	"github.com/mikedelafuente/authful/users/internal/config"
 	"github.com/mikedelafuente/authful/users/internal/controllers"
 

@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/mikedelafuente/authful-servertools/pkg/customclaims"
+	"github.com/mikedelafuente/authful-servertools/pkg/customerrors"
+	"github.com/mikedelafuente/authful-servertools/pkg/httptools"
 	"github.com/mikedelafuente/authful/developers/internal/models"
 	"github.com/mikedelafuente/authful/developers/internal/services"
-	"github.com/mikedelafuente/authful/servertools/pkg/customclaims"
-	"github.com/mikedelafuente/authful/servertools/pkg/customerrors"
-	"github.com/mikedelafuente/authful/servertools/pkg/httptools"
 )
 
 func DeveloperSignupPost(w http.ResponseWriter, r *http.Request) {

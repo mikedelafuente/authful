@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mikedelafuente/authful/servertools/pkg/customerrors"
+	"github.com/mikedelafuente/authful-servertools/pkg/customerrors"
 )
 
 type ErrorResponse struct {
