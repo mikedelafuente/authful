@@ -23,7 +23,7 @@ func DisplaySignup(w http.ResponseWriter, r *http.Request) {
 		Blah:          []int{},
 	}
 
-	parsedTemplate, _ := template.ParseFiles("internal/views/signup.html")
+	parsedTemplate, _ := template.ParseFiles("Templates/signup.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
 		log.Println("Error executing template :", err)
@@ -71,7 +71,7 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	parsedTemplate, _ := template.ParseFiles("internal/views/signup.html")
+	parsedTemplate, _ := template.ParseFiles("Templates/signup.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
 		log.Println("Error executing template :", err)

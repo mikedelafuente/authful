@@ -18,7 +18,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		College:    "GolangBlogs",
 		RollNumber: 1,
 	}
-	parsedTemplate, _ := template.ParseFiles("internal/views/index.html")
+	parsedTemplate, _ := template.ParseFiles("Templates/index.html")
 	err := parsedTemplate.Execute(w, student)
 	if err != nil {
 		log.Println("Error executing template :", err)

@@ -20,7 +20,7 @@ var dbInstance *sql.DB
 func GetConfig() *UserServerConfig {
 	configOnce.Do(func() {
 		var err error
-		configInstance, err = getConfigInstance()
+		configInstance, err = getConfigInstanceFromFile()
 		if err != nil {
 			panic(err)
 		}
@@ -29,7 +29,7 @@ func GetConfig() *UserServerConfig {
 	return configInstance
 }
 
-func getConfigInstance() (*UserServerConfig, error) {
+func getConfigInstanceFromFile() (*UserServerConfig, error) {
 	var err error
 
 	currDir, _ := os.Getwd()

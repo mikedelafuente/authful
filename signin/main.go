@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -52,9 +51,10 @@ func setupRequestHandlers() {
 	// openR.Handle("/resources/", http.StripPrefix("/resources", fileServer))
 	// openR.HandleFunc("/", renderTemplate)
 
-	myConfig := config.GetConfig()
+	//myConfig := config.GetConfig()
+	//err := http.ListenAndServe(fmt.Sprintf("%s:%v", myConfig.WebServer.Address, myConfig.WebServer.Port), myRouter)
 
-	err := http.ListenAndServe(fmt.Sprintf("%s:%v", myConfig.WebServer.Address, myConfig.WebServer.Port), myRouter)
+	err := http.ListenAndServe(":8081", myRouter)
 	endTime := time.Now()
 	log.Printf("Process stopped at %s\n", endTime)
 	elapsed := endTime.Sub(startTime)

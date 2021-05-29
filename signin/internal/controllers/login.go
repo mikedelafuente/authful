@@ -20,7 +20,7 @@ func DisplayLogin(w http.ResponseWriter, r *http.Request) {
 		Username:      r.FormValue("username"),
 	}
 
-	parsedTemplate, _ := template.ParseFiles("internal/views/login.html")
+	parsedTemplate, _ := template.ParseFiles("Templates/login.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
 		log.Println("Error executing template :", err)
@@ -61,7 +61,7 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	bag.Username = username
-	parsedTemplate, _ := template.ParseFiles("internal/views/login.html")
+	parsedTemplate, _ := template.ParseFiles("Templates/login.html")
 	err = parsedTemplate.Execute(w, bag)
 	if err != nil {
 		log.Println("Error executing template :", err)

@@ -20,7 +20,7 @@ var dbInstance *sql.DB
 func GetConfig() *DeveloperServerConfig {
 	configOnce.Do(func() {
 		var err error
-		configInstance, err = getConfigInstance()
+		configInstance, err = getConfigInstanceFromFile()
 		if err != nil {
 			panic(err)
 		}
@@ -29,13 +29,13 @@ func GetConfig() *DeveloperServerConfig {
 	return configInstance
 }
 
-func getConfigInstance() (*DeveloperServerConfig, error) {
+func getConfigInstanceFromFile() (*DeveloperServerConfig, error) {
 	var err error
 
 	currDir, _ := os.Getwd()
 	log.Printf("Loading config from directory: %s \n", currDir)
 	// Load config from file system
-	f, err := ioutil.ReadFile("config.json")
+	f, err := ioutil.ReadFile("settings/config.json")
 	if err != nil {
 		return nil, err
 	}
