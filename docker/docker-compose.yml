@@ -10,8 +10,10 @@ x-users-db-username: &usersdbusername users_db_admin
 services:
   developers_db:
     image: mysql
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always    
+    #command: --default-authentication-plugin=mysql_native_password
+    restart: always  
+    volumes:
+      - ./db/authful_developers:/docker-entrypoint-initdb.d
     environment: 
       MYSQL_HOST: &db_dev_host developers_db
       MYSQL_PORT: &db_dev_port 3306
@@ -21,10 +23,13 @@ services:
       MYSQL_PASSWORD: &db_dev_password 8FUb9bqVTtLyU2i8      
     ports:
       - 33062:3306
+    command: mysqld --innodb_file_per_table
   users_db:
     image: mysql
-    command: --default-authentication-plugin=mysql_native_password
+    #command: --default-authentication-plugin=mysql_native_password
     restart: always
+    volumes:
+      - ./db/authful_users:/docker-entrypoint-initdb.d
     environment: 
       MYSQL_HOST: &db_users_host users_db
       MYSQL_PORT: &db_users_port 3306
@@ -34,6 +39,7 @@ services:
       MYSQL_PASSWORD: &db_users_password 8t97tP366iPf7HnC     
     ports:
       - 33061:3306
+    command: mysqld --innodb_file_per_table
   users:
     image: users
     build:

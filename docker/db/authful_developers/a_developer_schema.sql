@@ -1,6 +1,6 @@
-DROP TABLE `developers`;
-DROP TABLE `applications`;
-DROP TABLE `credentials`;
+DROP TABLE IF EXISTS `developers`;
+DROP TABLE IF EXISTS `applications`;
+DROP TABLE IF EXISTS `credentials`;
 
 CREATE TABLE `developers` (
  `dev_id` VARCHAR(64) NOT NULL,

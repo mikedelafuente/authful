@@ -1,5 +1,5 @@
 
-DROP TABLE `users`;
+DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE `users` (
  `user_id` VARCHAR(64) NOT NULL,
