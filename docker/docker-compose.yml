@@ -1,6 +1,6 @@
 version: '3.4'
 
-x-jwt-key: &jwt_key
+x-jwt-key: &security_jwt_key
   SECURITY_JWT_KEY: JI1PmZvvwLfKPSR97DHogdoA6ahWPBUyr3YaaVgCMm3XGhlF8s306UgJV0YDNx     
 
 x-security-password-factor: &security_password_factor
@@ -13,11 +13,12 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     restart: always    
     environment: 
-      MYSQL_DATABASE: authful_developers
+      MYSQL_HOST: &db_dev_host developers_db
+      MYSQL_PORT: &db_dev_port 3306
+      MYSQL_DATABASE: &db_dev_database authful_developers
       MYSQL_ROOT_PASSWORD: &db_dev_root_password 6oK84adtaaxBRuKV
       MYSQL_USER: &db_dev_user dev_admin
-      MYSQL_PASSWORD: &db_dev_password 8FUb9bqVTtLyU2i8
-      MYSQL_PORT: &db_dev_port 3306
+      MYSQL_PASSWORD: &db_dev_password 8FUb9bqVTtLyU2i8      
     ports:
       - 33062:3306
   users_db:
@@ -25,11 +26,12 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment: 
-      MYSQL_DATABASE: authful_users
+      MYSQL_HOST: &db_users_host users_db
+      MYSQL_PORT: &db_users_port 3306
+      MYSQL_DATABASE: &db_users_database authful_users
       MYSQL_ROOT_PASSWORD: &db_users_root_password 80jqn1uAWnoTjfPw
       MYSQL_USER: &db_users_user users_admin
-      MYSQL_PASSWORD: &db_users_password 8t97tP366iPf7HnC
-      MYSQL_PORT: &db_users_port 3306
+      MYSQL_PASSWORD: &db_users_password 8t97tP366iPf7HnC     
     ports:
       - 33061:3306
   users:
@@ -42,12 +44,13 @@ services:
     environment: 
       WEB_SERVER_PORT: 8080
       SERVICE_ADDRESS: &users_service_address http://users:8080
-      DATABASE_SERVER_NAME: users_db
+      DATABASE_SERVER_DATABASE: *db_users_database
+      DATABASE_SERVER_HOST: *db_users_host
       DATABASE_SERVER_PORT: *db_users_port
       DATABASE_SERVER_USERNAME: *db_users_user
       DATABASE_SERVER_PASSWORD: *db_users_password
       <<: *security_password_factor
-      <<: *jwt_key      
+      <<: *security_jwt_key    
     ports:
       - 8082:8080
   developers:
@@ -60,12 +63,13 @@ services:
     environment: 
       WEB_SERVER_PORT: 8080
       SERVICE_ADDRESS: &dev_service_address http://developers:8080
-      DATABASE_SERVER_NAME: developers_db
+      DATABASE_SERVER_DATABASE: *db_dev_database
+      DATABASE_SERVER_HOST: *db_dev_host
       DATABASE_SERVER_PORT: *db_dev_port
       DATABASE_SERVER_USERNAME: *db_dev_user
       DATABASE_SERVER_PASSWORD: *db_dev_password
       <<: *security_password_factor
-      <<: *jwt_key
+      <<: *security_jwt_key
     ports:
       - 8083:8080
   signin:
@@ -80,6 +84,6 @@ services:
       WEB_SERVER_PORT: 8080
       PROVIDERS_USER_SERVER_URI: *users_service_address
       PROVIDERS_DEVELOPER_SERVER_URI: *dev_service_address
-      <<: *jwt_key
+      <<: *security_jwt_key
     ports:
       - 8081:8080

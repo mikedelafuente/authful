@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	"sync"
 )
 
@@ -19,7 +20,12 @@ var dbInstance *sql.DB
 func GetConfig() *UserServerConfig {
 	configOnce.Do(func() {
 		var err error
-		configInstance, err = getConfigInstanceFromFile()
+		if len(os.Getenv("WEB_SERVER_PORT")) == 0 {
+			configInstance, err = getConfigInstanceFromFile()
+
+		} else {
+			configInstance, err = getConfigInstanceFromEnvironment()
+		}
 		if err != nil {
 			panic(err)
 		}
@@ -28,13 +34,44 @@ func GetConfig() *UserServerConfig {
 	return configInstance
 }
 
+func getConfigInstanceFromEnvironment() (*UserServerConfig, error) {
+	log.Printf("Loading config from environment")
+
+	var myConfig *UserServerConfig = &UserServerConfig{
+		WebServer:      WebServerConfig{},
+		DatabaseServer: DatabaseServerConfig{},
+		Security:       SecurityConfig{},
+	}
+
+	// WEB SERVER
+	myConfig.WebServer.Port = os.Getenv("WEB_SERVER_PORT")
+
+	// SECURITY
+	port, err := strconv.Atoi(os.Getenv("SECURITY_PASSWORD_COST_FACTOR"))
+	if err != nil {
+		return nil, err
+	}
+	myConfig.Security.PasswordCostFactor = port
+	myConfig.Security.JwtKey = os.Getenv("SECURITY_JWT_KEY")
+
+	// DATABASE SERVER
+	myConfig.DatabaseServer.Host = os.Getenv("DATABASE_SERVER_HOST")
+	myConfig.DatabaseServer.Database = os.Getenv("DATABASE_SERVER_DATABASE")
+	myConfig.DatabaseServer.Password = os.Getenv("DATABASE_SERVER_PASSWORD")
+	myConfig.DatabaseServer.Port = os.Getenv("DATABASE_SERVER_PORT")
+	myConfig.DatabaseServer.Username = os.Getenv("DATABASE_SERVER_USERNAME")
+
+	return myConfig, nil
+}
+
 func getConfigInstanceFromFile() (*UserServerConfig, error) {
 	var err error
 
 	currDir, _ := os.Getwd()
-	log.Printf("Loading config from directory: %s \n", currDir)
+	filePath := currDir + "/settings/config.json"
+	log.Printf("Loading config from file: %s \n", filePath)
 	// Load config from file system
-	f, err := ioutil.ReadFile("settings/config.json")
+	f, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +80,6 @@ func getConfigInstanceFromFile() (*UserServerConfig, error) {
 	err = json.Unmarshal(f, &myConfig)
 	if err != nil {
 		return nil, err
-
 	}
 
 	return myConfig, nil
@@ -53,7 +89,7 @@ func getDbConnectionInstance() (*sql.DB, error) {
 
 	config := GetConfig()
 	log.Printf("Instantiating database connection to :%s \n", config.DatabaseServer.Port)
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.DatabaseServer.Username, config.DatabaseServer.Password, config.DatabaseServer.Host, config.DatabaseServer.Port, config.DatabaseServer.Name))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.DatabaseServer.Username, config.DatabaseServer.Password, config.DatabaseServer.Host, config.DatabaseServer.Port, config.DatabaseServer.Database))
 
 	return db, err
 }
