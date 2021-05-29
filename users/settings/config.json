@@ -1,7 +1,6 @@
 {
     "web_server": {
-        "schema": "http://",
-       "server_port": "8082"        
+       "server_port": "8080"        
     },
     "database_server" : {
         "server_port": "3306",

@@ -1,10 +1,10 @@
 {
     "web_server": {
-        "server_port": "8081"        
+        "server_port": "8080"        
     },
     "providers" : {
-        "user_server_uri":"http://localhost:8082",
-        "developer_server_uri":"http://localhost:8083"    
+        "user_server_uri":"http://users:8080",
+        "developer_server_uri":"http://developers:8080"    
     },
     "security" : {
         "jwt_key": "change_this_to_whatever_you_want_but_make_sure_to_change_it"        

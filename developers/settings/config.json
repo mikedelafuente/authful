@@ -1,6 +1,6 @@
 {
     "web_server": {
-        "server_port": "8083"        
+        "server_port": "8080"        
     },
     "database_server" : {
         "server_port": "3306",

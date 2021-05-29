@@ -1,0 +1,24 @@
+version: '3.4'
+
+services:
+  signin:
+    image: signin
+    build:
+      context: ../signin
+      dockerfile: ./Dockerfile
+    ports:
+      - 8081:8080
+  users:
+    image: users
+    build:
+      context: ../users
+      dockerfile: ./Dockerfile
+    ports:
+      - 8082:8080
+  developers:
+    image: developers
+    build:
+      context: ../developers
+      dockerfile: ./Dockerfile
+    ports:
+      - 8083:8080
