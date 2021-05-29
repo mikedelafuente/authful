@@ -35,7 +35,7 @@ func getConfigInstance() (*UserServerConfig, error) {
 	currDir, _ := os.Getwd()
 	log.Printf("Loading config from directory: %s \n", currDir)
 	// Load config from file system
-	f, err := ioutil.ReadFile("config.json")
+	f, err := ioutil.ReadFile("settings/config.json")
 	if err != nil {
 		return nil, err
 	}
