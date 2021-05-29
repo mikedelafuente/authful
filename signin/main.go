@@ -21,13 +21,13 @@ var startTime time.Time
 
 func init() {
 	startTime = time.Now()
-	fmt.Printf("Process started at %s\n", startTime)
+	log.Printf("Process started at %s\n", startTime)
 	config.GetConfig() // just attempt to get the config at startup
 }
 
 func main() {
 	myConfig := config.GetConfig()
-	fmt.Printf("\n\nAuthful: Signin Server running at %s:%v\n\n", myConfig.WebServer.Address, myConfig.WebServer.Port)
+	log.Printf("\n\nAuthful: Signin Server running at %s:%v\n\n", myConfig.WebServer.Address, myConfig.WebServer.Port)
 	setupRequestHandlers()
 }
 
@@ -56,9 +56,9 @@ func setupRequestHandlers() {
 
 	err := http.ListenAndServe(fmt.Sprintf("%s:%v", myConfig.WebServer.Address, myConfig.WebServer.Port), myRouter)
 	endTime := time.Now()
-	fmt.Printf("Process stopped at %s\n", endTime)
+	log.Printf("Process stopped at %s\n", endTime)
 	elapsed := endTime.Sub(startTime)
-	fmt.Printf("Server uptime was: %s", elapsed)
+	log.Printf("Server uptime was: %s", elapsed)
 	log.Fatal(err)
 
 }
@@ -105,7 +105,7 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 			isValid = true
 		}
 	} else {
-		fmt.Println("Error happened: " + err.Error())
+		log.Println("Error happened: " + err.Error())
 	}
 
 	ctx := context.WithValue(r.Context(), customclaims.ContextKeyUserId, userId)

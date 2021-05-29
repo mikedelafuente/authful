@@ -3,8 +3,8 @@ package config
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"sync"
 )
@@ -28,7 +28,7 @@ func getConfigInstance() (*ServerConfig, error) {
 	var err error
 
 	currDir, _ := os.Getwd()
-	fmt.Printf("Loading config from directory: %s \n", currDir)
+	log.Printf("Loading config from directory: %s \n", currDir)
 	// Load config from file system
 	f, err := ioutil.ReadFile("config.json")
 	if err != nil {
