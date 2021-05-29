@@ -1,6 +1,6 @@
 {
     "web_server": {
-        "server_port": "8080"        
+        "port": "8080"        
     },
     "providers" : {
         "user_server_uri":"http://users:8080",

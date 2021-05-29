@@ -53,7 +53,7 @@ func getDbConnectionInstance() (*sql.DB, error) {
 
 	config := GetConfig()
 	log.Printf("Instantiating database connection to :%s \n", config.DatabaseServer.Port)
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.DatabaseServer.Username, config.DatabaseServer.Password, "localhost", config.DatabaseServer.Port, config.DatabaseServer.DatabaseName))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.DatabaseServer.Username, config.DatabaseServer.Password, config.DatabaseServer.Host, config.DatabaseServer.Port, config.DatabaseServer.Name))
 
 	return db, err
 }

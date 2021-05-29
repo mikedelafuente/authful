@@ -1,12 +1,12 @@
 {
     "web_server": {
-       "server_port": "8080"        
+       "port": "8080"        
     },
     "database_server" : {
-        "server_port": "3306",
+        "port": "3306",
         "username":"root",
         "password": "",
-        "database_name": "authful_users"
+        "name": "authful_users"
     },
     "security" : {
         "jwt_key": "change_this_to_whatever_you_want_but_make_sure_to_change_it",
