@@ -1,11 +1,32 @@
 version: '3.4'
 
 services:
+  developers_db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=authful_developers
+    ports:
+      - 33062:3306
+  users_db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=authful_developers
+    ports:
+      - 33061:3306
   signin:
     image: signin
     build:
       context: ../signin
       dockerfile: ./Dockerfile
+    depends_on: 
+      - users
+      - developers
     ports:
       - 8081:8080
   users:
@@ -13,6 +34,8 @@ services:
     build:
       context: ../users
       dockerfile: ./Dockerfile
+    depends_on: 
+      - users_db
     ports:
       - 8082:8080
   developers:
@@ -20,5 +43,7 @@ services:
     build:
       context: ../developers
       dockerfile: ./Dockerfile
+    depends_on: 
+      - developers_db
     ports:
       - 8083:8080
