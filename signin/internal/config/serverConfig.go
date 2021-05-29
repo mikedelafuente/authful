@@ -10,9 +10,8 @@ type SecurityConfig struct {
 	JwtKey string `json:"jwt_key"`
 }
 type WebServerConfig struct {
-	Schema  string `json:"schema"`
-	Address string `json:"server_address"`
-	Port    string `json:"server_port"`
+	Schema string `json:"schema"`
+	Port   string `json:"server_port"`
 }
 
 type ProvidersConfig struct {

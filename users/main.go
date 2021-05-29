@@ -29,7 +29,7 @@ func init() {
 
 func main() {
 	myConfig := config.GetConfig()
-	log.Printf("\n\nAuthful: User Server running at %s:%v\n\n", myConfig.WebServer.Address, myConfig.WebServer.Port)
+	log.Printf("\n\nAuthful: User Server running at :%v\n\n", myConfig.WebServer.Port)
 	setupRequestHandlers()
 }
 
@@ -49,7 +49,7 @@ func setupRequestHandlers() {
 	myConfig := config.GetConfig()
 
 	defer dbShutdown()
-	err := http.ListenAndServe(fmt.Sprintf("%s:%v", myConfig.WebServer.Address, myConfig.WebServer.Port), myRouter)
+	err := http.ListenAndServe(fmt.Sprintf(":%v", myConfig.WebServer.Port), myRouter)
 	endTime := time.Now()
 	log.Printf("Process stopped at %s\n", endTime)
 	elapsed := endTime.Sub(startTime)

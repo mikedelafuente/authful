@@ -3,7 +3,6 @@ package config
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -47,22 +46,14 @@ func getConfigInstanceFromFile() (*DeveloperServerConfig, error) {
 
 	}
 
-	if myConfig.WebServer.Address == "" {
-		return nil, errors.New("empty web server address")
-	}
-
-	if myConfig.DatabaseServer.Address == "" {
-		return nil, errors.New("empty database server address")
-	}
-
 	return myConfig, nil
 }
 
 func getDbConnectionInstance() (*sql.DB, error) {
 
 	config := GetConfig()
-	log.Printf("Instantiating database connection to %s:%s \n", config.DatabaseServer.Address, config.DatabaseServer.Port)
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.DatabaseServer.Username, config.DatabaseServer.Password, config.DatabaseServer.Address, config.DatabaseServer.Port, config.DatabaseServer.DatabaseName))
+	log.Printf("Instantiating database connection to :%s \n", config.DatabaseServer.Port)
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.DatabaseServer.Username, config.DatabaseServer.Password, "localhost", config.DatabaseServer.Port, config.DatabaseServer.DatabaseName))
 
 	return db, err
 }

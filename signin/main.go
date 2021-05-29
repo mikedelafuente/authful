@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -26,7 +27,7 @@ func init() {
 
 func main() {
 	myConfig := config.GetConfig()
-	log.Printf("\n\nAuthful: Signin Server running at %s:%v\n\n", myConfig.WebServer.Address, myConfig.WebServer.Port)
+	log.Printf("\n\nAuthful: Signin Server running at :%v\n\n", myConfig.WebServer.Port)
 	setupRequestHandlers()
 }
 
@@ -51,10 +52,9 @@ func setupRequestHandlers() {
 	// openR.Handle("/resources/", http.StripPrefix("/resources", fileServer))
 	// openR.HandleFunc("/", renderTemplate)
 
-	//myConfig := config.GetConfig()
-	//err := http.ListenAndServe(fmt.Sprintf("%s:%v", myConfig.WebServer.Address, myConfig.WebServer.Port), myRouter)
+	myConfig := config.GetConfig()
+	err := http.ListenAndServe(fmt.Sprintf(":%v", myConfig.WebServer.Port), myRouter)
 
-	err := http.ListenAndServe(":8081", myRouter)
 	endTime := time.Now()
 	log.Printf("Process stopped at %s\n", endTime)
 	elapsed := endTime.Sub(startTime)

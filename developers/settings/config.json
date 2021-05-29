@@ -1,11 +1,8 @@
 {
     "web_server": {
-        "schema": "http://",
-        "server_address":"localhost",
         "server_port": "8083"        
     },
     "database_server" : {
-        "server_address":"127.0.0.1",
         "server_port": "3306",
         "username":"root",
         "password": "",

@@ -11,13 +11,10 @@ type SecurityConfig struct {
 	PasswordCostFactor int    `json:"password_cost_factor"`
 }
 type WebServerConfig struct {
-	Schema  string `json:"schema"`
-	Address string `json:"server_address"`
-	Port    string `json:"server_port"`
+	Port string `json:"server_port"`
 }
 
 type DatabaseServerConfig struct {
-	Address      string `json:"server_address"`
 	Port         string `json:"server_port"`
 	Username     string `json:"username"`
 	Password     string `json:"password"`
