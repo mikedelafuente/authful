@@ -3,10 +3,12 @@ package config
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"sync"
+
+	"github.com/mikedelafuente/authful/signin/internal/logger"
 )
 
 var configOnce sync.Once
@@ -15,7 +17,12 @@ var configInstance *ServerConfig
 func GetConfig() *ServerConfig {
 	configOnce.Do(func() {
 		var err error
-		configInstance, err = getConfigInstance()
+		if len(os.Getenv("WEB_SERVER_PORT")) == 0 {
+			configInstance, err = getConfigInstanceFromFile()
+
+		} else {
+			configInstance, err = getConfigInstanceFromEnvironment()
+		}
 		if err != nil {
 			panic(err)
 		}
@@ -24,26 +31,48 @@ func GetConfig() *ServerConfig {
 	return configInstance
 }
 
-func getConfigInstance() (*ServerConfig, error) {
+func getConfigInstanceFromEnvironment() (*ServerConfig, error) {
+	logger.Printf("Loading config from environment")
+
+	var myConfig *ServerConfig = &ServerConfig{
+		WebServer: WebServerConfig{},
+		Providers: ProvidersConfig{},
+		Security:  SecurityConfig{},
+	}
+	myConfig.IsDebug, _ = strconv.ParseBool(os.Getenv("IS_DEBUG"))
+
+	// WEB SERVER
+	myConfig.WebServer.Port = os.Getenv("WEB_SERVER_PORT")
+
+	// SECURITY
+	myConfig.Security.JwtKey = os.Getenv("SECURITY_JWT_KEY")
+
+	// DATABASE SERVER
+	myConfig.Providers.DeveloperServerUri = os.Getenv("PROVIDERS_DEVELOPER_SERVER_URI")
+	myConfig.Providers.UserServerUri = os.Getenv("PROVIDERS_USER_SERVER_URI")
+
+	return myConfig, nil
+}
+
+func getConfigInstanceFromFile() (*ServerConfig, error) {
 	var err error
 
 	currDir, _ := os.Getwd()
-	fmt.Printf("Loading config from directory: %s \n", currDir)
+	filePath := currDir + "/settings/config.json"
+	logger.Printf("Loading config from file: %s \n", filePath)
 	// Load config from file system
-	f, err := ioutil.ReadFile("config.json")
+	f, err := ioutil.ReadFile(filePath)
 	if err != nil {
+		logger.Println(err)
 		return nil, err
 	}
 
 	var myConfig *ServerConfig = &ServerConfig{}
 	err = json.Unmarshal(f, &myConfig)
 	if err != nil {
+		logger.Println(err)
 		return nil, err
 
-	}
-
-	if myConfig.WebServer.Address == "" {
-		return nil, errors.New("empty web server address")
 	}
 
 	if myConfig.Providers.UserServerUri == "" {

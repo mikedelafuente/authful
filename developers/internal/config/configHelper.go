@@ -9,16 +9,16 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/mikedelafuente/authful/users/internal/logger"
+	"github.com/mikedelafuente/authful/developers/internal/logger"
 )
 
 var configOnce sync.Once
-var configInstance *UserServerConfig
+var configInstance *DeveloperServerConfig
 
 var dbOnce sync.Once
 var dbInstance *sql.DB
 
-func GetConfig() *UserServerConfig {
+func GetConfig() *DeveloperServerConfig {
 	configOnce.Do(func() {
 		var err error
 		if len(os.Getenv("WEB_SERVER_PORT")) == 0 {
@@ -36,10 +36,10 @@ func GetConfig() *UserServerConfig {
 	return configInstance
 }
 
-func getConfigInstanceFromEnvironment() (*UserServerConfig, error) {
+func getConfigInstanceFromEnvironment() (*DeveloperServerConfig, error) {
 	logger.Printf("Loading config from environment")
 
-	var myConfig *UserServerConfig = &UserServerConfig{
+	var myConfig *DeveloperServerConfig = &DeveloperServerConfig{
 		WebServer:      WebServerConfig{},
 		DatabaseServer: DatabaseServerConfig{},
 		Security:       SecurityConfig{},
@@ -69,7 +69,7 @@ func getConfigInstanceFromEnvironment() (*UserServerConfig, error) {
 	return myConfig, nil
 }
 
-func getConfigInstanceFromFile() (*UserServerConfig, error) {
+func getConfigInstanceFromFile() (*DeveloperServerConfig, error) {
 	var err error
 
 	currDir, _ := os.Getwd()
@@ -82,11 +82,12 @@ func getConfigInstanceFromFile() (*UserServerConfig, error) {
 		return nil, err
 	}
 
-	var myConfig *UserServerConfig = &UserServerConfig{}
+	var myConfig *DeveloperServerConfig = &DeveloperServerConfig{}
 	err = json.Unmarshal(f, &myConfig)
 	if err != nil {
 		logger.Println(err)
 		return nil, err
+
 	}
 
 	return myConfig, nil

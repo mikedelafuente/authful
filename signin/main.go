@@ -6,12 +6,14 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/mikedelafuente/authful/servertools/pkg/customclaims"
+	"github.com/mikedelafuente/authful-servertools/pkg/customclaims"
 	"github.com/mikedelafuente/authful/signin/internal/config"
 	"github.com/mikedelafuente/authful/signin/internal/controllers"
+	"github.com/mikedelafuente/authful/signin/internal/logger"
 
 	"github.com/gorilla/mux"
 )
@@ -20,14 +22,16 @@ var myRouter = mux.NewRouter().StrictSlash(true)
 var startTime time.Time
 
 func init() {
+	log.SetOutput(os.Stdout)
 	startTime = time.Now()
-	fmt.Printf("Process started at %s\n", startTime)
+	logger.Printf("Process started at %s\n", startTime)
 	config.GetConfig() // just attempt to get the config at startup
 }
 
 func main() {
 	myConfig := config.GetConfig()
-	fmt.Printf("\n\nAuthful: User Server running at %s:%v\n\n", myConfig.WebServer.Address, myConfig.WebServer.Port)
+	logger.Printf("\n\nAuthful: Signin Server running at :%v\n\n", myConfig.WebServer.Port)
+	logger.Printf("DEBUG MODE: %t", config.GetConfig().IsDebug)
 	setupRequestHandlers()
 }
 
@@ -53,13 +57,13 @@ func setupRequestHandlers() {
 	// openR.HandleFunc("/", renderTemplate)
 
 	myConfig := config.GetConfig()
+	err := http.ListenAndServe(fmt.Sprintf(":%v", myConfig.WebServer.Port), myRouter)
 
-	err := http.ListenAndServe(fmt.Sprintf("%s:%v", myConfig.WebServer.Address, myConfig.WebServer.Port), myRouter)
 	endTime := time.Now()
-	fmt.Printf("Process stopped at %s\n", endTime)
+	logger.Printf("Process stopped at %s\n", endTime)
 	elapsed := endTime.Sub(startTime)
-	fmt.Printf("Server uptime was: %s", elapsed)
-	log.Fatal(err)
+	logger.Printf("Server uptime was: %s", elapsed)
+	logger.Fatal(err)
 
 }
 
@@ -70,6 +74,7 @@ func cookieJwtHandler(next http.Handler) http.Handler {
 
 		cookie, err := r.Cookie("userSessionToken")
 		if err != nil {
+			logger.Println(err)
 			// Redirect
 			isValid = false
 		}
@@ -90,15 +95,13 @@ func cookieJwtHandler(next http.Handler) http.Handler {
 }
 
 func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
-	systemId := ""
-	systemType := ""
+	userId := ""
 	isValid := false
 
 	var claims customclaims.Claims
 	token, err := jwt.ParseWithClaims(rawToken, &claims, func(t *jwt.Token) (interface{}, error) {
 		localClaim := t.Claims.(*customclaims.Claims)
-		systemId = localClaim.SystemId
-		systemType = localClaim.Type
+		userId = localClaim.UserId
 		return []byte(config.GetConfig().Security.JwtKey), nil
 	})
 
@@ -107,11 +110,10 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 			isValid = true
 		}
 	} else {
-		fmt.Println("Error happened: " + err.Error())
+		logger.Println("Error happened: " + err.Error())
 	}
 
-	ctx := context.WithValue(r.Context(), customclaims.ContextKeySystemId, systemId)
-	ctx = context.WithValue(ctx, customclaims.ContextKeySystemType, systemType)
+	ctx := context.WithValue(r.Context(), customclaims.ContextKeyUserId, userId)
 	r = r.WithContext(ctx)
 
 	return isValid, r

@@ -11,9 +11,9 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/mikedelafuente/authful-servertools/pkg/customclaims"
-	"github.com/mikedelafuente/authful/users/internal/config"
-	"github.com/mikedelafuente/authful/users/internal/controllers"
-	"github.com/mikedelafuente/authful/users/internal/logger"
+	"github.com/mikedelafuente/authful/developers/internal/config"
+	"github.com/mikedelafuente/authful/developers/internal/controllers"
+	"github.com/mikedelafuente/authful/developers/internal/logger"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -28,11 +28,12 @@ func init() {
 	logger.Printf("Process started at %s\n", startTime)
 	config.GetConfig()       // just attempt to get the config at startup
 	config.GetDbConnection() // just attempt to connect to the database at startup
+
 }
 
 func main() {
 	myConfig := config.GetConfig()
-	logger.Printf("\n\nAuthful: User Server running at :%v\n\n", myConfig.WebServer.Port)
+	logger.Printf("\n\nAuthful: Developer Server running at :%v\n\n", myConfig.WebServer.Port)
 	logger.Printf("DEBUG MODE: %t", config.GetConfig().IsDebug)
 	setupRequestHandlers()
 }
@@ -40,14 +41,14 @@ func main() {
 func setupRequestHandlers() {
 
 	// Unsecured endpoints
-	openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
-	openR.HandleFunc("/api/v1/account:signin", controllers.AccountSigninPost).Methods(http.MethodPost)
-	openR.HandleFunc("/api/v1/account:signup", controllers.AccountSignupPost).Methods(http.MethodPost)
+	//openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
+	//openR.HandleFunc("/api/v1/account:signup", controllers.DeveloperSignupPost).Methods(http.MethodPost)
 
 	// ------------ UNPROTECTED API ENDPOINTS ------------
 	// User signup/signin services
 	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
-	secureUserR.HandleFunc("/api/v1/users", controllers.UsersGet).Methods(http.MethodGet)
+	secureUserR.HandleFunc("/api/v1/developers", controllers.DeveloperSignupPost).Methods(http.MethodPost)
+	secureUserR.HandleFunc("/api/v1/developers", controllers.DevelopersGet).Methods(http.MethodGet)
 	secureUserR.Use(bearerJwtHandler)
 
 	myConfig := config.GetConfig()

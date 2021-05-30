@@ -1,6 +1,6 @@
 package config
 
-type UserServerConfig struct {
+type DeveloperServerConfig struct {
 	WebServer      WebServerConfig      `json:"web_server"`
 	DatabaseServer DatabaseServerConfig `json:"database_server"`
 	Security       SecurityConfig       `json:"security"`
@@ -11,6 +11,7 @@ type SecurityConfig struct {
 	JwtKey             string `json:"jwt_key"`
 	PasswordCostFactor int    `json:"password_cost_factor"`
 }
+
 type WebServerConfig struct {
 	Port string `json:"port"`
 }

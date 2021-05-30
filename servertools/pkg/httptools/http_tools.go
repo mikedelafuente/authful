@@ -2,10 +2,10 @@ package httptools
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/mikedelafuente/authful/servertools/pkg/customerrors"
+	"github.com/mikedelafuente/authful-servertools/pkg/customerrors"
 )
 
 type ErrorResponse struct {
@@ -19,10 +19,10 @@ func ExtractErrorMessageFromJsonBytes(data []byte, defaultMessage string) string
 
 	var e ErrorResponse
 	body := string(data)
-	fmt.Printf("Body:\n%s\n", body)
+	log.Printf("Body:\n%s\n", body)
 	err := json.Unmarshal(data, &e)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	} else {
 		return e.Error
 	}

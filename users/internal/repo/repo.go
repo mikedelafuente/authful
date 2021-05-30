@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
 	"strings"
 	"time"
 
 	"github.com/mikedelafuente/authful/users/internal/config"
+	"github.com/mikedelafuente/authful/users/internal/logger"
 	"github.com/mikedelafuente/authful/users/internal/models"
 
 	"github.com/google/uuid"
@@ -27,8 +27,9 @@ func CreateUser(ctx context.Context, username string, password string) (models.U
 	currentTime := time.Now().UTC()
 	username = strings.ToLower(username)
 
-	result, err := db.Exec("INSERT INTO users (id, username, password, create_datetime, update_datetime) VALUES (?, ?, ?, ?, ?)", id, username, password, currentTime, currentTime)
+	result, err := db.Exec("INSERT INTO users (user_id, username, password, create_datetime, update_datetime) VALUES (?, ?, ?, ?, ?)", id, username, password, currentTime, currentTime)
 	if err != nil {
+		logger.Println(err)
 		return models.User{}, err
 	}
 
@@ -37,7 +38,7 @@ func CreateUser(ctx context.Context, username string, password string) (models.U
 	}
 
 	newUser := models.User{
-		Id:         id,
+		UserId:     id,
 		Username:   username,
 		CreateDate: currentTime,
 		UpdateDate: currentTime,
@@ -47,9 +48,9 @@ func CreateUser(ctx context.Context, username string, password string) (models.U
 }
 func GetUserByUsername(ctx context.Context, username string) (models.User, error) {
 	db := config.GetDbConnection()
-	result, err := db.Query("SELECT id, username, create_datetime, update_datetime FROM users WHERE username = ? LIMIT 1", username)
+	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime FROM users WHERE username = ? LIMIT 1", username)
 	if err != nil {
-		log.Print(err)
+		logger.Println(err)
 		return models.User{}, err
 	}
 
@@ -63,9 +64,9 @@ func GetUserByUsername(ctx context.Context, username string) (models.User, error
 
 func GetUserWithPasswordByUsername(ctx context.Context, username string) (models.User, string, error) {
 	db := config.GetDbConnection()
-	result, err := db.Query("SELECT id, username, create_datetime, update_datetime, password FROM users WHERE username = ? LIMIT 1", username)
+	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime, password FROM users WHERE username = ? LIMIT 1", username)
 	if err != nil {
-		log.Print(err)
+		logger.Println(err)
 		return models.User{}, "", err
 	}
 
@@ -75,10 +76,10 @@ func GetUserWithPasswordByUsername(ctx context.Context, username string) (models
 		var ntUpdate sql.NullTime
 		var password string
 
-		err := result.Scan(&user.Id, &user.Username, &ntCreate, &ntUpdate, &password)
+		err := result.Scan(&user.UserId, &user.Username, &ntCreate, &ntUpdate, &password)
 
 		if err != nil {
-			log.Print(err)
+			logger.Println(err)
 			return models.User{}, "", err
 		}
 
@@ -102,9 +103,10 @@ func GetUsers(ctx context.Context) ([]models.User, error) {
 
 	db := config.GetDbConnection()
 
-	result, err := db.Query("SELECT id, username, create_datetime, update_datetime FROM users")
+	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime FROM users")
 
 	if err != nil {
+		logger.Println(err)
 		return users, err
 	}
 
@@ -113,7 +115,7 @@ func GetUsers(ctx context.Context) ([]models.User, error) {
 		user, err := mapResultToUser(result)
 
 		if err != nil {
-			log.Print(err)
+			logger.Println(err)
 		} else {
 			users = append(users, user)
 		}
@@ -127,10 +129,10 @@ func mapResultToUser(result *sql.Rows) (models.User, error) {
 	var ntCreate sql.NullTime
 	var ntUpdate sql.NullTime
 
-	err := result.Scan(&user.Id, &user.Username, &ntCreate, &ntUpdate)
+	err := result.Scan(&user.UserId, &user.Username, &ntCreate, &ntUpdate)
 
 	if err != nil {
-		log.Print(err)
+		logger.Println(err)
 		return models.User{}, err
 	}
 

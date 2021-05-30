@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"html/template"
-	"log"
 	"net/http"
+
+	"github.com/mikedelafuente/authful/signin/internal/logger"
 )
 
 type Student struct {
@@ -18,10 +19,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		College:    "GolangBlogs",
 		RollNumber: 1,
 	}
-	parsedTemplate, _ := template.ParseFiles("internal/views/index.html")
+	parsedTemplate, _ := template.ParseFiles("Templates/index.html")
 	err := parsedTemplate.Execute(w, student)
 	if err != nil {
-		log.Println("Error executing template :", err)
+		logger.Println("Error executing template :", err)
 		return
 	}
 }

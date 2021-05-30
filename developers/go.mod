@@ -1,4 +1,4 @@
-module github.com/mikedelafuente/authful/users
+module github.com/mikedelafuente/authful/developers
 
 go 1.16
 
@@ -8,5 +8,4 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
 	github.com/mikedelafuente/authful-servertools v0.0.0-20210529160342-96c7f2911de5
-	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
 )

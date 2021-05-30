@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"html/template"
-	"log"
 	"net/http"
 
+	"github.com/mikedelafuente/authful/signin/internal/logger"
 	"github.com/mikedelafuente/authful/signin/internal/services"
 )
 
@@ -23,10 +23,10 @@ func DisplaySignup(w http.ResponseWriter, r *http.Request) {
 		Blah:          []int{},
 	}
 
-	parsedTemplate, _ := template.ParseFiles("internal/views/signup.html")
+	parsedTemplate, _ := template.ParseFiles("Templates/signup.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
-		log.Println("Error executing template :", err)
+		logger.Println("Error executing template :", err)
 		return
 	}
 }
@@ -60,10 +60,11 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 		user, err := services.Signup(r.Context(), username, password)
 
 		if err != nil {
+			logger.Println(err)
 			bag.ErrorMessages = append(bag.ErrorMessages, err.Error())
 		}
 
-		if len(user.Id) == 0 {
+		if len(user.UserId) == 0 {
 			bag.ErrorMessages = append(bag.ErrorMessages, "Unable to register for an account")
 		} else {
 			http.Redirect(w, r, "/login?username="+user.Username, http.StatusFound)
@@ -71,10 +72,11 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	parsedTemplate, _ := template.ParseFiles("internal/views/signup.html")
+	parsedTemplate, _ := template.ParseFiles("Templates/signup.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
-		log.Println("Error executing template :", err)
+		logger.Println(err)
+		logger.Println("Error executing template :", err)
 		return
 	}
 
