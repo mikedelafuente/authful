@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/mikedelafuente/authful/developers/internal/logger"
+	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 )
 
 var configOnce sync.Once
@@ -28,7 +28,7 @@ func GetConfig() *DeveloperServerConfig {
 			configInstance, err = getConfigInstanceFromEnvironment()
 		}
 		if err != nil {
-			logger.Println(err)
+			logger.Error(err)
 			panic(err)
 		}
 	})
@@ -53,7 +53,7 @@ func getConfigInstanceFromEnvironment() (*DeveloperServerConfig, error) {
 	// SECURITY
 	port, err := strconv.Atoi(os.Getenv("SECURITY_PASSWORD_COST_FACTOR"))
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return nil, err
 	}
 	myConfig.Security.PasswordCostFactor = port
@@ -78,18 +78,18 @@ func getConfigInstanceFromFile() (*DeveloperServerConfig, error) {
 	// Load config from file system
 	f, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return nil, err
 	}
 
 	var myConfig *DeveloperServerConfig = &DeveloperServerConfig{}
 	err = json.Unmarshal(f, &myConfig)
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return nil, err
 
 	}
-
+	os.Setenv("IS_DEBUG", fmt.Sprintf("%t", myConfig.IsDebug))
 	return myConfig, nil
 }
 
@@ -107,7 +107,7 @@ func GetDbConnection() *sql.DB {
 		var err error
 		dbInstance, err = getDbConnectionInstance()
 		if err != nil {
-			logger.Println(err)
+			logger.Error(err)
 			panic(err)
 		}
 	})

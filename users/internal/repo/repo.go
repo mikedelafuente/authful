@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 	"github.com/mikedelafuente/authful/users/internal/config"
-	"github.com/mikedelafuente/authful/users/internal/logger"
 	"github.com/mikedelafuente/authful/users/internal/models"
 
 	"github.com/google/uuid"
@@ -29,7 +29,7 @@ func CreateUser(ctx context.Context, username string, password string) (models.U
 
 	result, err := db.Exec("INSERT INTO users (user_id, username, password, create_datetime, update_datetime) VALUES (?, ?, ?, ?, ?)", id, username, password, currentTime, currentTime)
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return models.User{}, err
 	}
 
@@ -50,7 +50,7 @@ func GetUserByUsername(ctx context.Context, username string) (models.User, error
 	db := config.GetDbConnection()
 	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime FROM users WHERE username = ? LIMIT 1", username)
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return models.User{}, err
 	}
 
@@ -66,7 +66,7 @@ func GetUserWithPasswordByUsername(ctx context.Context, username string) (models
 	db := config.GetDbConnection()
 	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime, password FROM users WHERE username = ? LIMIT 1", username)
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return models.User{}, "", err
 	}
 
@@ -79,7 +79,7 @@ func GetUserWithPasswordByUsername(ctx context.Context, username string) (models
 		err := result.Scan(&user.UserId, &user.Username, &ntCreate, &ntUpdate, &password)
 
 		if err != nil {
-			logger.Println(err)
+			logger.Error(err)
 			return models.User{}, "", err
 		}
 
@@ -106,7 +106,7 @@ func GetUsers(ctx context.Context) ([]models.User, error) {
 	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime FROM users")
 
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return users, err
 	}
 
@@ -115,7 +115,7 @@ func GetUsers(ctx context.Context) ([]models.User, error) {
 		user, err := mapResultToUser(result)
 
 		if err != nil {
-			logger.Println(err)
+			logger.Error(err)
 		} else {
 			users = append(users, user)
 		}
@@ -132,7 +132,7 @@ func mapResultToUser(result *sql.Rows) (models.User, error) {
 	err := result.Scan(&user.UserId, &user.Username, &ntCreate, &ntUpdate)
 
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return models.User{}, err
 	}
 

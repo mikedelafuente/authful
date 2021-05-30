@@ -6,8 +6,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 	"github.com/mikedelafuente/authful/developers/internal/config"
-	"github.com/mikedelafuente/authful/developers/internal/logger"
 	"github.com/mikedelafuente/authful/developers/internal/models"
 
 	"github.com/google/uuid"
@@ -20,7 +20,7 @@ func CreateDeveloper(ctx context.Context, userId string, organizationName string
 
 	result, err := db.Exec("INSERT INTO developers (dev_id, user_id, organization_name, contact_email, agree_to_tos, create_datetime, update_datetime) VALUES (?, ?, ?, ?, ?, ?, ?)", devId, userId, organizationName, contactEmail, agreeToTermsOfService, currentTime, currentTime)
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return models.Developer{}, err
 	}
 
@@ -43,7 +43,7 @@ func GetDeveloperByUserId(ctx context.Context, userId string) (models.Developer,
 	db := config.GetDbConnection()
 	result, err := db.Query("SELECT dev_id, user_id, organization_name, contact_email, create_datetime, update_datetime FROM developers WHERE user_id = ? LIMIT 1", userId)
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return models.Developer{}, err
 	}
 
@@ -62,7 +62,7 @@ func GetDevelopers(ctx context.Context) ([]models.Developer, error) {
 	result, err := db.Query("SELECT dev_id, user_id, organization_name, contact_email, create_datetime, update_datetime FROM developers")
 
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return devs, err
 	}
 
@@ -71,7 +71,7 @@ func GetDevelopers(ctx context.Context) ([]models.Developer, error) {
 		dev, err := mapResultToDeveloper(result)
 
 		if err != nil {
-			logger.Println(err)
+			logger.Error(err)
 		} else {
 			devs = append(devs, dev)
 		}
@@ -88,7 +88,7 @@ func mapResultToDeveloper(result *sql.Rows) (models.Developer, error) {
 	err := result.Scan(&dev.DeveloperId, &dev.UserId, &dev.OrganizationName, &dev.ContactEmail, &ntCreate, &ntUpdate)
 
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return models.Developer{}, err
 	}
 

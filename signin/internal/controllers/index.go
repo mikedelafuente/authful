@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/mikedelafuente/authful/signin/internal/logger"
+	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 )
 
 type Student struct {

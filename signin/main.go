@@ -11,9 +11,9 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/mikedelafuente/authful-servertools/pkg/customclaims"
+	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 	"github.com/mikedelafuente/authful/signin/internal/config"
 	"github.com/mikedelafuente/authful/signin/internal/controllers"
-	"github.com/mikedelafuente/authful/signin/internal/logger"
 
 	"github.com/gorilla/mux"
 )
@@ -74,7 +74,7 @@ func cookieJwtHandler(next http.Handler) http.Handler {
 
 		cookie, err := r.Cookie("userSessionToken")
 		if err != nil {
-			logger.Println(err)
+			logger.Error(err)
 			// Redirect
 			isValid = false
 		}

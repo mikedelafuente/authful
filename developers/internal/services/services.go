@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/mikedelafuente/authful-servertools/pkg/customerrors"
-	"github.com/mikedelafuente/authful/developers/internal/logger"
+	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 	"github.com/mikedelafuente/authful/developers/internal/models"
 	"github.com/mikedelafuente/authful/developers/internal/repo"
 )
@@ -43,7 +43,7 @@ func GetDevelopers(ctx context.Context) ([]models.Developer, error) {
 func IsUniqueUserId(ctx context.Context, userId string) bool {
 	user, err := repo.GetDeveloperByUserId(ctx, userId)
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return false
 	}
 

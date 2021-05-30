@@ -11,9 +11,9 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/mikedelafuente/authful-servertools/pkg/customclaims"
+	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 	"github.com/mikedelafuente/authful/users/internal/config"
 	"github.com/mikedelafuente/authful/users/internal/controllers"
-	"github.com/mikedelafuente/authful/users/internal/logger"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"

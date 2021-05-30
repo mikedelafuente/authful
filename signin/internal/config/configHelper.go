@@ -3,12 +3,13 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"sync"
 
-	"github.com/mikedelafuente/authful/signin/internal/logger"
+	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 )
 
 var configOnce sync.Once
@@ -63,14 +64,14 @@ func getConfigInstanceFromFile() (*ServerConfig, error) {
 	// Load config from file system
 	f, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return nil, err
 	}
 
 	var myConfig *ServerConfig = &ServerConfig{}
 	err = json.Unmarshal(f, &myConfig)
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		return nil, err
 
 	}
@@ -79,5 +80,6 @@ func getConfigInstanceFromFile() (*ServerConfig, error) {
 		return nil, errors.New("empty user service uri")
 	}
 
+	os.Setenv("IS_DEBUG", fmt.Sprintf("%t", myConfig.IsDebug))
 	return myConfig, nil
 }

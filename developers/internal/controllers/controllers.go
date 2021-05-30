@@ -7,7 +7,7 @@ import (
 	"github.com/mikedelafuente/authful-servertools/pkg/customclaims"
 	"github.com/mikedelafuente/authful-servertools/pkg/customerrors"
 	"github.com/mikedelafuente/authful-servertools/pkg/httptools"
-	"github.com/mikedelafuente/authful/developers/internal/logger"
+	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 	"github.com/mikedelafuente/authful/developers/internal/models"
 	"github.com/mikedelafuente/authful/developers/internal/services"
 )
@@ -25,7 +25,7 @@ func DeveloperSignupPost(w http.ResponseWriter, r *http.Request) {
 	// Make sure the username is unique
 	user, err := services.CreateDeveloper(r.Context(), userId, signupRequest.OrganizationName, signupRequest.ContactEmail, signupRequest.AgreeToTermsOfService)
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		httptools.HandleError(err, w)
 		return
 	}
@@ -36,7 +36,7 @@ func DeveloperSignupPost(w http.ResponseWriter, r *http.Request) {
 func DevelopersGet(w http.ResponseWriter, r *http.Request) {
 	users, err := services.GetDevelopers(r.Context())
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		httptools.HandleError(err, w)
 		return
 	}

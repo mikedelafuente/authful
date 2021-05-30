@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/mikedelafuente/authful/signin/internal/logger"
+	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 	"github.com/mikedelafuente/authful/signin/internal/services"
 )
 
@@ -41,7 +41,7 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 	logger.Println("Logging in")
 	validLogin, jwt, err := services.IsValidUsernamePassword(r.Context(), username, password)
 	if err != nil {
-		logger.Println(err)
+		logger.Error(err)
 		bag.ErrorMessages = append(bag.ErrorMessages, err.Error())
 	}
 
