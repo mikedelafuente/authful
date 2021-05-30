@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/mikedelafuente/authful-servertools/pkg/httptools"
+	"github.com/mikedelafuente/authful/users/internal/logger"
 	"github.com/mikedelafuente/authful/users/internal/models"
 	service "github.com/mikedelafuente/authful/users/internal/services"
 )
@@ -17,11 +18,13 @@ func AccountSigninPost(w http.ResponseWriter, r *http.Request) {
 		// Generate a JWT and return it
 		foundUser, err := service.GetUserByUsername(r.Context(), userRequest.Username)
 		if err != nil {
+			logger.Println(err)
 			httptools.HandleError(err, w)
 			return
 		}
-		tokenString, expirationTime, err := service.ProduceJwtTokenForUser(r.Context(), foundUser.Username, foundUser.Id)
+		tokenString, expirationTime, err := service.ProduceJwtTokenForUser(r.Context(), foundUser.Username, foundUser.UserId)
 		if err != nil {
+			logger.Println(err)
 			// If there is an error in creating the JWT return an internal server error
 			httptools.HandleError(err, w)
 			return
@@ -52,6 +55,7 @@ func AccountSignupPost(w http.ResponseWriter, r *http.Request) {
 	// Make sure the username is unique
 	user, err := service.CreateUser(r.Context(), userRequest.Username, userRequest.Password)
 	if err != nil {
+		logger.Println(err)
 		httptools.HandleError(err, w)
 		return
 	}
@@ -62,6 +66,7 @@ func AccountSignupPost(w http.ResponseWriter, r *http.Request) {
 func UsersGet(w http.ResponseWriter, r *http.Request) {
 	users, err := service.GetUsers(r.Context())
 	if err != nil {
+		logger.Println(err)
 		httptools.HandleError(err, w)
 		return
 	}

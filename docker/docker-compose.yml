@@ -5,6 +5,8 @@ x-jwt-key: &security_jwt_key
 
 x-security-password-factor: &security_password_factor
   SECURITY_PASSWORD_COST_FACTOR: 14
+
+x-is-debug: &is_debug 1
   
 x-users-db-username: &usersdbusername users_db_admin
 services:
@@ -48,6 +50,7 @@ services:
     depends_on: 
       - users_db
     environment: 
+      IS_DEBUG: *is_debug
       WEB_SERVER_PORT: 8080
       SERVICE_ADDRESS: &users_service_address http://users:8080
       DATABASE_SERVER_DATABASE: *db_users_database
@@ -67,6 +70,7 @@ services:
     depends_on: 
       - developers_db
     environment: 
+      IS_DEBUG: *is_debug
       WEB_SERVER_PORT: 8080
       SERVICE_ADDRESS: &dev_service_address http://developers:8080
       DATABASE_SERVER_DATABASE: *db_dev_database
@@ -87,6 +91,7 @@ services:
       - users
       - developers
     environment: 
+      IS_DEBUG: *is_debug
       WEB_SERVER_PORT: 8080
       PROVIDERS_USER_SERVER_URI: *users_service_address
       PROVIDERS_DEVELOPER_SERVER_URI: *dev_service_address

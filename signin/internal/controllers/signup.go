@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"html/template"
-	"log"
 	"net/http"
 
+	"github.com/mikedelafuente/authful/signin/internal/logger"
 	"github.com/mikedelafuente/authful/signin/internal/services"
 )
 
@@ -26,7 +26,7 @@ func DisplaySignup(w http.ResponseWriter, r *http.Request) {
 	parsedTemplate, _ := template.ParseFiles("Templates/signup.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
-		log.Println("Error executing template :", err)
+		logger.Println("Error executing template :", err)
 		return
 	}
 }
@@ -60,6 +60,7 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 		user, err := services.Signup(r.Context(), username, password)
 
 		if err != nil {
+			logger.Println(err)
 			bag.ErrorMessages = append(bag.ErrorMessages, err.Error())
 		}
 
@@ -74,7 +75,8 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 	parsedTemplate, _ := template.ParseFiles("Templates/signup.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
-		log.Println("Error executing template :", err)
+		logger.Println(err)
+		logger.Println("Error executing template :", err)
 		return
 	}
 

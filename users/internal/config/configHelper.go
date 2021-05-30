@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strconv"
 	"sync"
+
+	"github.com/mikedelafuente/authful/users/internal/logger"
 )
 
 var configOnce sync.Once
@@ -27,6 +28,7 @@ func GetConfig() *UserServerConfig {
 			configInstance, err = getConfigInstanceFromEnvironment()
 		}
 		if err != nil {
+			logger.Println(err)
 			panic(err)
 		}
 	})
@@ -35,7 +37,7 @@ func GetConfig() *UserServerConfig {
 }
 
 func getConfigInstanceFromEnvironment() (*UserServerConfig, error) {
-	log.Printf("Loading config from environment")
+	logger.Printf("Loading config from environment")
 
 	var myConfig *UserServerConfig = &UserServerConfig{
 		WebServer:      WebServerConfig{},
@@ -43,12 +45,15 @@ func getConfigInstanceFromEnvironment() (*UserServerConfig, error) {
 		Security:       SecurityConfig{},
 	}
 
+	myConfig.IsDebug, _ = strconv.ParseBool(os.Getenv("IS_DEBUG"))
+
 	// WEB SERVER
 	myConfig.WebServer.Port = os.Getenv("WEB_SERVER_PORT")
 
 	// SECURITY
 	port, err := strconv.Atoi(os.Getenv("SECURITY_PASSWORD_COST_FACTOR"))
 	if err != nil {
+		logger.Println(err)
 		return nil, err
 	}
 	myConfig.Security.PasswordCostFactor = port
@@ -69,16 +74,18 @@ func getConfigInstanceFromFile() (*UserServerConfig, error) {
 
 	currDir, _ := os.Getwd()
 	filePath := currDir + "/settings/config.json"
-	log.Printf("Loading config from file: %s \n", filePath)
+	logger.Printf("Loading config from file: %s \n", filePath)
 	// Load config from file system
 	f, err := ioutil.ReadFile(filePath)
 	if err != nil {
+		logger.Println(err)
 		return nil, err
 	}
 
 	var myConfig *UserServerConfig = &UserServerConfig{}
 	err = json.Unmarshal(f, &myConfig)
 	if err != nil {
+		logger.Println(err)
 		return nil, err
 	}
 
@@ -88,7 +95,7 @@ func getConfigInstanceFromFile() (*UserServerConfig, error) {
 func getDbConnectionInstance() (*sql.DB, error) {
 
 	config := GetConfig()
-	log.Printf("Instantiating database connection to :%s \n", config.DatabaseServer.Port)
+	logger.Printf("Instantiating database connection to :%s \n", config.DatabaseServer.Port)
 	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.DatabaseServer.Username, config.DatabaseServer.Password, config.DatabaseServer.Host, config.DatabaseServer.Port, config.DatabaseServer.Database))
 
 	return db, err
@@ -99,6 +106,7 @@ func GetDbConnection() *sql.DB {
 		var err error
 		dbInstance, err = getDbConnectionInstance()
 		if err != nil {
+			logger.Println(err)
 			panic(err)
 		}
 	})

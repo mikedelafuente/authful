@@ -11,6 +11,7 @@ import (
 	"github.com/mikedelafuente/authful-servertools/pkg/customerrors"
 	"github.com/mikedelafuente/authful-servertools/pkg/httptools"
 	"github.com/mikedelafuente/authful/signin/internal/config"
+	"github.com/mikedelafuente/authful/signin/internal/logger"
 	"github.com/mikedelafuente/authful/signin/internal/models"
 )
 
@@ -21,6 +22,7 @@ func IsValidUsernamePassword(ctx context.Context, username string, password stri
 	}
 
 	usersUri = usersUri + "/api/v1/account:signin"
+	logger.Printf("Calling [%s]", usersUri)
 	client := &http.Client{}
 	requestModel := models.SigninCredentials{
 		Username: username,
@@ -29,23 +31,28 @@ func IsValidUsernamePassword(ctx context.Context, username string, password stri
 
 	requestBytes, err := httptools.MarshalFormat(requestModel)
 	if err != nil {
+		logger.Println(err)
 		return false, models.SigninJwt{}, err
 	}
 
 	req, err := http.NewRequest("POST", usersUri, bytes.NewBuffer(requestBytes))
 	if err != nil {
+		logger.Println(err)
 		return false, models.SigninJwt{}, err
 	}
+
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
+		logger.Println(err)
 		return false, models.SigninJwt{}, err
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		logger.Println(err)
 		return false, models.SigninJwt{}, err
 	}
 
@@ -81,11 +88,13 @@ func Signup(ctx context.Context, username string, password string) (models.User,
 
 	requestBytes, err := httptools.MarshalFormat(requestModel)
 	if err != nil {
+		logger.Println(err)
 		return models.User{}, err
 	}
 
 	req, err := http.NewRequest("POST", usersUri, bytes.NewBuffer(requestBytes))
 	if err != nil {
+		logger.Println(err)
 		return models.User{}, err
 	}
 
@@ -93,12 +102,14 @@ func Signup(ctx context.Context, username string, password string) (models.User,
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
+		logger.Println(err)
 		return models.User{}, err
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		logger.Println(err)
 		return models.User{}, err
 	}
 

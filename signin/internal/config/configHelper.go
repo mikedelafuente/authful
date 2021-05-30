@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"os"
+	"strconv"
 	"sync"
+
+	"github.com/mikedelafuente/authful/signin/internal/logger"
 )
 
 var configOnce sync.Once
@@ -30,13 +32,14 @@ func GetConfig() *ServerConfig {
 }
 
 func getConfigInstanceFromEnvironment() (*ServerConfig, error) {
-	log.Printf("Loading config from environment")
+	logger.Printf("Loading config from environment")
 
 	var myConfig *ServerConfig = &ServerConfig{
 		WebServer: WebServerConfig{},
 		Providers: ProvidersConfig{},
 		Security:  SecurityConfig{},
 	}
+	myConfig.IsDebug, _ = strconv.ParseBool(os.Getenv("IS_DEBUG"))
 
 	// WEB SERVER
 	myConfig.WebServer.Port = os.Getenv("WEB_SERVER_PORT")
@@ -56,16 +59,18 @@ func getConfigInstanceFromFile() (*ServerConfig, error) {
 
 	currDir, _ := os.Getwd()
 	filePath := currDir + "/settings/config.json"
-	log.Printf("Loading config from file: %s \n", filePath)
+	logger.Printf("Loading config from file: %s \n", filePath)
 	// Load config from file system
 	f, err := ioutil.ReadFile(filePath)
 	if err != nil {
+		logger.Println(err)
 		return nil, err
 	}
 
 	var myConfig *ServerConfig = &ServerConfig{}
 	err = json.Unmarshal(f, &myConfig)
 	if err != nil {
+		logger.Println(err)
 		return nil, err
 
 	}

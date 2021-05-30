@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"html/template"
-	"log"
 	"net/http"
 	"net/url"
 
+	"github.com/mikedelafuente/authful/signin/internal/logger"
 	"github.com/mikedelafuente/authful/signin/internal/services"
 )
 
@@ -23,7 +23,7 @@ func DisplayLogin(w http.ResponseWriter, r *http.Request) {
 	parsedTemplate, _ := template.ParseFiles("Templates/login.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
-		log.Println("Error executing template :", err)
+		logger.Println("Error executing template :", err)
 		return
 	}
 }
@@ -38,9 +38,10 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 		ErrorMessages: []string{},
 		Username:      username,
 	}
-
+	logger.Println("Logging in")
 	validLogin, jwt, err := services.IsValidUsernamePassword(r.Context(), username, password)
 	if err != nil {
+		logger.Println(err)
 		bag.ErrorMessages = append(bag.ErrorMessages, err.Error())
 	}
 
@@ -64,7 +65,7 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 	parsedTemplate, _ := template.ParseFiles("Templates/login.html")
 	err = parsedTemplate.Execute(w, bag)
 	if err != nil {
-		log.Println("Error executing template :", err)
+		logger.Println("Error executing template :", err)
 		return
 	}
 

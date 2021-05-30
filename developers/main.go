@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/mikedelafuente/authful-servertools/pkg/customclaims"
 	"github.com/mikedelafuente/authful/developers/internal/config"
 	"github.com/mikedelafuente/authful/developers/internal/controllers"
+	"github.com/mikedelafuente/authful/developers/internal/logger"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -22,14 +24,17 @@ var startTime time.Time
 
 func init() {
 	startTime = time.Now()
-	log.Printf("Process started at %s\n", startTime)
+	log.SetOutput(os.Stdout)
+	logger.Printf("Process started at %s\n", startTime)
 	config.GetConfig()       // just attempt to get the config at startup
 	config.GetDbConnection() // just attempt to connect to the database at startup
+
 }
 
 func main() {
 	myConfig := config.GetConfig()
-	log.Printf("\n\nAuthful: Developer Server running at :%v\n\n", myConfig.WebServer.Port)
+	logger.Printf("\n\nAuthful: Developer Server running at :%v\n\n", myConfig.WebServer.Port)
+	logger.Printf("DEBUG MODE: %t", config.GetConfig().IsDebug)
 	setupRequestHandlers()
 }
 
@@ -51,14 +56,14 @@ func setupRequestHandlers() {
 	defer dbShutdown()
 	err := http.ListenAndServe(fmt.Sprintf(":%v", myConfig.WebServer.Port), myRouter)
 	endTime := time.Now()
-	log.Printf("Process stopped at %s\n", endTime)
+	logger.Printf("Process stopped at %s\n", endTime)
 	elapsed := endTime.Sub(startTime)
-	log.Printf("Server uptime was: %s", elapsed)
-	log.Fatal(err)
+	logger.Printf("Server uptime was: %s", elapsed)
+	logger.Fatal(err)
 }
 
 func dbShutdown() {
-	log.Println("shutting down database")
+	logger.Println("shutting down database")
 	db := config.GetDbConnection()
 	db.Close()
 }
@@ -104,7 +109,7 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 			isValid = true
 		}
 	} else {
-		log.Println("Error happened: " + err.Error())
+		logger.Println("Error happened: " + err.Error())
 	}
 
 	ctx := context.WithValue(r.Context(), customclaims.ContextKeyUserId, userId)

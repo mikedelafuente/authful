@@ -4,14 +4,14 @@ type ServerConfig struct {
 	WebServer WebServerConfig `json:"web_server"`
 	Providers ProvidersConfig `json:"providers"`
 	Security  SecurityConfig  `json:"security"`
+	IsDebug   bool            `json:"is_debug"`
 }
 
 type SecurityConfig struct {
 	JwtKey string `json:"jwt_key"`
 }
 type WebServerConfig struct {
-	Schema string `json:"schema"`
-	Port   string `json:"server_port"`
+	Port string `json:"port"`
 }
 
 type ProvidersConfig struct {
