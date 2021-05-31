@@ -71,5 +71,4 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 		logger.Error(r.Context(), fmt.Sprintf("Error executing template: %s", err))
 		return
 	}
-
 }

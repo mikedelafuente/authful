@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
@@ -20,17 +19,14 @@ import (
 )
 
 var myRouter = mux.NewRouter().StrictSlash(true)
-var startTime time.Time
 
 func init() {
 	log.SetOutput(os.Stdout)
-	startTime = time.Now()
 	config.GetConfig()
-	fmt.Printf("Process started at %s\n", startTime)
 }
 
 func main() {
-	fmt.Printf("\n\nAuthful: Signin Server running at %s:%v\n\n", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port)
+	fmt.Printf("\n\nAuthful: Signin Server\n\n")
 	fmt.Printf("Log Level: %s\n", logger.GetLogLevel())
 	setupRequestHandlers()
 }
@@ -57,14 +53,9 @@ func setupRequestHandlers() {
 	// openR.Handle("/resources/", http.StripPrefix("/resources", fileServer))
 	// openR.HandleFunc("/", renderTemplate)
 
+	fmt.Printf("\n\nAuthful: Signin Server running at %s:%v\n\n", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port)
 	err := http.ListenAndServe(fmt.Sprintf("%s:%v", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port), myRouter)
-
-	endTime := time.Now()
-	logger.Verbose(context.Background(), fmt.Sprintf("Process stopped at %s\n", endTime))
-	elapsed := endTime.Sub(startTime)
-	logger.Verbose(context.Background(), fmt.Sprintf("Server uptime was: %s", elapsed))
 	logger.Fatal(context.Background(), err)
-
 }
 
 func openHandler(next http.Handler) http.Handler {
@@ -83,7 +74,6 @@ func openHandler(next http.Handler) http.Handler {
 
 func cookieJwtHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		isValid := true
 		r = extractAndSetTraceId(r)
 
@@ -102,7 +92,7 @@ func cookieJwtHandler(next http.Handler) http.Handler {
 		logger.Verbose(r.Context(), fmt.Sprintf("Request recieved: %s %s", r.Method, r.URL))
 
 		if !isValid {
-			var loginRedirectUri = url.QueryEscape(r.URL.String())
+			loginRedirectUri := url.QueryEscape(r.URL.String())
 			http.Redirect(w, r, "/login?redirect_uri="+loginRedirectUri, http.StatusFound)
 			return
 		}

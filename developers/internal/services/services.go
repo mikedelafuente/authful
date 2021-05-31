@@ -13,7 +13,6 @@ import (
 
 func CreateDeveloper(ctx context.Context, userId string, organizationName string, contactEmail string, agreeToTermsOfService bool) (models.Developer, error) {
 	if strings.TrimSpace(userId) == "" {
-
 		return models.Developer{}, customerrors.NewServiceError(http.StatusBadRequest, "user_id cannot be blank")
 	}
 

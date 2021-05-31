@@ -11,6 +11,7 @@ type SecurityConfig struct {
 	JwtKey             string `json:"jwt_key"`
 	PasswordCostFactor int    `json:"password_cost_factor"`
 }
+
 type WebServerConfig struct {
 	Port string `json:"port"`
 	Host string `json:"host"`

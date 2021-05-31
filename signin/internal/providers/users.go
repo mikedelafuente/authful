@@ -32,7 +32,6 @@ func IsValidUsernamePassword(ctx context.Context, username string, password stri
 			logger.Error(ctx, err)
 			return false, models.SigninJwt{}, err
 		}
-
 	}
 
 	var responseObject models.SigninJwt

@@ -10,11 +10,15 @@ import (
 	"sync"
 )
 
-var configOnce sync.Once
-var configInstance *UserServerConfig
+var (
+	configOnce     sync.Once
+	configInstance *UserServerConfig
+)
 
-var dbOnce sync.Once
-var dbInstance *sql.DB
+var (
+	dbOnce     sync.Once
+	dbInstance *sql.DB
+)
 
 func GetConfig() *UserServerConfig {
 	configOnce.Do(func() {
@@ -22,7 +26,6 @@ func GetConfig() *UserServerConfig {
 
 		if len(os.Getenv("WEB_SERVER_PORT")) == 0 {
 			configInstance, err = getConfigInstanceFromFile()
-
 		} else {
 			configInstance, err = getConfigInstanceFromEnvironment()
 		}
@@ -92,7 +95,6 @@ func getConfigInstanceFromFile() (*UserServerConfig, error) {
 }
 
 func getDbConnectionInstance() (*sql.DB, error) {
-
 	config := GetConfig()
 	fmt.Printf("Instantiating database connection to :%v \n", config.DatabaseServer.Port)
 	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.DatabaseServer.Username, config.DatabaseServer.Password, config.DatabaseServer.Host, config.DatabaseServer.Port, config.DatabaseServer.Database))

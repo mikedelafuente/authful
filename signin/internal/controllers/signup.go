@@ -43,9 +43,7 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(username) == 0 {
-
 		bag.ErrorMessages = append(bag.ErrorMessages, "Enter a username")
-
 	}
 
 	if len(password) == 0 {
@@ -59,7 +57,6 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 	if len(bag.ErrorMessages) == 0 {
 
 		user, err := services.Signup(r.Context(), username, password)
-
 		if err != nil {
 			logger.Error(r.Context(), err)
 			bag.ErrorMessages = append(bag.ErrorMessages, err.Error())
@@ -79,5 +76,4 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 		logger.Error(r.Context(), fmt.Sprintf("Error executing template: %s", err))
 		return
 	}
-
 }
