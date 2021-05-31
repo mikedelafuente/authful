@@ -6,10 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"sync"
-
-	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 )
 
 var configOnce sync.Once
@@ -18,6 +15,7 @@ var configInstance *ServerConfig
 func GetConfig() *ServerConfig {
 	configOnce.Do(func() {
 		var err error
+
 		if len(os.Getenv("WEB_SERVER_PORT")) == 0 {
 			configInstance, err = getConfigInstanceFromFile()
 
@@ -33,14 +31,14 @@ func GetConfig() *ServerConfig {
 }
 
 func getConfigInstanceFromEnvironment() (*ServerConfig, error) {
-	logger.Printf("Loading config from environment")
+	fmt.Println("Loading signin server config from environment")
 
 	var myConfig *ServerConfig = &ServerConfig{
 		WebServer: WebServerConfig{},
 		Providers: ProvidersConfig{},
 		Security:  SecurityConfig{},
 	}
-	myConfig.IsDebug, _ = strconv.ParseBool(os.Getenv("IS_DEBUG"))
+	myConfig.LogLevel = os.Getenv("AUTHFUL_LOG_LEVEL")
 
 	// WEB SERVER
 	myConfig.WebServer.Port = os.Getenv("WEB_SERVER_PORT")
@@ -60,26 +58,25 @@ func getConfigInstanceFromFile() (*ServerConfig, error) {
 
 	currDir, _ := os.Getwd()
 	filePath := currDir + "/settings/config.json"
-	logger.Printf("Loading config from file: %s \n", filePath)
+	fmt.Printf("Loading config from file: %s \n", filePath)
 	// Load config from file system
 	f, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		logger.Error(err)
+		fmt.Printf("ERROR: %s \n", err)
 		return nil, err
 	}
 
 	var myConfig *ServerConfig = &ServerConfig{}
 	err = json.Unmarshal(f, &myConfig)
 	if err != nil {
-		logger.Error(err)
+		fmt.Printf("ERROR: %s \n", err)
 		return nil, err
-
 	}
+	os.Setenv("AUTHFUL_LOG_LEVEL", myConfig.LogLevel)
 
 	if myConfig.Providers.UserServerUri == "" {
 		return nil, errors.New("empty user service uri")
 	}
 
-	os.Setenv("IS_DEBUG", fmt.Sprintf("%t", myConfig.IsDebug))
 	return myConfig, nil
 }

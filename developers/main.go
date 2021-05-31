@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 	"github.com/mikedelafuente/authful-servertools/pkg/customclaims"
 	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 	"github.com/mikedelafuente/authful/developers/internal/config"
@@ -23,18 +24,17 @@ var myRouter = mux.NewRouter().StrictSlash(true)
 var startTime time.Time
 
 func init() {
-	startTime = time.Now()
 	log.SetOutput(os.Stdout)
-	logger.Printf("Process started at %s\n", startTime)
-	config.GetConfig()       // just attempt to get the config at startup
+	startTime = time.Now()
+	config.GetConfig()
+	fmt.Printf("Process started at %s\n", startTime)
 	config.GetDbConnection() // just attempt to connect to the database at startup
 
 }
 
 func main() {
-	myConfig := config.GetConfig()
-	logger.Printf("\n\nAuthful: Developer Server running at :%v\n\n", myConfig.WebServer.Port)
-	logger.Printf("DEBUG MODE: %t", config.GetConfig().IsDebug)
+	fmt.Printf("\n\nAuthful: Developer Server running at %s:%v\n\n", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port)
+	fmt.Printf("Log Level: %s\n", logger.GetLogLevel())
 	setupRequestHandlers()
 }
 
@@ -51,19 +51,17 @@ func setupRequestHandlers() {
 	secureUserR.HandleFunc("/api/v1/developers", controllers.DevelopersGet).Methods(http.MethodGet)
 	secureUserR.Use(bearerJwtHandler)
 
-	myConfig := config.GetConfig()
-
 	defer dbShutdown()
-	err := http.ListenAndServe(fmt.Sprintf(":%v", myConfig.WebServer.Port), myRouter)
+	err := http.ListenAndServe(fmt.Sprintf("%s:%v", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port), myRouter)
 	endTime := time.Now()
-	logger.Printf("Process stopped at %s\n", endTime)
+	logger.Verbose(context.Background(), fmt.Sprintf("Process stopped at %v\n", endTime))
 	elapsed := endTime.Sub(startTime)
-	logger.Printf("Server uptime was: %s", elapsed)
-	logger.Fatal(err)
+	logger.Verbose(context.Background(), fmt.Sprintf("Server uptime was: %v", elapsed))
+	logger.Fatal(context.Background(), err)
 }
 
 func dbShutdown() {
-	logger.Println("shutting down database")
+	logger.Verbose(context.Background(), "shutting down database")
 	db := config.GetDbConnection()
 	db.Close()
 }
@@ -73,6 +71,8 @@ func bearerJwtHandler(next http.Handler) http.Handler {
 
 		// uh.logger.Debug("validating access token")
 		authHeader := r.Header.Values("Authorization")
+		r = extractAndSetTraceId(r)
+
 		isValid := false
 
 		if len(authHeader) > 0 {
@@ -93,6 +93,20 @@ func bearerJwtHandler(next http.Handler) http.Handler {
 	})
 }
 
+func extractAndSetTraceId(r *http.Request) *http.Request {
+	traceIdParts := r.Header.Values("x-trace-id")
+
+	var traceId string
+	if len(traceIdParts) == 0 || len(traceIdParts[0]) == 0 {
+		traceId = uuid.New().String()
+	} else {
+		traceId = traceIdParts[0]
+	}
+	ctx := context.WithValue(r.Context(), customclaims.ContextTraceId, traceId)
+	r = r.WithContext(ctx)
+	return r
+}
+
 func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 	userId := ""
 	isValid := false
@@ -107,12 +121,15 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 	if err == nil {
 		if token.Valid {
 			isValid = true
+			logger.Debug(r.Context(), "Valid token passed")
 		}
 	} else {
-		logger.Println("Error happened: " + err.Error())
+		logger.Error(r.Context(), err)
 	}
 
 	ctx := context.WithValue(r.Context(), customclaims.ContextKeyUserId, userId)
+	ctx = context.WithValue(ctx, customclaims.ContextJwt, token.Raw)
+
 	r = r.WithContext(ctx)
 
 	return isValid, r

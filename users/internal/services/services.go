@@ -36,7 +36,7 @@ func CreateUser(ctx context.Context, username string, password string) (models.U
 	// bcrypt the password
 	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(password), config.GetConfig().Security.PasswordCostFactor)
 	if err != nil {
-		logger.Error(err)
+		logger.Error(ctx, err)
 		return models.User{}, err
 	}
 
@@ -82,7 +82,7 @@ func ProduceJwtTokenForUser(ctx context.Context, username string, userId string)
 func IsUniqueUsername(ctx context.Context, username string) bool {
 	user, err := repo.GetUserByUsername(ctx, username)
 	if err != nil {
-		logger.Error(err)
+		logger.Error(ctx, err)
 		return false
 	}
 
@@ -93,7 +93,7 @@ func IsUniqueUsername(ctx context.Context, username string) bool {
 func IsValidUsernamePassword(ctx context.Context, username string, password string) bool {
 	user, bcryptPassword, err := repo.GetUserWithPasswordByUsername(ctx, username)
 	if err != nil {
-		logger.Error(err)
+		logger.Error(ctx, err)
 		return false
 	}
 

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -26,7 +27,7 @@ func DisplaySignup(w http.ResponseWriter, r *http.Request) {
 	parsedTemplate, _ := template.ParseFiles("Templates/signup.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
-		logger.Println("Error executing template :", err)
+		logger.Error(r.Context(), fmt.Sprintf("Error executing template: %s", err))
 		return
 	}
 }
@@ -60,7 +61,7 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 		user, err := services.Signup(r.Context(), username, password)
 
 		if err != nil {
-			logger.Error(err)
+			logger.Error(r.Context(), err)
 			bag.ErrorMessages = append(bag.ErrorMessages, err.Error())
 		}
 
@@ -75,8 +76,7 @@ func ProcessSignup(w http.ResponseWriter, r *http.Request) {
 	parsedTemplate, _ := template.ParseFiles("Templates/signup.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
-		logger.Error(err)
-		logger.Println("Error executing template :", err)
+		logger.Error(r.Context(), fmt.Sprintf("Error executing template: %s", err))
 		return
 	}
 

@@ -8,8 +8,6 @@ import (
 	"os"
 	"strconv"
 	"sync"
-
-	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 )
 
 var configOnce sync.Once
@@ -21,6 +19,7 @@ var dbInstance *sql.DB
 func GetConfig() *DeveloperServerConfig {
 	configOnce.Do(func() {
 		var err error
+
 		if len(os.Getenv("WEB_SERVER_PORT")) == 0 {
 			configInstance, err = getConfigInstanceFromFile()
 
@@ -28,7 +27,7 @@ func GetConfig() *DeveloperServerConfig {
 			configInstance, err = getConfigInstanceFromEnvironment()
 		}
 		if err != nil {
-			logger.Error(err)
+			fmt.Printf("ERROR: %s \n", err)
 			panic(err)
 		}
 	})
@@ -37,7 +36,7 @@ func GetConfig() *DeveloperServerConfig {
 }
 
 func getConfigInstanceFromEnvironment() (*DeveloperServerConfig, error) {
-	logger.Printf("Loading config from environment")
+	fmt.Println("Loading developer server config from environment")
 
 	var myConfig *DeveloperServerConfig = &DeveloperServerConfig{
 		WebServer:      WebServerConfig{},
@@ -45,7 +44,7 @@ func getConfigInstanceFromEnvironment() (*DeveloperServerConfig, error) {
 		Security:       SecurityConfig{},
 	}
 
-	myConfig.IsDebug, _ = strconv.ParseBool(os.Getenv("IS_DEBUG"))
+	myConfig.LogLevel = os.Getenv("AUTHFUL_LOG_LEVEL")
 
 	// WEB SERVER
 	myConfig.WebServer.Port = os.Getenv("WEB_SERVER_PORT")
@@ -53,7 +52,7 @@ func getConfigInstanceFromEnvironment() (*DeveloperServerConfig, error) {
 	// SECURITY
 	port, err := strconv.Atoi(os.Getenv("SECURITY_PASSWORD_COST_FACTOR"))
 	if err != nil {
-		logger.Error(err)
+		fmt.Printf("ERROR: %s \n", err)
 		return nil, err
 	}
 	myConfig.Security.PasswordCostFactor = port
@@ -74,29 +73,29 @@ func getConfigInstanceFromFile() (*DeveloperServerConfig, error) {
 
 	currDir, _ := os.Getwd()
 	filePath := currDir + "/settings/config.json"
-	logger.Printf("Loading config from file: %s \n", filePath)
+	fmt.Printf("Loading config from file: %s \n", filePath)
 	// Load config from file system
 	f, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		logger.Error(err)
+		fmt.Printf("ERROR: %s \n", err)
 		return nil, err
 	}
 
 	var myConfig *DeveloperServerConfig = &DeveloperServerConfig{}
 	err = json.Unmarshal(f, &myConfig)
 	if err != nil {
-		logger.Error(err)
+		fmt.Printf("ERROR: %s \n", err)
 		return nil, err
 
 	}
-	os.Setenv("IS_DEBUG", fmt.Sprintf("%t", myConfig.IsDebug))
+	os.Setenv("AUTHFUL_LOG_LEVEL", myConfig.LogLevel)
 	return myConfig, nil
 }
 
 func getDbConnectionInstance() (*sql.DB, error) {
 
 	config := GetConfig()
-	logger.Printf("Instantiating database connection to :%s \n", config.DatabaseServer.Port)
+	fmt.Printf("Instantiating database connection to :%v \n", config.DatabaseServer.Port)
 	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.DatabaseServer.Username, config.DatabaseServer.Password, config.DatabaseServer.Host, config.DatabaseServer.Port, config.DatabaseServer.Database))
 
 	return db, err
@@ -107,7 +106,7 @@ func GetDbConnection() *sql.DB {
 		var err error
 		dbInstance, err = getDbConnectionInstance()
 		if err != nil {
-			logger.Error(err)
+			fmt.Printf("FATAL: %s \n", err)
 			panic(err)
 		}
 	})

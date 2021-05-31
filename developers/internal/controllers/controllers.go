@@ -18,28 +18,28 @@ func DeveloperSignupPost(w http.ResponseWriter, r *http.Request) {
 
 	userId := r.Context().Value(customclaims.ContextKeyUserId).(string)
 	if len(userId) == 0 {
-		httptools.HandleError(customerrors.NewServiceError(http.StatusBadRequest, "invalid jwt - user_id is missing"), w)
+		httptools.HandleError(r.Context(), customerrors.NewServiceError(http.StatusBadRequest, "invalid jwt - user_id is missing"), w)
 		return
 	}
 
 	// Make sure the username is unique
 	user, err := services.CreateDeveloper(r.Context(), userId, signupRequest.OrganizationName, signupRequest.ContactEmail, signupRequest.AgreeToTermsOfService)
 	if err != nil {
-		logger.Error(err)
-		httptools.HandleError(err, w)
+		logger.Error(r.Context(), err)
+		httptools.HandleError(r.Context(), err, w)
 		return
 	}
 
-	httptools.ProcessResponse(user, w, http.StatusOK)
+	httptools.ProcessResponse(r.Context(), user, w, http.StatusOK)
 }
 
 func DevelopersGet(w http.ResponseWriter, r *http.Request) {
 	users, err := services.GetDevelopers(r.Context())
 	if err != nil {
-		logger.Error(err)
-		httptools.HandleError(err, w)
+		logger.Error(r.Context(), err)
+		httptools.HandleError(r.Context(), err, w)
 		return
 	}
 
-	httptools.ProcessResponse(users, w, http.StatusOK)
+	httptools.ProcessResponse(r.Context(), users, w, http.StatusOK)
 }

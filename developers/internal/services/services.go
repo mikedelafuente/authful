@@ -43,7 +43,7 @@ func GetDevelopers(ctx context.Context) ([]models.Developer, error) {
 func IsUniqueUserId(ctx context.Context, userId string) bool {
 	user, err := repo.GetDeveloperByUserId(ctx, userId)
 	if err != nil {
-		logger.Error(err)
+		logger.Error(ctx, err)
 		return false
 	}
 

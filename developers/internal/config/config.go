@@ -4,7 +4,7 @@ type DeveloperServerConfig struct {
 	WebServer      WebServerConfig      `json:"web_server"`
 	DatabaseServer DatabaseServerConfig `json:"database_server"`
 	Security       SecurityConfig       `json:"security"`
-	IsDebug        bool                 `json:"is_debug"`
+	LogLevel       string               `json:"log_level"`
 }
 
 type SecurityConfig struct {
@@ -14,6 +14,7 @@ type SecurityConfig struct {
 
 type WebServerConfig struct {
 	Port string `json:"port"`
+	Host string `json:"host"`
 }
 
 type DatabaseServerConfig struct {

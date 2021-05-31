@@ -1,6 +1,7 @@
 {
     "web_server": {
-        "port": "8080"        
+        "port": "8080",
+        "host":"localhost"        
     },
     "providers" : {
         "user_server_uri":"http://localhost:8082",
@@ -9,5 +10,5 @@
     "security" : {
         "jwt_key": "change_this_to_whatever_you_want_but_make_sure_to_change_it"        
     },
-    "is_debug": true
+    "log_level": "VERBOSE"
 }

@@ -29,7 +29,7 @@ func CreateUser(ctx context.Context, username string, password string) (models.U
 
 	result, err := db.Exec("INSERT INTO users (user_id, username, password, create_datetime, update_datetime) VALUES (?, ?, ?, ?, ?)", id, username, password, currentTime, currentTime)
 	if err != nil {
-		logger.Error(err)
+		logger.Error(ctx, err)
 		return models.User{}, err
 	}
 
@@ -50,12 +50,12 @@ func GetUserByUsername(ctx context.Context, username string) (models.User, error
 	db := config.GetDbConnection()
 	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime FROM users WHERE username = ? LIMIT 1", username)
 	if err != nil {
-		logger.Error(err)
+		logger.Error(ctx, err)
 		return models.User{}, err
 	}
 
 	if result.Next() {
-		return mapResultToUser(result)
+		return mapResultToUser(ctx, result)
 	} else {
 		return models.User{}, nil
 	}
@@ -66,7 +66,7 @@ func GetUserWithPasswordByUsername(ctx context.Context, username string) (models
 	db := config.GetDbConnection()
 	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime, password FROM users WHERE username = ? LIMIT 1", username)
 	if err != nil {
-		logger.Error(err)
+		logger.Error(ctx, err)
 		return models.User{}, "", err
 	}
 
@@ -79,7 +79,7 @@ func GetUserWithPasswordByUsername(ctx context.Context, username string) (models
 		err := result.Scan(&user.UserId, &user.Username, &ntCreate, &ntUpdate, &password)
 
 		if err != nil {
-			logger.Error(err)
+			logger.Error(ctx, err)
 			return models.User{}, "", err
 		}
 
@@ -106,16 +106,16 @@ func GetUsers(ctx context.Context) ([]models.User, error) {
 	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime FROM users")
 
 	if err != nil {
-		logger.Error(err)
+		logger.Error(ctx, err)
 		return users, err
 	}
 
 	for result.Next() {
 
-		user, err := mapResultToUser(result)
+		user, err := mapResultToUser(ctx, result)
 
 		if err != nil {
-			logger.Error(err)
+			logger.Error(ctx, err)
 		} else {
 			users = append(users, user)
 		}
@@ -123,7 +123,7 @@ func GetUsers(ctx context.Context) ([]models.User, error) {
 	return users, nil
 }
 
-func mapResultToUser(result *sql.Rows) (models.User, error) {
+func mapResultToUser(ctx context.Context, result *sql.Rows) (models.User, error) {
 
 	var user models.User = models.User{}
 	var ntCreate sql.NullTime
@@ -132,7 +132,7 @@ func mapResultToUser(result *sql.Rows) (models.User, error) {
 	err := result.Scan(&user.UserId, &user.Username, &ntCreate, &ntUpdate)
 
 	if err != nil {
-		logger.Error(err)
+		logger.Error(ctx, err)
 		return models.User{}, err
 	}
 

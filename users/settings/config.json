@@ -1,6 +1,7 @@
 {
     "web_server": {
-       "port": "8082"        
+       "port": "8082",
+       "host":"localhost" 
     },
     "database_server" : {
         "port": "3306",
@@ -13,5 +14,5 @@
         "jwt_key": "change_this_to_whatever_you_want_but_make_sure_to_change_it",
         "password_cost_factor": 14
     },
-    "is_debug": true
+    "log_level": "VERBOSE"
 }

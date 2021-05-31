@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -22,7 +23,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	parsedTemplate, _ := template.ParseFiles("Templates/index.html")
 	err := parsedTemplate.Execute(w, student)
 	if err != nil {
-		logger.Println("Error executing template :", err)
+		logger.Error(r.Context(), fmt.Sprintf("Error executing template : %s", err))
 		return
 	}
 }

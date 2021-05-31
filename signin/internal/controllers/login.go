@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -23,7 +24,7 @@ func DisplayLogin(w http.ResponseWriter, r *http.Request) {
 	parsedTemplate, _ := template.ParseFiles("Templates/login.html")
 	err := parsedTemplate.Execute(w, bag)
 	if err != nil {
-		logger.Println("Error executing template :", err)
+		logger.Error(r.Context(), fmt.Sprintf("Error executing template: %s", err))
 		return
 	}
 }
@@ -38,10 +39,10 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 		ErrorMessages: []string{},
 		Username:      username,
 	}
-	logger.Println("Logging in")
+	logger.Verbose(r.Context(), "Logging in")
 	validLogin, jwt, err := services.IsValidUsernamePassword(r.Context(), username, password)
 	if err != nil {
-		logger.Error(err)
+		logger.Error(r.Context(), err)
 		bag.ErrorMessages = append(bag.ErrorMessages, err.Error())
 	}
 
@@ -65,7 +66,7 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 	parsedTemplate, _ := template.ParseFiles("Templates/login.html")
 	err = parsedTemplate.Execute(w, bag)
 	if err != nil {
-		logger.Println("Error executing template :", err)
+		logger.Error(r.Context(), fmt.Sprintf("Error executing template: %s", err))
 		return
 	}
 
