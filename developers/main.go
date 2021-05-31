@@ -84,6 +84,7 @@ func bearerJwtHandler(next http.Handler) http.Handler {
 			}
 		}
 
+		logger.Verbose(r.Context(), fmt.Sprintf("Request recieved: %s %s", r.Method, r.URL))
 		if !isValid {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
@@ -121,7 +122,6 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 	if err == nil {
 		if token.Valid {
 			isValid = true
-			logger.Debug(r.Context(), "Valid token passed")
 		}
 	} else {
 		logger.Error(r.Context(), err)
