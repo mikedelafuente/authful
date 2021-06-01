@@ -7,7 +7,13 @@ x-security-password-factor: &security_password_factor
   SECURITY_PASSWORD_COST_FACTOR: 14
 
 x-log-level: &log_level VERBOSE
-  
+
+# CORS 
+x-cors: &cors
+  CORS_ORIGIN_ALLOWED: http://localhost:8080, http://localhost:3000
+  CORS_ALLOWED_HEADERS: Accept,Cache,Content-Type,Authorize,Access-Control-Allow-Origin,X-Requested-With,X-Auth-Token,Content-Length,Accept-Encoding,X-CSRF-Token,Authorization,x-trace-id
+  CORS_ALLOWED_METHODS: GET,HEAD,POST,PUT,PATCH,OPTIONS
+
 services:
   authful_developers_db:
     image: mysql
@@ -58,7 +64,8 @@ services:
       DATABASE_SERVER_USERNAME: *db_users_user
       DATABASE_SERVER_PASSWORD: *db_users_password
       <<: *security_password_factor
-      <<: *security_jwt_key    
+      <<: *security_jwt_key
+      <<: *cors
     ports:
       - 8082:8080
   authful_developers:
@@ -79,6 +86,7 @@ services:
       DATABASE_SERVER_PASSWORD: *db_dev_password
       <<: *security_password_factor
       <<: *security_jwt_key
+      <<: *cors
     ports:
       - 8083:8080
   authful_signin:
@@ -95,6 +103,7 @@ services:
       PROVIDERS_USER_SERVER_URI: *users_service_address
       PROVIDERS_DEVELOPER_SERVER_URI: *dev_service_address
       <<: *security_jwt_key
+      <<: *cors
     ports:
       - 8081:8080
   authful_web:

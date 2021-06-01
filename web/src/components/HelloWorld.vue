@@ -44,7 +44,7 @@ export default {
       this.$.props.msg = this.$.props.msg.split('').reverse().join('');
       axios.post('http://localhost:8081/api/v1/signin', {
         username:'try',
-        password:'a'
+        password:'this'
       },{
         headers: {
           Accept: 'application/json',
@@ -54,7 +54,7 @@ export default {
         withCredentials: true
       }
       ).then(response => {
-                console.log(response);
+                this.$cookies.set("userJwt", response.data.jwt, new Date(response.data.expires))
                 //this.response = JSON.stringify(response, null, "")
             }).catch(error => {
                 console.log(error);

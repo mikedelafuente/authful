@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -43,6 +44,9 @@ func getConfigInstanceFromEnvironment() (*ServerConfig, error) {
 
 	// WEB SERVER
 	myConfig.WebServer.Port = os.Getenv("WEB_SERVER_PORT")
+	myConfig.WebServer.CORSOriginAllowed = parseCommaDelimitedStringToArray(os.Getenv("CORS_ORIGIN_ALLOWED"))
+	myConfig.WebServer.CORSAllowedHeaders = parseCommaDelimitedStringToArray(os.Getenv("CORS_ALLOWED_HEADERS"))
+	myConfig.WebServer.CORSAllowedMethods = parseCommaDelimitedStringToArray(os.Getenv("CORS_ALLOWED_METHODS"))
 
 	// SECURITY
 	myConfig.Security.JwtKey = os.Getenv("SECURITY_JWT_KEY")
@@ -51,7 +55,26 @@ func getConfigInstanceFromEnvironment() (*ServerConfig, error) {
 	myConfig.Providers.DeveloperServerUri = os.Getenv("PROVIDERS_DEVELOPER_SERVER_URI")
 	myConfig.Providers.UserServerUri = os.Getenv("PROVIDERS_USER_SERVER_URI")
 
+	/*
+	  CORS_ORIGIN_ALLOWED: "http://localhost:8080, http://localhost:3000"
+	  CORS_ALLOWED_HEADERS: "Accept,Cache,Content-Type,Authorize,Access-Control-Allow-Origin,X-Requested-With,X-Auth-Token,Content-Length,Accept-Encoding,X-CSRF-Token,Authorization,x-trace-id"
+	  CORS_ALLOWED_METHODS: "GET,HEAD,POST,PUT,PATCH,OPTIONS"
+	*/
 	return myConfig, nil
+}
+
+func parseCommaDelimitedStringToArray(v string) []string {
+	if len(v) == 0 {
+		return []string{}
+	}
+
+	result := []string{}
+	parts := strings.Split(v, ",")
+	for _, item := range parts {
+		result = append(result, strings.TrimSpace(item))
+	}
+
+	return result
 }
 
 func getConfigInstanceFromFile() (*ServerConfig, error) {
