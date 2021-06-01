@@ -40,19 +40,19 @@ export default {
   methods: {
      reverseMessage: function () {
       const axios = require('axios');
+      
       this.$.props.msg = this.$.props.msg.split('').reverse().join('');
       axios.post('http://localhost:8081/api/v1/signin', {
         username:'try',
         password:'a'
-      },  
-      {
+      },{
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
           Cache: "no-cache",
         },
         withCredentials: true
-      }  // <=== add here
+      }
       ).then(response => {
                 console.log(response);
                 //this.response = JSON.stringify(response, null, "")
