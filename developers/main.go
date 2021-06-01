@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
@@ -21,54 +20,40 @@ import (
 )
 
 var myRouter = mux.NewRouter().StrictSlash(true)
-var startTime time.Time
 
 func init() {
 	log.SetOutput(os.Stdout)
-	startTime = time.Now()
 	config.GetConfig()
-	fmt.Printf("Process started at %s\n", startTime)
 	config.GetDbConnection() // just attempt to connect to the database at startup
-
 }
 
 func main() {
-	fmt.Printf("\n\nAuthful: Developer Server running at %s:%v\n\n", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port)
+	fmt.Printf("\n\nAuthful: Developer Server\n\n")
 	fmt.Printf("Log Level: %s\n", logger.GetLogLevel())
 	setupRequestHandlers()
 }
 
 func setupRequestHandlers() {
-
-	// Unsecured endpoints
-	//openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
-	//openR.HandleFunc("/api/v1/account:signup", controllers.DeveloperSignupPost).Methods(http.MethodPost)
-
-	// ------------ UNPROTECTED API ENDPOINTS ------------
-	// User signup/signin services
+	// ------------ PROTECTED API ENDPOINTS ------------
 	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
 	secureUserR.HandleFunc("/api/v1/developers", controllers.DeveloperSignupPost).Methods(http.MethodPost)
 	secureUserR.HandleFunc("/api/v1/developers", controllers.DevelopersGet).Methods(http.MethodGet)
 	secureUserR.Use(bearerJwtHandler)
 
 	defer dbShutdown()
+	fmt.Printf("\n\nAuthful: Developer Server running at %s:%v\n\n", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port)
 	err := http.ListenAndServe(fmt.Sprintf("%s:%v", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port), myRouter)
-	endTime := time.Now()
-	logger.Verbose(context.Background(), fmt.Sprintf("Process stopped at %v\n", endTime))
-	elapsed := endTime.Sub(startTime)
-	logger.Verbose(context.Background(), fmt.Sprintf("Server uptime was: %v", elapsed))
 	logger.Fatal(context.Background(), err)
 }
 
 func dbShutdown() {
-	logger.Verbose(context.Background(), "shutting down database")
+	logger.Verbose(context.Background(), "closing database connection")
 	db := config.GetDbConnection()
 	db.Close()
 }
 
 func bearerJwtHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		// uh.logger.Debug("validating access token")
 		authHeader := r.Header.Values("Authorization")
 		r = extractAndSetTraceId(r)
@@ -84,6 +69,7 @@ func bearerJwtHandler(next http.Handler) http.Handler {
 			}
 		}
 
+		logger.Verbose(r.Context(), fmt.Sprintf("Request recieved: %s %s", r.Method, r.URL))
 		if !isValid {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
@@ -121,7 +107,6 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 	if err == nil {
 		if token.Valid {
 			isValid = true
-			logger.Debug(r.Context(), "Valid token passed")
 		}
 	} else {
 		logger.Error(r.Context(), err)

@@ -39,6 +39,7 @@ func CreateDeveloper(ctx context.Context, userId string, organizationName string
 
 	return newDeveloper, nil
 }
+
 func GetDeveloperByUserId(ctx context.Context, userId string) (models.Developer, error) {
 	db := config.GetDbConnection()
 	result, err := db.Query("SELECT dev_id, user_id, organization_name, contact_email, create_datetime, update_datetime FROM developers WHERE user_id = ? LIMIT 1", userId)
@@ -60,7 +61,6 @@ func GetDevelopers(ctx context.Context) ([]models.Developer, error) {
 	db := config.GetDbConnection()
 
 	result, err := db.Query("SELECT dev_id, user_id, organization_name, contact_email, create_datetime, update_datetime FROM developers")
-
 	if err != nil {
 		logger.Error(ctx, err)
 		return devs, err
@@ -80,13 +80,11 @@ func GetDevelopers(ctx context.Context) ([]models.Developer, error) {
 }
 
 func mapResultToDeveloper(ctx context.Context, result *sql.Rows) (models.Developer, error) {
-
 	var dev models.Developer = models.Developer{}
 	var ntCreate sql.NullTime
 	var ntUpdate sql.NullTime
 
 	err := result.Scan(&dev.DeveloperId, &dev.UserId, &dev.OrganizationName, &dev.ContactEmail, &ntCreate, &ntUpdate)
-
 	if err != nil {
 		logger.Error(ctx, err)
 		return models.Developer{}, err

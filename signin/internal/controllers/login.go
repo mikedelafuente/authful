@@ -44,6 +44,8 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Error(r.Context(), err)
 		bag.ErrorMessages = append(bag.ErrorMessages, err.Error())
+	} else if !validLogin {
+		bag.ErrorMessages = append(bag.ErrorMessages, "authentication failed")
 	}
 
 	if validLogin {
@@ -69,5 +71,4 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 		logger.Error(r.Context(), fmt.Sprintf("Error executing template: %s", err))
 		return
 	}
-
 }

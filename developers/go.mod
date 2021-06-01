@@ -7,7 +7,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
-	github.com/mikedelafuente/authful-servertools v0.0.6
+	github.com/mikedelafuente/authful-servertools v0.0.8
 )
 
-//replace github.com/mikedelafuente/authful-servertools => ../../authful-servertools
+// replace github.com/mikedelafuente/authful-servertools => ../../authful-servertools

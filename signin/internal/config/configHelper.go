@@ -9,8 +9,10 @@ import (
 	"sync"
 )
 
-var configOnce sync.Once
-var configInstance *ServerConfig
+var (
+	configOnce     sync.Once
+	configInstance *ServerConfig
+)
 
 func GetConfig() *ServerConfig {
 	configOnce.Do(func() {
@@ -18,7 +20,6 @@ func GetConfig() *ServerConfig {
 
 		if len(os.Getenv("WEB_SERVER_PORT")) == 0 {
 			configInstance, err = getConfigInstanceFromFile()
-
 		} else {
 			configInstance, err = getConfigInstanceFromEnvironment()
 		}

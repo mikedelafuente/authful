@@ -6,7 +6,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/mikedelafuente/authful-servertools/pkg/customerrors"
 	"github.com/mikedelafuente/authful-servertools/pkg/httptools"
 	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 	"github.com/mikedelafuente/authful/signin/internal/config"
@@ -28,12 +27,11 @@ func IsValidUsernamePassword(ctx context.Context, username string, password stri
 	bodyBytes, statusCode, err := httptools.Post(ctx, usersUri, requestModel)
 	if err != nil {
 		if statusCode == http.StatusUnauthorized {
-			return false, models.SigninJwt{}, customerrors.NewServiceError(statusCode, "authentication failed")
+			return false, models.SigninJwt{}, nil
 		} else {
 			logger.Error(ctx, err)
 			return false, models.SigninJwt{}, err
 		}
-
 	}
 
 	var responseObject models.SigninJwt

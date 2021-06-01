@@ -10,6 +10,7 @@ type ServerConfig struct {
 type SecurityConfig struct {
 	JwtKey string `json:"jwt_key"`
 }
+
 type WebServerConfig struct {
 	Port string `json:"port"`
 	Host string `json:"host"`

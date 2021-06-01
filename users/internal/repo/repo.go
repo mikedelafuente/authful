@@ -46,6 +46,7 @@ func CreateUser(ctx context.Context, username string, password string) (models.U
 
 	return newUser, nil
 }
+
 func GetUserByUsername(ctx context.Context, username string) (models.User, error) {
 	db := config.GetDbConnection()
 	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime FROM users WHERE username = ? LIMIT 1", username)
@@ -59,7 +60,6 @@ func GetUserByUsername(ctx context.Context, username string) (models.User, error
 	} else {
 		return models.User{}, nil
 	}
-
 }
 
 func GetUserWithPasswordByUsername(ctx context.Context, username string) (models.User, string, error) {
@@ -77,7 +77,6 @@ func GetUserWithPasswordByUsername(ctx context.Context, username string) (models
 		var password string
 
 		err := result.Scan(&user.UserId, &user.Username, &ntCreate, &ntUpdate, &password)
-
 		if err != nil {
 			logger.Error(ctx, err)
 			return models.User{}, "", err
@@ -95,7 +94,6 @@ func GetUserWithPasswordByUsername(ctx context.Context, username string) (models
 	} else {
 		return models.User{}, "", nil
 	}
-
 }
 
 func GetUsers(ctx context.Context) ([]models.User, error) {
@@ -104,7 +102,6 @@ func GetUsers(ctx context.Context) ([]models.User, error) {
 	db := config.GetDbConnection()
 
 	result, err := db.Query("SELECT user_id, username, create_datetime, update_datetime FROM users")
-
 	if err != nil {
 		logger.Error(ctx, err)
 		return users, err
@@ -124,13 +121,11 @@ func GetUsers(ctx context.Context) ([]models.User, error) {
 }
 
 func mapResultToUser(ctx context.Context, result *sql.Rows) (models.User, error) {
-
 	var user models.User = models.User{}
 	var ntCreate sql.NullTime
 	var ntUpdate sql.NullTime
 
 	err := result.Scan(&user.UserId, &user.Username, &ntCreate, &ntUpdate)
-
 	if err != nil {
 		logger.Error(ctx, err)
 		return models.User{}, err

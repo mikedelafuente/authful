@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
@@ -21,47 +20,40 @@ import (
 )
 
 var myRouter = mux.NewRouter().StrictSlash(true)
-var startTime time.Time
 
 func init() {
 	log.SetOutput(os.Stdout)
-	startTime = time.Now()
 	config.GetConfig()
 	config.GetDbConnection() // just attempt to connect to the database at startup
-	fmt.Printf("Process started at %s\n", startTime)
 }
 
 func main() {
-	logger.Printf("\n\nAuthful: User Server running at %s:%v\n\n", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port)
+	logger.Printf("\n\nAuthful: User Server\n\n")
 	logger.Printf("Log Level: %s\n", logger.GetLogLevel())
 	setupRequestHandlers()
 }
 
 func setupRequestHandlers() {
-
 	// Unsecured endpoints
 	openR := myRouter.Methods(http.MethodGet, http.MethodPost).Subrouter()
 	openR.HandleFunc("/api/v1/account:signin", controllers.AccountSigninPost).Methods(http.MethodPost)
 	openR.HandleFunc("/api/v1/account:signup", controllers.AccountSignupPost).Methods(http.MethodPost)
 	openR.Use(openHandler)
 
-	// ------------ UNPROTECTED API ENDPOINTS ------------
+	// ------------ PROTECTED API ENDPOINTS ------------
 	// User signup/signin services
 	secureUserR := myRouter.Methods(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch, http.MethodPut).Subrouter()
 	secureUserR.HandleFunc("/api/v1/users", controllers.UsersGet).Methods(http.MethodGet)
 	secureUserR.Use(bearerJwtHandler)
 
 	defer dbShutdown()
+	logger.Printf("\n\nAuthful: User Server running at %s:%v\n\n", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port)
 	err := http.ListenAndServe(fmt.Sprintf("%s:%v", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port), myRouter)
-	endTime := time.Now()
-	logger.Verbose(context.Background(), fmt.Sprintf("Process stopped at %s\n", endTime))
-	elapsed := endTime.Sub(startTime)
-	logger.Verbose(context.Background(), fmt.Sprintf("Server uptime was: %s", elapsed))
 	logger.Fatal(context.Background(), err)
 }
 
 func dbShutdown() {
-	logger.Verbose(context.Background(), "shutting down database")
+	logger.Verbose(context.Background(), "closing database connection")
 	db := config.GetDbConnection()
 	db.Close()
 }
@@ -69,14 +61,19 @@ func dbShutdown() {
 func openHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r = extractAndSetTraceId(r)
-
+		cookie, err := r.Cookie("userSessionToken")
+		if err == nil {
+			// Redirect
+			rawToken := cookie.Value
+			_, r = processToken(rawToken, r)
+		}
+		logger.Verbose(r.Context(), fmt.Sprintf("Request recieved: %s %s", r.Method, r.URL))
 		next.ServeHTTP(w, r)
 	})
 }
 
 func bearerJwtHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		authHeader := r.Header.Values("Authorization")
 		r = extractAndSetTraceId(r)
 		isValid := false
@@ -90,6 +87,7 @@ func bearerJwtHandler(next http.Handler) http.Handler {
 			}
 		}
 
+		logger.Verbose(r.Context(), fmt.Sprintf("Request recieved: %s %s", r.Method, r.URL))
 		if !isValid {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
@@ -98,6 +96,7 @@ func bearerJwtHandler(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
 func extractAndSetTraceId(r *http.Request) *http.Request {
 	traceIdParts := r.Header.Values("x-trace-id")
 
@@ -111,6 +110,7 @@ func extractAndSetTraceId(r *http.Request) *http.Request {
 	r = r.WithContext(ctx)
 	return r
 }
+
 func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 	userId := ""
 	isValid := false
@@ -125,7 +125,6 @@ func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
 	if err == nil {
 		if token.Valid {
 			isValid = true
-			logger.Debug(r.Context(), "Valid token passed")
 		}
 	} else {
 		logger.Error(r.Context(), err)

@@ -19,7 +19,6 @@ import (
 
 func CreateUser(ctx context.Context, username string, password string) (models.User, error) {
 	if strings.TrimSpace(username) == "" {
-
 		return models.User{}, customerrors.NewServiceError(http.StatusBadRequest, "username cannot be blank")
 	}
 
