@@ -3,11 +3,12 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/mikedelafuente/authful-servertools/pkg/customerrors"
 	"github.com/mikedelafuente/authful-servertools/pkg/httptools"
+	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 	"github.com/mikedelafuente/authful/signin/internal/models"
+	"github.com/mikedelafuente/authful/signin/internal/services"
 )
 
 func ApiSigninPost(w http.ResponseWriter, r *http.Request) {
@@ -19,32 +20,16 @@ func ApiSigninPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "apiTest",
-		Value:    "A test",
-		Expires:  time.Now().Add(time.Duration(time.Duration.Minutes(5))),
-		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
-	})
+	logger.Verbose(r.Context(), "Logging in through UI")
+	validLogin, jwt, err := services.IsValidUsernamePassword(r.Context(), userRequest.Username, userRequest.Password)
+	if err != nil {
+		logger.Error(r.Context(), err)
+		httptools.HandleError(r.Context(), err, w)
+		return
+	} else if !validLogin {
+		httptools.HandleError(r.Context(), customerrors.NewServiceError(http.StatusUnauthorized, "authentication failed"), w)
+		return
+	}
 
-	// logger.Verbose(r.Context(), "Logging in through UI")
-	// validLogin, jwt, err := services.IsValidUsernamePassword(r.Context(), userRequest.Username, userRequest.Password)
-	// if err != nil {
-	// 	logger.Error(r.Context(), err)
-	// 	httptools.HandleError(r.Context(), err, w)
-	// 	return
-	// } else if !validLogin {
-	// 	httptools.HandleError(r.Context(), customerrors.NewServiceError(http.StatusUnauthorized, "authentication failed"), w)
-	// 	return
-	// }
-
-	// if validLogin {
-	// 	http.SetCookie(w, &http.Cookie{
-	// 		Name:    "userSessionToken",
-	// 		Value:   jwt.Jwt,
-	// 		Expires: jwt.Expires,
-	// 	})
-	// }
-
-	httptools.HandleResponse(w, []byte{}, http.StatusOK)
+	httptools.ProcessResponse(r.Context(), jwt, w, http.StatusOK)
 }

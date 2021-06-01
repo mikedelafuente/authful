@@ -39,8 +39,8 @@ export default {
   },
   methods: {
      reverseMessage: function () {
-      const axios = require('axios');
-      
+      const axios = require('axios').default;
+
       this.$.props.msg = this.$.props.msg.split('').reverse().join('');
       axios.post('http://localhost:8081/api/v1/signin', {
         username:'try',
