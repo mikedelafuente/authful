@@ -15,6 +15,7 @@ import (
 	"github.com/mikedelafuente/authful/signin/internal/config"
 	"github.com/mikedelafuente/authful/signin/internal/controllers"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -38,6 +39,7 @@ func setupRequestHandlers() {
 	openR.HandleFunc("/login", controllers.ProcessLogin).Methods(http.MethodPost)
 	openR.HandleFunc("/signup", controllers.DisplaySignup).Methods(http.MethodGet)
 	openR.HandleFunc("/signup", controllers.ProcessSignup).Methods(http.MethodPost)
+	openR.HandleFunc("/api/v1/signin", controllers.ApiSigninPost).Methods(http.MethodPost)
 	openR.Use(openHandler)
 
 	// User signup/signin services
@@ -50,11 +52,18 @@ func setupRequestHandlers() {
 	fileServer := http.FileServer(http.Dir("./Static"))
 	fileR.PathPrefix("/").Handler(http.StripPrefix("/resources", fileServer))
 
-	// openR.Handle("/resources/", http.StripPrefix("/resources", fileServer))
-	// openR.HandleFunc("/", renderTemplate)
-
 	fmt.Printf("\n\nAuthful: Signin Server running at %s:%v\n\n", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port)
-	err := http.ListenAndServe(fmt.Sprintf("%s:%v", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port), myRouter)
+
+	// SETUP CORS
+	logger.Debug(context.Background(), fmt.Sprintf("CORS Allowed Origins: %v", config.GetConfig().WebServer.CORSOriginAllowed))
+
+	headersOk := handlers.AllowedHeaders(config.GetConfig().WebServer.CORSAllowedHeaders)
+	originsOk := handlers.AllowedOrigins(config.GetConfig().WebServer.CORSOriginAllowed)
+	methodsOk := handlers.AllowedMethods(config.GetConfig().WebServer.CORSAllowedMethods)
+	allowCredentialsOk := handlers.AllowCredentials()
+
+	// START WEB SERVER
+	err := http.ListenAndServe(fmt.Sprintf("%s:%v", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port), handlers.CORS(originsOk, headersOk, methodsOk, allowCredentialsOk)(myRouter))
 	logger.Fatal(context.Background(), err)
 }
 

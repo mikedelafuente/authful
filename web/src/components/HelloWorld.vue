@@ -27,6 +27,7 @@
       <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
       <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
     </ul>
+     <button v-on:click="reverseMessage">Reverse Message</button>
   </div>
 </template>
 
@@ -35,6 +36,31 @@ export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+  methods: {
+     reverseMessage: function () {
+      const axios = require('axios');
+      this.$.props.msg = this.$.props.msg.split('').reverse().join('');
+      axios.post('http://localhost:8081/api/v1/signin', {
+        username:'try',
+        password:'a'
+      },  
+      {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Cache: "no-cache",
+        },
+        withCredentials: true
+      }  // <=== add here
+      ).then(response => {
+                console.log(response);
+                //this.response = JSON.stringify(response, null, "")
+            }).catch(error => {
+                console.log(error);
+            });
+
+    }
   }
 }
 </script>
