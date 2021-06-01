@@ -10,7 +10,7 @@ import (
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	parsedTemplate, _ := template.ParseFiles("Templates/index.html")
-	err := parsedTemplate.Execute(w, student)
+	err := parsedTemplate.Execute(w, nil)
 	if err != nil {
 		logger.Error(r.Context(), fmt.Sprintf("Error executing template : %s", err))
 		return
