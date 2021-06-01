@@ -15,4 +15,4 @@ COPY --from=builder /go/src/app/Static /Static
 COPY --from=builder /go/src/app/Templates /Templates
 ENTRYPOINT /app
 LABEL Name=signin Version=0.0.1
-EXPOSE 8081
+EXPOSE 8080
