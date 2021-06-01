@@ -17,6 +17,6 @@ COPY . .
 
 # build app for production with minification
 RUN npm run build
-
+LABEL Name=authful-web Version=0.0.1
 EXPOSE 8080
 CMD [ "http-server", "dist" ]
