@@ -55,11 +55,6 @@ func getConfigInstanceFromEnvironment() (*ServerConfig, error) {
 	myConfig.Providers.DeveloperServerUri = os.Getenv("PROVIDERS_DEVELOPER_SERVER_URI")
 	myConfig.Providers.UserServerUri = os.Getenv("PROVIDERS_USER_SERVER_URI")
 
-	/*
-	  CORS_ORIGIN_ALLOWED: "http://localhost:8080, http://localhost:3000"
-	  CORS_ALLOWED_HEADERS: "Accept,Cache,Content-Type,Authorize,Access-Control-Allow-Origin,X-Requested-With,X-Auth-Token,Content-Length,Accept-Encoding,X-CSRF-Token,Authorization,x-trace-id"
-	  CORS_ALLOWED_METHODS: "GET,HEAD,POST,PUT,PATCH,OPTIONS"
-	*/
 	return myConfig, nil
 }
 
