@@ -1,12 +1,12 @@
 <template>
-  <LoginPanel />
+  <RegisterPanel />
 </template>
 <script>
-import LoginPanel from '../components/LoginPanel.vue'
+import RegisterPanel from '../components/RegisterPanel.vue'
 export default {
   name: "Login",
   components:{
-    LoginPanel
+    RegisterPanel
   },
   methods: {}
 };
