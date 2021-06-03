@@ -1,72 +1,81 @@
 <template>
-  <div class="wrapper">
-  <div id="formContent">
-    <!-- Icon -->
-    <div>
-      <img src="../assets/WeekendClip.png" id="icon" alt="User Icon" />
-    </div>
+  <form>
+    <div class="wrapper">
+      <div id="formContent">
+        <!-- Icon -->
+        <div>
+          <img src="../assets/WeekendClip.png" id="icon" alt="User Icon" />
+        </div>
 
-    <!-- Login Form -->
-    <div>
-      <input type="text" v-model="username" placeholder="login">
-      <input type="password" v-model="password" placeholder="password">
-      <input v-on:click="doLogin" type="button" value="Log In">
-    </div>
+        <!-- Login Form -->
+        <div>
+          <input type="text" v-model="username" placeholder="login" />
+          <input type="password" v-model="password" placeholder="password" />
+          <input v-on:click="doLogin" type="button" value="Log In" />
+        </div>
 
-    <!-- Remind Passowrd -->
-    <div id="formFooter">
-        <router-link to="/forgot-password" class="underlineHover">Forgot Password?</router-link>
+        <!-- Remind Passowrd -->
+        <div id="formFooter">
+          <router-link to="/forgot-password" class="underlineHover"
+            >Forgot Password?</router-link
+          >
+        </div>
+      </div>
     </div>
-
-  </div>
-</div>
+  </form>
 </template>
 
 <script>
 export default {
-name: 'Login',
-data() {
+  name: "Login",
+  data() {
     return {
-        username: '',
-        password: '',
-    }
-    
-},
-props:{
-},
-methods: {
+      username: "",
+      password: "",
+    };
+  },
+  props: {},
+  methods: {
     doLogin: function () {
-      const axios = require('axios').default;
+      const axios = require("axios").default;
 
-      axios.post('http://localhost:8081/api/v1/signin', {
-        username: this.username,
-        password: this.password
-      },{
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Cache: "no-cache",
-        },
-        withCredentials: true
-      }
-      ).then(response => {
-                this.$cookies.set("userJwt", response.data.jwt, new Date(response.data.expires))
-                //this.response = JSON.stringify(response, null, "")
-            }).catch(error => {
-                console.log(error);
-            });
-
-    }
-}
-}
+      axios
+        .post(
+          "http://localhost:8081/api/v1/signin",
+          {
+            username: this.username,
+            password: this.password,
+          },
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Cache: "no-cache",
+            },
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          this.$cookies.set(
+            "userJwt",
+            response.data.jwt,
+            new Date(response.data.expires)
+          );
+          //this.response = JSON.stringify(response, null, "")
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+  },
+};
 </script>
 
 <style>
-
 /* BASIC */
 a {
   color: #92badd;
-  display:inline-block;
+  display: inline-block;
   text-decoration: none;
   font-weight: 400;
 }
@@ -76,19 +85,17 @@ h2 {
   font-size: 16px;
   font-weight: 600;
   text-transform: uppercase;
-  display:inline-block;
-  margin: 40px 8px 10px 8px; 
+  display: inline-block;
+  margin: 40px 8px 10px 8px;
   color: #cccccc;
 }
-
-
 
 /* STRUCTURE */
 
 .wrapper {
   display: flex;
   align-items: center;
-  flex-direction: column; 
+  flex-direction: column;
   justify-content: center;
   width: 100%;
   min-height: 100%;
@@ -104,8 +111,8 @@ h2 {
   max-width: 450px;
   position: relative;
   padding: 0px;
-  -webkit-box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
-  box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
+  -webkit-box-shadow: 0 30px 60px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 30px 60px 0 rgba(0, 0, 0, 0.3);
   text-align: center;
 }
 
@@ -117,8 +124,6 @@ h2 {
   -webkit-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px;
 }
-
-
 
 /* TABS */
 
@@ -133,7 +138,9 @@ h2.active {
 
 /* FORM TYPOGRAPHY*/
 
-input[type=button], input[type=submit], input[type=reset]  {
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
   background-color: #56baed;
   border: none;
   color: white;
@@ -143,8 +150,8 @@ input[type=button], input[type=submit], input[type=reset]  {
   display: inline-block;
   text-transform: uppercase;
   font-size: 13px;
-  -webkit-box-shadow: 0 10px 30px 0 rgba(95,186,233,0.4);
-  box-shadow: 0 10px 30px 0 rgba(95,186,233,0.4);
+  -webkit-box-shadow: 0 10px 30px 0 rgba(95, 186, 233, 0.4);
+  box-shadow: 0 10px 30px 0 rgba(95, 186, 233, 0.4);
   -webkit-border-radius: 5px 5px 5px 5px;
   border-radius: 5px 5px 5px 5px;
   margin: 5px 20px 40px 20px;
@@ -155,11 +162,15 @@ input[type=button], input[type=submit], input[type=reset]  {
   transition: all 0.3s ease-in-out;
 }
 
-input[type=button]:hover, input[type=submit]:hover, input[type=reset]:hover  {
+input[type="button"]:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover {
   background-color: #39ace7;
 }
 
-input[type=button]:active, input[type=submit]:active, input[type=reset]:active  {
+input[type="button"]:active,
+input[type="submit"]:active,
+input[type="reset"]:active {
   -moz-transform: scale(0.95);
   -webkit-transform: scale(0.95);
   -o-transform: scale(0.95);
@@ -167,7 +178,8 @@ input[type=button]:active, input[type=submit]:active, input[type=reset]:active  
   transform: scale(0.95);
 }
 
-input[type=text], input[type=password] {
+input[type="text"],
+input[type="password"] {
   background-color: #f6f6f6;
   border: none;
   color: #0d0d0d;
@@ -188,16 +200,15 @@ input[type=text], input[type=password] {
   border-radius: 5px 5px 5px 5px;
 }
 
-input[type=text]:focus, input[type=password]:focus {
+input[type="text"]:focus,
+input[type="password"]:focus {
   background-color: #fff;
   border-bottom: 2px solid #5fbae9;
 }
 
-input[type=text]:placeholder {
+input[type="text"]:placeholder {
   color: #cccccc;
 }
-
-
 
 /* ANIMATIONS */
 
@@ -217,20 +228,17 @@ input[type=text]:placeholder {
   color: #0d0d0d;
 }
 
-.underlineHover:hover:after{
+.underlineHover:hover:after {
   width: 100%;
 }
-
-
 
 /* OTHERS */
 
 *:focus {
-    outline: none;
-} 
-
-#icon {
-  width:60%;
+  outline: none;
 }
 
+#icon {
+  width: 60%;
+}
 </style>
