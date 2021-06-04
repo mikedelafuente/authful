@@ -95,7 +95,7 @@ export default {
 <style>
 .bd-navbar {
   padding: 0.75rem 0;
-  background-color: #d8591e;
+  background-color: #7952b3;
 }
 .bd-navbar .navbar-toggler {
   padding: 0;

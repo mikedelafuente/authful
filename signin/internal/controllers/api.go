@@ -11,7 +11,7 @@ import (
 	"github.com/mikedelafuente/authful/signin/internal/services"
 )
 
-func ApiSigninPost(w http.ResponseWriter, r *http.Request) {
+func ApiAccountSigninPost(w http.ResponseWriter, r *http.Request) {
 	var userRequest models.SigninCredentials
 	json.NewDecoder(r.Body).Decode(&userRequest)
 
@@ -32,4 +32,35 @@ func ApiSigninPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httptools.ProcessResponse(r.Context(), jwt, w, http.StatusOK)
+}
+
+func ApiAccountSignupPost(w http.ResponseWriter, r *http.Request) {
+	var userRequest models.SigninCredentials
+	json.NewDecoder(r.Body).Decode(&userRequest)
+
+	if len(userRequest.Username) == 0 || len(userRequest.Password) == 0 {
+		httptools.HandleError(r.Context(), customerrors.NewServiceError(http.StatusBadRequest, "username and password are required"), w)
+		return
+	}
+
+	logger.Verbose(r.Context(), "Sign up through UI")
+	user, err := services.Signup(r.Context(), userRequest.Username, userRequest.Password)
+	if err != nil {
+		logger.Error(r.Context(), err)
+		httptools.HandleError(r.Context(), err, w)
+		return
+	} else if len(user.UserId) == 0 {
+		httptools.HandleError(r.Context(), customerrors.NewServiceError(http.StatusMethodNotAllowed, "authentication failed"), w)
+		return
+	}
+
+	httptools.ProcessResponse(r.Context(), user, w, http.StatusOK)
+}
+
+func ApiAccountResetPost(w http.ResponseWriter, r *http.Request) {
+	var resetRequest models.AccountResetRequest
+	json.NewDecoder(r.Body).Decode(&resetRequest)
+
+	httptools.HandleError(r.Context(), customerrors.NewServiceError(http.StatusMethodNotAllowed, "NOT IMPLEMENTED")                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     x                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              " ))
+
 }

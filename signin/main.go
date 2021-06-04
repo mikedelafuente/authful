@@ -39,7 +39,9 @@ func setupRequestHandlers() {
 	openR.HandleFunc("/login", controllers.ProcessLogin).Methods(http.MethodPost)
 	openR.HandleFunc("/signup", controllers.DisplaySignup).Methods(http.MethodGet)
 	openR.HandleFunc("/signup", controllers.ProcessSignup).Methods(http.MethodPost)
-	openR.HandleFunc("/api/v1/signin", controllers.ApiSigninPost).Methods(http.MethodPost)
+	openR.HandleFunc("/api/v1/account:reset", controllers.ApiAccountResetPost).Methods(http.MethodPost)
+	openR.HandleFunc("/api/v1/account:signin", controllers.ApiAccountSigninPost).Methods(http.MethodPost)
+	openR.HandleFunc("/api/v1/account:signup", controllers.ApiAccountSignupPost).Methods(http.MethodPost)
 	openR.Use(openHandler)
 
 	// User signup/signin services

@@ -8,7 +8,7 @@
         type="email"
         class="form-control"
         id="floatingInput"
-        v-model="username"
+        v-model="email"
         placeholder="name@example.com"
       />
       <label for="floatingInput">Email address</label>
@@ -32,10 +32,10 @@
     <button class="w-100 btn btn-lg btn-primary" type="button" v-on:click="doLogin">Sign in</button>
     <ul class="bottom-form-link">
       <li>
-        <router-link to="/forgot-password" class="link-secondary">Forgot Password?</router-link>
+        <router-link to="/reset-password" class="link-secondary">Forgot Password?</router-link>
       </li>
       <li>
-        <router-link to="/signup" class="link-secondary">Sign up for an account</router-link>
+        <router-link to="/account/register" class="link-secondary">Sign up for an account</router-link>
       </li>
     </ul>
 
@@ -48,7 +48,7 @@ export default {
   name: "LoginPanel",
   data() {
     return {
-      username: "",
+      email: "",
       password: "",
     };
   },
@@ -61,7 +61,7 @@ export default {
         .post(
           "http://localhost:8081/api/v1/signin",
           {
-            username: this.username,
+            username: this.email,
             password: this.password,
           },
           {
