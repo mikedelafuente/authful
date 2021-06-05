@@ -1,6 +1,6 @@
 <template>
   <form
-    class="form-register col-5 my-3 px-3 align-items-center rounded-3 border shadow-lg"
+    class="form-register col-5 my-3 px-3 align-items-center rounded-3 border shadow-lg needs-validation" novalidate  @submit="checkForm"
   >
     <img
       class="mb-4"
@@ -18,8 +18,12 @@
           id="floatingInput"
           v-model="email"
           placeholder="name@example.com"
+          required
         />
         <label for="floatingInput">Email address</label>
+         <div class="invalid-feedback">
+      Email address is required
+    </div>
       </div>
     </div>
     <div class="form-group">
@@ -30,6 +34,7 @@
           id="floatingPassword"
           v-model="password"
           placeholder="Password"
+          required
         />
         <label for="floatingPassword">Password</label>
       </div>
@@ -40,15 +45,16 @@
           id="floatingConfirmPassword"
           v-model="confirmPassword"
           placeholder="Re-enter password"
+          required
         />
         <label for="floatingConfirmPassword">Re-enter password</label>
+       
       </div>
     </div>
     <div class="form-group py-3">
       <button
         class="w-100 btn btn-lg btn-primary"
-        type="button"
-        v-on:click="doRegister"
+        type="submit"
       >
         Register
       </button>
@@ -73,6 +79,27 @@ export default {
   },
   props: {},
   methods: {
+    // global function
+    checkForm: function(e) {
+      var form = document.querySelector(`form`);
+  // Loop over them and prevent submission
+      console.log(e);
+      if (!form.checkValidity()) {
+        console.log("not valid")
+        e.preventDefault();
+        e.target.checkValidity();      
+      } else {
+        console.log("valid")
+      }
+       form.classList.add('was-validated')
+    //  if (!form.checkValidity()) {
+    //       e.preventDefault()
+    //       e.stopPropagation()
+    //     } else {
+    //         e.preventDefault()
+    //         e.stopPropagation()       
+    //     }
+    },
     doRegister: function () {
       const axios = require("axios").default;
 

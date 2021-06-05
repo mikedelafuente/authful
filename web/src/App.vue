@@ -135,5 +135,4 @@ export default {
   box-shadow: 0 0 0 3px rgba(255, 228, 132, 0.25);
 }
 
-@import "~bootstrap/dist/css/bootstrap.css";
 </style>
