@@ -53,6 +53,12 @@ export default {
     };
   },
   props: {},
+  created() {
+    if (this.$route && this.$route.query && this.$route.query.userid) {
+
+      this.email = this.$route.query.userid
+    }
+  },
   methods: {
     doLogin: function () {
       const axios = require("axios").default;

@@ -1,4 +1,5 @@
 <template>
+<div>
   <header class="navbar navbar-expand-md navbar-dark bd-navbar">
     <nav
       class="container-xxl flex-wrap flex-md-nowrap"
@@ -81,8 +82,9 @@
       </div>
     </nav>
   </header>
-
   <router-view />
+</div>
+
 </template>
 
 <script>

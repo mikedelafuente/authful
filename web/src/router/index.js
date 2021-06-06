@@ -8,27 +8,27 @@ import AccountRegister from "@/views/AccountRegister.vue";
 const routes = [
   {
     path: "/",
-    name: "Home",
+    name: "home",
     component: Home,
   },
   {
     path: "/about",
-    name: "About",
+    name: "about",
     component: About,
   },
   {
     path: "/login",
-    name: "Login",
+    name: "login",
     component: Login,
   },
   {
     path: "/account/register",
-    name: "Register for an Account",
+    name: "account_register",
     component: AccountRegister,
   },
   {
     path: "/reset-password",
-    name: "Reset Password",
+    name: "account_reset",
     component: ResetPassword,
   },
 ];
