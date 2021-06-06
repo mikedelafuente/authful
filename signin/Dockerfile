@@ -14,5 +14,5 @@ COPY --from=builder /go/src/app/settings/config.json /settings/config.json
 COPY --from=builder /go/src/app/Static /Static
 COPY --from=builder /go/src/app/Templates /Templates
 ENTRYPOINT /app
-LABEL Name=signin Version=0.0.1
-EXPOSE 8081
+LABEL Name=authful-signin Version=0.0.1
+EXPOSE 8080

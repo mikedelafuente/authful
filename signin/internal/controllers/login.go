@@ -39,7 +39,7 @@ func ProcessLogin(w http.ResponseWriter, r *http.Request) {
 		ErrorMessages: []string{},
 		Username:      username,
 	}
-	logger.Verbose(r.Context(), "Logging in")
+	logger.Verbose(r.Context(), "Logging in through UI")
 	validLogin, jwt, err := services.IsValidUsernamePassword(r.Context(), username, password)
 	if err != nil {
 		logger.Error(r.Context(), err)

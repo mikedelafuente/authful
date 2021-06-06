@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -43,6 +44,9 @@ func getConfigInstanceFromEnvironment() (*ServerConfig, error) {
 
 	// WEB SERVER
 	myConfig.WebServer.Port = os.Getenv("WEB_SERVER_PORT")
+	myConfig.WebServer.CORSOriginAllowed = parseCommaDelimitedStringToArray(os.Getenv("CORS_ORIGIN_ALLOWED"))
+	myConfig.WebServer.CORSAllowedHeaders = parseCommaDelimitedStringToArray(os.Getenv("CORS_ALLOWED_HEADERS"))
+	myConfig.WebServer.CORSAllowedMethods = parseCommaDelimitedStringToArray(os.Getenv("CORS_ALLOWED_METHODS"))
 
 	// SECURITY
 	myConfig.Security.JwtKey = os.Getenv("SECURITY_JWT_KEY")
@@ -52,6 +56,20 @@ func getConfigInstanceFromEnvironment() (*ServerConfig, error) {
 	myConfig.Providers.UserServerUri = os.Getenv("PROVIDERS_USER_SERVER_URI")
 
 	return myConfig, nil
+}
+
+func parseCommaDelimitedStringToArray(v string) []string {
+	if len(v) == 0 {
+		return []string{}
+	}
+
+	result := []string{}
+	parts := strings.Split(v, ",")
+	for _, item := range parts {
+		result = append(result, strings.TrimSpace(item))
+	}
+
+	return result
 }
 
 func getConfigInstanceFromFile() (*ServerConfig, error) {

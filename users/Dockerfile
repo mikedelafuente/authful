@@ -12,5 +12,5 @@ RUN apk --no-cache add ca-certificates
 COPY --from=builder /go/bin/app /app
 COPY --from=builder /go/src/app/settings/config.json /settings/config.json
 ENTRYPOINT /app
-LABEL Name=users Version=0.0.1
+LABEL Name=authful-users Version=0.0.1
 EXPOSE 8080

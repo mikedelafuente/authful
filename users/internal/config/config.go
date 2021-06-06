@@ -13,8 +13,11 @@ type SecurityConfig struct {
 }
 
 type WebServerConfig struct {
-	Port string `json:"port"`
-	Host string `json:"host"`
+	Port               string   `json:"port"`
+	Host               string   `json:"host"`
+	CORSOriginAllowed  []string `json:"cors_origin_allowed"`
+	CORSAllowedHeaders []string `json:"cors_allowed_headers"`
+	CORSAllowedMethods []string `json:"cors_allowed_methods"`
 }
 
 type DatabaseServerConfig struct {

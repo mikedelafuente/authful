@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -51,6 +52,9 @@ func getConfigInstanceFromEnvironment() (*DeveloperServerConfig, error) {
 
 	// WEB SERVER
 	myConfig.WebServer.Port = os.Getenv("WEB_SERVER_PORT")
+	myConfig.WebServer.CORSOriginAllowed = parseCommaDelimitedStringToArray(os.Getenv("CORS_ORIGIN_ALLOWED"))
+	myConfig.WebServer.CORSAllowedHeaders = parseCommaDelimitedStringToArray(os.Getenv("CORS_ALLOWED_HEADERS"))
+	myConfig.WebServer.CORSAllowedMethods = parseCommaDelimitedStringToArray(os.Getenv("CORS_ALLOWED_METHODS"))
 
 	// SECURITY
 	port, err := strconv.Atoi(os.Getenv("SECURITY_PASSWORD_COST_FACTOR"))
@@ -69,6 +73,20 @@ func getConfigInstanceFromEnvironment() (*DeveloperServerConfig, error) {
 	myConfig.DatabaseServer.Username = os.Getenv("DATABASE_SERVER_USERNAME")
 
 	return myConfig, nil
+}
+
+func parseCommaDelimitedStringToArray(v string) []string {
+	if len(v) == 0 {
+		return []string{}
+	}
+
+	result := []string{}
+	parts := strings.Split(v, ",")
+	for _, item := range parts {
+		result = append(result, strings.TrimSpace(item))
+	}
+
+	return result
 }
 
 func getConfigInstanceFromFile() (*DeveloperServerConfig, error) {
