@@ -73,12 +73,11 @@
             </a>
           </li>
         </ul>
-        <router-link
+        <router-link v-if="isValidJwt"
           class="btn btn-bd-login d-lg-inline-block my-2 my-md-0 ms-md-3"
           active-class="active"
           to="/login"
-          >Login</router-link
-        >
+          >Login</router-link>
       </div>
     </nav>
   </header>
@@ -91,6 +90,16 @@
 export default {
   name: "App",
   components: {},
+  computed: {
+    isValidJwt() {
+      return this.validateJwt()
+    }
+  },
+  methods: {
+    validateJwt: function(){
+      return false
+    }
+  }
 };
 </script>
 
@@ -120,6 +129,7 @@ export default {
   width: 1rem;
   height: 1rem;
 }
+.yellow-outline,
 .btn-bd-login {
   font-weight: 600;
   color: #ffe484;
@@ -137,4 +147,5 @@ export default {
   box-shadow: 0 0 0 3px rgba(255, 228, 132, 0.25);
 }
 
+@import url("~bootstrap/dist/css/bootstrap.min.css");
 </style>

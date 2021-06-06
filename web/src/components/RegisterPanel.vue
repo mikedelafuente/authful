@@ -41,7 +41,7 @@
           type="password"
           class="form-control"
           v-bind:class="[isPasswordMatch ? validClass : invalidPasswordClass]"
-          id="password1"
+          id="password2"
           v-model="confirmPassword"
           placeholder="Password"
           required
@@ -84,12 +84,12 @@ export default {
   data() {
     return {
       validClass: "is-valid",
-      invalidEmailClass: "",
-      invalidPasswordClass: "",
-      email: "",
       password: "",
       confirmPassword: "",
       isPasswordMatch: false,
+      invalidPasswordClass: "",
+      email: "",
+      invalidEmailClass: "",
       isValidEmail: false,
       errors: [],
     };
@@ -182,7 +182,7 @@ export default {
               return;
             }
           }
-          console.log(response);
+
           if (response.data.error) {
             this.errors.push(response.data.error);
           } else {
@@ -199,7 +199,6 @@ export default {
               return;
             }
           }
-          console.log(error.response.data);
           console.log(error);
           this.errors.push("Unable to create user account. Please try again.");
         });
