@@ -59,7 +59,7 @@ export default {
 
       axios
         .post(
-          "http://localhost:8081/api/v1/signin",
+          "http://localhost:8081/api/v1/account:signin",
           {
             username: this.email,
             password: this.password,
