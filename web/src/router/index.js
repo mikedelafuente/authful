@@ -5,6 +5,7 @@ import ResetPassword from "@/views/ResetPassword.vue";
 import Login from "@/views/Login.vue";
 import Logout from "@/views/Logout.vue";
 import AccountRegister from "@/views/AccountRegister.vue";
+import AccountProfile from "@/views/AccountProfile.vue";
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: "/reset-password",
     name: "account_reset",
     component: ResetPassword,
+  },
+  {
+    path: "/account/profile",
+    name: "account_profile",
+    component: AccountProfile,
   },
 ];
 
