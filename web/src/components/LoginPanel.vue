@@ -7,29 +7,45 @@
       <input
         type="email"
         class="form-control"
-        id="floatingInput"
+        id="email"
         v-model="email"
+        v-bind:class="[isValidEmail ? '' : invalidEmailClass]"
         placeholder="name@example.com"
+        required
+        @blur="checkEmail"
       />
       <label for="floatingInput">Email address</label>
+      <div class="invalid-feedback">Email address is required</div>
     </div>
-    <div class="form-floating">
+    <div class="form-floating py-1">
       <input
         type="password"
         class="form-control"
-        id="floatingPassword"
+        id="password1"
         v-model="password"
         placeholder="Password"
+        required
+         @keyup.enter="doLogin"
       />
       <label for="floatingPassword">Password</label>
     </div>
 
     <div class="checkbox mb-3">
       <label>
-        <input type="checkbox" value="remember-me" /> Remember me
+        <input type="checkbox" value="remember-me" @keyup.enter="doLogin" /> Remember me
       </label>
     </div>
     <button class="w-100 btn btn-lg btn-primary" type="button" v-on:click="doLogin">Sign in</button>
+    <div class="form-group">
+      <div v-if="errors.length">
+        <div
+          v-for="error in errors"
+          v-bind:key="error"
+          class="alert alert-danger my-2"
+          role="alert"
+        >{{ error }}</div>
+      </div>
+    </div>
     <ul class="bottom-form-link">
       <li>
         <router-link to="/reset-password" class="link-secondary">Forgot Password?</router-link>
@@ -44,17 +60,70 @@
 </template>
 
 <script>
+import { EventBus } from "@/event-bus";
 export default {
   name: "LoginPanel",
   data() {
     return {
-      email: "",
+      validClass: "",
       password: "",
+      isPasswordFilledIn: false,
+      email: "",
+      invalidEmailClass: "is-invalid",
+      isValidEmail: true,
+      errors: [],
     };
   },
-  props: {},
+  mounted() {
+    var jwt = this.$cookies.get("authfulJwt");
+    if (jwt != null) {
+      this.$cookies.remove("authfulJwt");
+      // TODO: Global event bus
+      EventBus.emit("logout", "logout");
+    }
+  },
+  created() {
+    if (this.$route && this.$route.query && this.$route.query.userid) {
+      this.email = this.$route.query.userid;
+    }
+  },
   methods: {
+    checkEmail: function () {
+      this.validClass = "is-valid";
+      this.errors = [];
+      if (this.email == "") {
+        this.isValidEmail = false;
+        this.invalidEmailClass = "";
+      } else {
+        if (this.validEmail(this.email)) {
+          this.isValidEmail = true;
+        } else {
+          this.invalidEmailClass = "is-invalid";
+          this.isValidEmail = false;
+        }
+      }
+    },
+    validEmail: function (email) {
+      var re =
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(email);
+    },
     doLogin: function () {
+      this.errors = [];
+
+      this.checkEmail();
+      if (!this.isValidEmail) {
+        this.errors.push("Invalid e-mail address");
+      }
+
+      if (this.password.length == 0) {
+        this.errors.push("Password is required");
+      }
+
+      if (this.errors.length) {
+        return;
+      }
+
       const axios = require("axios").default;
 
       axios
@@ -75,14 +144,22 @@ export default {
         )
         .then((response) => {
           this.$cookies.set(
-            "userJwt",
+            "authfulJwt",
             response.data.jwt,
             new Date(response.data.expires)
           );
-          //this.response = JSON.stringify(response, null, "")
+          // Broadcast to the global event bus which will cause the navigation to evaluate the changes
+          EventBus.emit("login", response.data.jwt);
+          this.$router.push("/");
         })
         .catch((error) => {
-          console.log(error);
+          if (error.response.data) {
+            if (error.response.data.error) {
+              this.errors.push(error.response.data.error);
+
+              return;
+            }
+          }
         });
     },
   },
@@ -123,24 +200,24 @@ export default {
 }
 
 .bottom-form-link {
-    text-align: center;
-    font-size: 14px;
-    display: block;
-    padding: 0;
+  text-align: center;
+  font-size: 14px;
+  display: block;
+  padding: 0;
 }
 
 .bottom-form-link li {
-    display: inline-block;
-    list-style: none;
+  display: inline-block;
+  list-style: none;
 }
 .bottom-form-link ul {
-    display: block;
-    list-style-type: disc;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    padding-inline-start: 40px;
+  display: block;
+  list-style-type: disc;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-inline-start: 40px;
 }
 
 .bottom-form-link li:not(:first-child)::before {
