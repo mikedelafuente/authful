@@ -25,13 +25,14 @@
         v-model="password"
         placeholder="Password"
         required
+         @keyup.enter="doLogin"
       />
       <label for="floatingPassword">Password</label>
     </div>
 
     <div class="checkbox mb-3">
       <label>
-        <input type="checkbox" value="remember-me" /> Remember me
+        <input type="checkbox" value="remember-me" @keyup.enter="doLogin" /> Remember me
       </label>
     </div>
     <button class="w-100 btn btn-lg btn-primary" type="button" v-on:click="doLogin">Sign in</button>
@@ -59,6 +60,7 @@
 </template>
 
 <script>
+import { EventBus } from "@/event-bus";
 export default {
   name: "LoginPanel",
   data() {
@@ -72,7 +74,14 @@ export default {
       errors: [],
     };
   },
-  props: {},
+  mounted() {
+    var jwt = this.$cookies.get("authfulJwt");
+    if (jwt != null) {
+      this.$cookies.remove("authfulJwt");
+      // TODO: Global event bus
+      EventBus.emit("logout", "logout");
+    }
+  },
   created() {
     if (this.$route && this.$route.query && this.$route.query.userid) {
       this.email = this.$route.query.userid;
@@ -80,7 +89,7 @@ export default {
   },
   methods: {
     checkEmail: function () {
-      this.validClass = "is-valid"
+      this.validClass = "is-valid";
       this.errors = [];
       if (this.email == "") {
         this.isValidEmail = false;
@@ -139,19 +148,18 @@ export default {
             response.data.jwt,
             new Date(response.data.expires)
           );
-
-          this.$router.push('/')
+          // Broadcast to the global event bus which will cause the navigation to evaluate the changes
+          EventBus.emit("login", response.data.jwt);
+          this.$router.push("/");
         })
         .catch((error) => {
           if (error.response.data) {
             if (error.response.data.error) {
-              console.log(error.response.data);
               this.errors.push(error.response.data.error);
 
               return;
             }
           }
-          console.log(error);
         });
     },
   },

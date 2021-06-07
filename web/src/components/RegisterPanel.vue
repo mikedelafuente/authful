@@ -79,6 +79,7 @@
 </template>
 
 <script>
+import { EventBus } from "@/event-bus";
 export default {
   name: "LoginPanel",
   data() {
@@ -93,6 +94,14 @@ export default {
       isValidEmail: false,
       errors: [],
     };
+  },
+  mounted() {
+    var jwt = this.$cookies.get("authfulJwt");
+    if (jwt != null) {
+      this.$cookies.remove("authfulJwt");
+      // TODO: Global event bus
+      EventBus.emit("logout", "logout");
+    }
   },
   props: {},
   methods: {
@@ -194,7 +203,6 @@ export default {
         .catch((error) => {
           if (error.response.data) {
             if (error.response.data.error) {
-              console.log(error.response.data);
               this.errors.push(error.response.data.error);
               return;
             }

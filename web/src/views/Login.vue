@@ -2,13 +2,13 @@
   <LoginPanel />
 </template>
 <script>
-import LoginPanel from '../components/LoginPanel.vue'
+import LoginPanel from "../components/LoginPanel.vue";
 export default {
   name: "Login",
-  components:{
-    LoginPanel
+  components: {
+    LoginPanel,
   },
-  methods: {}
+  methods: {},
 };
 </script>
 
