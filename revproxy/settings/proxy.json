@@ -1,0 +1,18 @@
+{
+  "proxy_mappings": [
+    {
+      "name": "users",
+      "service_base_url": "http://localhost:8082",
+      "paths": [
+        { "path": "/api/v1/account", "is_secure": false },
+        { "path": "/api/v1/users", "is_secure": true },
+        { "path": "/api/v1/profile", "is_secure": true }
+      ]
+    },
+    {
+      "name": "developers",
+      "service_base_url": "http://localhost:8083",
+      "paths": [{ "path": "/api/v1/developers", "is_secure": true }]
+    }
+  ]
+}

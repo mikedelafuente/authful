@@ -106,16 +106,34 @@ services:
       <<: *cors
     ports:
       - 8081:8080
-  authful_web:
-    image: authful-web
+  authful_proxy:
+    image: authful-proxy
     build:
-      context: ../web
+      context: ../revproxy
       dockerfile: ./Dockerfile
     depends_on: 
-        - authful_signin
+      - authful_users
+      - authful_developers
     environment: 
       AUTHFUL_LOG_LEVEL: *log_level
       WEB_SERVER_PORT: 8080
-      SERVICE_ADDRESS: &web_service_address http://authful_web:8080     
+      PROVIDERS_USER_SERVER_URI: *users_service_address
+      PROVIDERS_DEVELOPER_SERVER_URI: *dev_service_address
+      <<: *security_password_factor
+      <<: *security_jwt_key
+      <<: *cors
     ports:
-      - 8080:8080
+      - 8090:8080
+  # authful_web:
+  #   image: authful-web
+  #   build:
+  #     context: ../web
+  #     dockerfile: ./Dockerfile
+  #   depends_on: 
+  #       - authful_signin
+  #   environment: 
+  #     AUTHFUL_LOG_LEVEL: *log_level
+  #     WEB_SERVER_PORT: 8080
+  #     SERVICE_ADDRESS: &web_service_address http://authful_web:8080     
+  #   ports:
+  #     - 8080:8080

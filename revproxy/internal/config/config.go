@@ -1,10 +1,13 @@
 package config
 
-type ProxyServerConfig struct {
+type ServerConfig struct {
 	WebServer WebServerConfig `json:"web_server"`
 	Security  SecurityConfig  `json:"security"`
-	ProxyMaps []ProxyMap      `json:"proxy_mappings"`
 	LogLevel  string          `json:"log_level"`
+}
+
+type ProxyConfig struct {
+	ProxyMaps []ProxyMap `json:"proxy_mappings"`
 }
 
 type SecurityConfig struct {

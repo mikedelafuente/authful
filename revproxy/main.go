@@ -91,7 +91,7 @@ func parseRequest(r *http.Request) requestPayloadStruct {
 func initializeServiceMap() {
 	fmt.Printf("\n\nInitializing service map\n\n")
 	serviceMap = make(map[string]ProxyInfo)
-	for _, proxyMap := range config.GetConfig().ProxyMaps {
+	for _, proxyMap := range config.GetProxyConfig().ProxyMaps {
 		for _, path := range proxyMap.Paths {
 			info := ProxyInfo{
 				ServiceBaseUrl: proxyMap.ServiceBaseUrl,

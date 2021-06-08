@@ -12,10 +12,10 @@ import (
 
 var (
 	configOnce     sync.Once
-	configInstance *ProxyServerConfig
+	configInstance *ServerConfig
 )
 
-func GetConfig() *ProxyServerConfig {
+func GetConfig() *ServerConfig {
 	configOnce.Do(func() {
 		var err error
 
@@ -33,10 +33,10 @@ func GetConfig() *ProxyServerConfig {
 	return configInstance
 }
 
-func getConfigInstanceFromEnvironment() (*ProxyServerConfig, error) {
+func getConfigInstanceFromEnvironment() (*ServerConfig, error) {
 	fmt.Println("Loading developer server config from environment")
 
-	var myConfig *ProxyServerConfig = &ProxyServerConfig{
+	var myConfig *ServerConfig = &ServerConfig{
 		WebServer: WebServerConfig{},
 		Security:  SecurityConfig{},
 	}
@@ -75,7 +75,7 @@ func parseCommaDelimitedStringToArray(v string) []string {
 	return result
 }
 
-func getConfigInstanceFromFile() (*ProxyServerConfig, error) {
+func getConfigInstanceFromFile() (*ServerConfig, error) {
 	var err error
 
 	currDir, _ := os.Getwd()
@@ -88,7 +88,7 @@ func getConfigInstanceFromFile() (*ProxyServerConfig, error) {
 		return nil, err
 	}
 
-	var myConfig *ProxyServerConfig = &ProxyServerConfig{}
+	var myConfig *ServerConfig = &ServerConfig{}
 	err = json.Unmarshal(f, &myConfig)
 	if err != nil {
 		fmt.Printf("ERROR: %s \n", err)
