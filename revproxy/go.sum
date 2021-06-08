@@ -1,4 +1,6 @@
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
+github.com/google/uuid v1.2.0 h1:qJYtXnJRWmpe7m/3XlyhrsLrEURqHRM2kxzoxXqyUDs=
+github.com/google/uuid v1.2.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/mikedelafuente/authful-servertools v0.0.8 h1:AxavqfOwhOBM6YjVdRvZhgnbYWJcLy7hFGf0Ic50/V4=
 github.com/mikedelafuente/authful-servertools v0.0.8/go.mod h1:LNzPw3eBNo7Yt4/2xAZ1gtlnYNuHrTZiPxRX/4GThCE=

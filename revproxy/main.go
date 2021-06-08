@@ -10,6 +10,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
+	"github.com/mikedelafuente/authful-servertools/pkg/customclaims"
 	"github.com/mikedelafuente/authful-servertools/pkg/logger"
 	"github.com/mikedelafuente/authful/revproxy/internal/config"
 )
@@ -29,6 +32,20 @@ var serviceMap map[string]ProxyInfo
 func init() {
 	log.SetOutput(os.Stdout)
 	config.GetConfig()
+}
+
+func main() {
+	fmt.Printf("\n\nAuthful: Reverse Proxy Server\n\n")
+	fmt.Printf("Log Level: %s\n", logger.GetLogLevel())
+
+	initializeServiceMap()
+
+	fmt.Printf("\n\nAuthful: Reverse proxy Server running at %s:%v\n\n", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port)
+
+	http.HandleFunc("/", handleRequestAndRedirect)
+	if err := http.ListenAndServe(fmt.Sprintf("%s:%v", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port), nil); err != nil {
+		panic(err)
+	}
 }
 
 // Serve a reverse proxy for a given url
@@ -60,6 +77,9 @@ func handleRequestAndRedirect(w http.ResponseWriter, r *http.Request) {
 
 	if proxyInfo.IsSecure {
 		logger.Verbose(r.Context(), "Is secure endpoint")
+		if !processAuthHeader(w, r) {
+			return
+		}
 	} else {
 		logger.Verbose(r.Context(), "Is unsecure endpoint")
 	}
@@ -116,16 +136,66 @@ func getProxyInfo(ctx context.Context, proxyConditionRaw string) ProxyInfo {
 	return proxyInfo
 }
 
-func main() {
-	fmt.Printf("\n\nAuthful: Reverse Proxy Server\n\n")
-	fmt.Printf("Log Level: %s\n", logger.GetLogLevel())
+func processAuthHeader(w http.ResponseWriter, r *http.Request) bool {
+	authHeader := r.Header.Values("Authorization")
+	r = extractAndSetTraceId(r)
+	isValid := false
 
-	initializeServiceMap()
+	if len(authHeader) > 0 {
+		if strings.HasPrefix(authHeader[0], "Bearer ") {
+			parts := strings.Split(authHeader[0], " ")
+			rawToken := parts[1]
 
-	fmt.Printf("\n\nAuthful: Reverse proxy Server running at %s:%v\n\n", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port)
-
-	http.HandleFunc("/", handleRequestAndRedirect)
-	if err := http.ListenAndServe(fmt.Sprintf("%s:%v", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port), nil); err != nil {
-		panic(err)
+			isValid, r = processToken(rawToken, r)
+		}
 	}
+
+	logger.Verbose(r.Context(), fmt.Sprintf("Request recieved: %s %s", r.Method, r.URL))
+	if !isValid {
+		w.WriteHeader(http.StatusUnauthorized)
+		return false
+	}
+
+	return true
+}
+
+func extractAndSetTraceId(r *http.Request) *http.Request {
+	traceIdParts := r.Header.Values("x-trace-id")
+
+	var traceId string
+	if len(traceIdParts) == 0 || len(traceIdParts[0]) == 0 {
+		traceId = uuid.New().String()
+		r.Header.Set("x-trace-id", traceId)
+	} else {
+		traceId = traceIdParts[0]
+	}
+	ctx := context.WithValue(r.Context(), customclaims.ContextTraceId, traceId)
+	r = r.WithContext(ctx)
+	return r
+}
+
+func processToken(rawToken string, r *http.Request) (bool, *http.Request) {
+	userId := ""
+	isValid := false
+
+	var claims customclaims.Claims
+	token, err := jwt.ParseWithClaims(rawToken, &claims, func(t *jwt.Token) (interface{}, error) {
+		localClaim := t.Claims.(*customclaims.Claims)
+		userId = localClaim.UserId
+		return []byte(config.GetConfig().Security.JwtKey), nil
+	})
+
+	if err == nil {
+		if token.Valid {
+			isValid = true
+		}
+	} else {
+		logger.Error(r.Context(), err)
+	}
+
+	ctx := context.WithValue(r.Context(), customclaims.ContextKeyUserId, userId)
+	ctx = context.WithValue(ctx, customclaims.ContextJwt, token.Raw)
+	r = r.WithContext(ctx)
+
+	return isValid, r
 }
