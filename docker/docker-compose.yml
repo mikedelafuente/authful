@@ -89,23 +89,6 @@ services:
       <<: *cors
     expose:
       - 8080
-  authful_signin:
-    image: authful-signin
-    build:
-      context: ../signin
-      dockerfile: ./Dockerfile
-    depends_on: 
-      - authful_users
-      - authful_developers
-    environment: 
-      AUTHFUL_LOG_LEVEL: *log_level
-      WEB_SERVER_PORT: 8080
-      PROVIDERS_USER_SERVER_URI: *users_service_address
-      PROVIDERS_DEVELOPER_SERVER_URI: *dev_service_address
-      <<: *security_jwt_key
-      <<: *cors
-    expose:
-      - 8080
   authful_proxy:
     image: authful-proxy
     build:
@@ -124,16 +107,16 @@ services:
       <<: *cors
     ports:
       - 8090:8080
-  # authful_web:
-  #   image: authful-web
-  #   build:
-  #     context: ../web
-  #     dockerfile: ./Dockerfile
-  #   depends_on: 
-  #       - authful_signin
-  #   environment: 
-  #     AUTHFUL_LOG_LEVEL: *log_level
-  #     WEB_SERVER_PORT: 8080
-  #     SERVICE_ADDRESS: &web_service_address http://authful_web:8080     
-  #   ports:
-  #     - 8080:8080
+  authful_web:
+    image: authful-web
+    build:
+      context: ../web
+      dockerfile: ./Dockerfile
+    depends_on: 
+        - authful_proxy
+    environment: 
+      AUTHFUL_LOG_LEVEL: *log_level
+      WEB_SERVER_PORT: 8080
+      SERVICE_ADDRESS: &web_service_address http://authful_web:8080     
+    ports:
+      - 8080:8080
