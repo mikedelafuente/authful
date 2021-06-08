@@ -18,7 +18,13 @@ type requestPayloadStruct struct {
 	ProxyCondition string `json:"proxy_condition"`
 }
 
-var serviceMap map[string]string
+type ProxyInfo struct {
+	ServiceBaseUrl string
+	Path           string
+	IsSecure       bool
+}
+
+var serviceMap map[string]ProxyInfo
 
 func init() {
 	log.SetOutput(os.Stdout)
@@ -48,11 +54,17 @@ func handleRequestAndRedirect(w http.ResponseWriter, r *http.Request) {
 	logger.Verbose(r.Context(), fmt.Sprintf("Request recieved: %s %s", r.Method, r.URL))
 	payload := parseRequest(r)
 	logger.Verbose(r.Context(), "Proxy condition: "+payload.ProxyCondition)
-	destinationUrl := getProxyUrl(r.Context(), payload.ProxyCondition)
+	proxyInfo := getProxyInfo(r.Context(), payload.ProxyCondition)
 
-	logger.Verbose(r.Context(), "Destination url: "+destinationUrl)
+	logger.Verbose(r.Context(), "Destination url: "+proxyInfo.ServiceBaseUrl)
 
-	serveReverseProxy(destinationUrl, w, r)
+	if proxyInfo.IsSecure {
+		logger.Verbose(r.Context(), "Is secure endpoint")
+	} else {
+		logger.Verbose(r.Context(), "Is unsecure endpoint")
+	}
+
+	serveReverseProxy(proxyInfo.ServiceBaseUrl, w, r)
 }
 
 func parseRequest(r *http.Request) requestPayloadStruct {
@@ -78,25 +90,30 @@ func parseRequest(r *http.Request) requestPayloadStruct {
 
 func initializeServiceMap() {
 	fmt.Printf("\n\nInitializing service map\n\n")
-	serviceMap = make(map[string]string)
+	serviceMap = make(map[string]ProxyInfo)
 	for _, proxyMap := range config.GetConfig().ProxyMaps {
 		for _, path := range proxyMap.Paths {
-			serviceMap[strings.ToUpper(path)] = proxyMap.ServiceBaseUrl
+			info := ProxyInfo{
+				ServiceBaseUrl: proxyMap.ServiceBaseUrl,
+				Path:           strings.ToUpper(path.Path),
+				IsSecure:       path.IsSecure,
+			}
+			serviceMap[strings.ToUpper(path.Path)] = info
 		}
 	}
 }
 
-func getProxyUrl(ctx context.Context, proxyConditionRaw string) string {
+func getProxyInfo(ctx context.Context, proxyConditionRaw string) ProxyInfo {
 	proxyCondition := strings.ToUpper(proxyConditionRaw)
 
-	serviceUrl := serviceMap[proxyCondition]
-	if len(serviceUrl) == 0 {
+	proxyInfo := serviceMap[proxyCondition]
+	if len(proxyInfo.ServiceBaseUrl) == 0 {
 		logger.Warn(ctx, fmt.Sprintf("No Service URL found for [%v]", proxyCondition))
 	} else {
-		logger.Verbose(ctx, fmt.Sprintf("Service URL found for [%v] : %v", proxyCondition, serviceUrl))
+		logger.Verbose(ctx, fmt.Sprintf("Service URL found for [%v] : %v", proxyCondition, proxyInfo))
 	}
 
-	return serviceUrl
+	return proxyInfo
 }
 
 func main() {

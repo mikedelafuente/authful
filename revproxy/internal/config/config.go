@@ -21,7 +21,12 @@ type WebServerConfig struct {
 }
 
 type ProxyMap struct {
-	Name           string   `json:"name"`
-	ServiceBaseUrl string   `json:"service_base_url"`
-	Paths          []string `json:"paths"`
+	Name           string      `json:"name"`
+	ServiceBaseUrl string      `json:"service_base_url"`
+	Paths          []ProxyPath `json:"paths"`
+}
+
+type ProxyPath struct {
+	Path     string `json:"path"`
+	IsSecure bool   `json:"is_secure"`
 }
