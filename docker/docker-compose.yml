@@ -66,8 +66,8 @@ services:
       <<: *security_password_factor
       <<: *security_jwt_key
       <<: *cors
-    ports:
-      - 8082:8080
+    expose:
+      - 8080
   authful_developers:
     image: authful-developers
     build:
@@ -87,8 +87,8 @@ services:
       <<: *security_password_factor
       <<: *security_jwt_key
       <<: *cors
-    ports:
-      - 8083:8080
+    expose:
+      - 8080
   authful_signin:
     image: authful-signin
     build:
@@ -104,8 +104,8 @@ services:
       PROVIDERS_DEVELOPER_SERVER_URI: *dev_service_address
       <<: *security_jwt_key
       <<: *cors
-    ports:
-      - 8081:8080
+    expose:
+      - 8080
   authful_proxy:
     image: authful-proxy
     build:
