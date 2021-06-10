@@ -16,7 +16,7 @@ x-cors: &cors
 
 services:
   authful_developers_db:
-    image: mysql
+    image: mysql/mysql-server
     #command: --default-authentication-plugin=mysql_native_password
     restart: always  
     volumes:
@@ -32,7 +32,7 @@ services:
       - 33062:3306
     command: mysqld --innodb_file_per_table
   authful_users_db:
-    image: mysql
+    image: mysql/mysql-server
     #command: --default-authentication-plugin=mysql_native_password
     restart: always
     volumes:
