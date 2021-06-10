@@ -2,10 +2,10 @@ package config
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -25,6 +25,7 @@ func GetConfig() *ServerConfig {
 			configInstance, err = getConfigInstanceFromEnvironment()
 		}
 		if err != nil {
+			fmt.Printf("ERROR: %s \n", err)
 			panic(err)
 		}
 	})
@@ -33,13 +34,13 @@ func GetConfig() *ServerConfig {
 }
 
 func getConfigInstanceFromEnvironment() (*ServerConfig, error) {
-	fmt.Println("Loading signin server config from environment")
+	fmt.Println("Loading developer server config from environment")
 
 	var myConfig *ServerConfig = &ServerConfig{
 		WebServer: WebServerConfig{},
-		Providers: ProvidersConfig{},
 		Security:  SecurityConfig{},
 	}
+
 	myConfig.LogLevel = os.Getenv("AUTHFUL_LOG_LEVEL")
 
 	// WEB SERVER
@@ -49,11 +50,13 @@ func getConfigInstanceFromEnvironment() (*ServerConfig, error) {
 	myConfig.WebServer.CORSAllowedMethods = parseCommaDelimitedStringToArray(os.Getenv("CORS_ALLOWED_METHODS"))
 
 	// SECURITY
+	port, err := strconv.Atoi(os.Getenv("SECURITY_PASSWORD_COST_FACTOR"))
+	if err != nil {
+		fmt.Printf("ERROR: %s \n", err)
+		return nil, err
+	}
+	myConfig.Security.PasswordCostFactor = port
 	myConfig.Security.JwtKey = os.Getenv("SECURITY_JWT_KEY")
-
-	// DATABASE SERVER
-	myConfig.Providers.DeveloperServerUri = os.Getenv("PROVIDERS_DEVELOPER_SERVER_URI")
-	myConfig.Providers.UserServerUri = os.Getenv("PROVIDERS_USER_SERVER_URI")
 
 	return myConfig, nil
 }
@@ -90,12 +93,8 @@ func getConfigInstanceFromFile() (*ServerConfig, error) {
 	if err != nil {
 		fmt.Printf("ERROR: %s \n", err)
 		return nil, err
+
 	}
 	os.Setenv("AUTHFUL_LOG_LEVEL", myConfig.LogLevel)
-
-	if myConfig.Providers.UserServerUri == "" {
-		return nil, errors.New("empty user service uri")
-	}
-
 	return myConfig, nil
 }

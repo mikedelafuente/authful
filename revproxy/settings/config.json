@@ -1,0 +1,37 @@
+{
+    "web_server": {
+        "port": "8090",
+        "host": "localhost",
+        "cors_origin_allowed": [
+            "http://localhost:8080",
+            "http://localhost:3000"
+        ],
+        "cors_allowed_headers": [
+            "Accept",
+            "Cache",
+            "Content-Type",
+            "Authorize",
+            "Access-Control-Allow-Origin",
+            "X-Requested-With",
+            "X-Auth-Token",
+            "Content-Length",
+            "Accept-Encoding",
+            "X-CSRF-Token",
+            "Authorization",
+            "x-trace-id"
+        ],
+        "cors_allowed_methods": [
+            "GET",
+            "HEAD",
+            "POST",
+            "PUT",
+            "PATCH",
+            "OPTIONS"
+        ]
+    },
+    "security": {
+        "jwt_key": "change_this_to_whatever_you_want_but_make_sure_to_change_it",
+        "password_cost_factor": 14
+    },
+    "log_level": "VERBOSE"
+}

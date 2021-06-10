@@ -11,8 +11,7 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /go/bin/app /app
 COPY --from=builder /go/src/app/settings/config.json /settings/config.json
-COPY --from=builder /go/src/app/Static /Static
-COPY --from=builder /go/src/app/Templates /Templates
+COPY --from=builder /go/src/app/settings/proxy.json /settings/proxy.json
 ENTRYPOINT /app
-LABEL Name=authful-signin Version=0.0.1
+LABEL Name=authful-proxy Version=0.0.1
 EXPOSE 8080

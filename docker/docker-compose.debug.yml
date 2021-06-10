@@ -7,17 +7,22 @@ x-security-password-factor: &security_password_factor
   SECURITY_PASSWORD_COST_FACTOR: 14
 
 x-log-level: &log_level VERBOSE
-  
-x-users-db-username: &usersdbusername users_db_admin
+
+# CORS 
+x-cors: &cors
+  CORS_ORIGIN_ALLOWED: http://localhost:8080, http://localhost:3000
+  CORS_ALLOWED_HEADERS: Accept,Cache,Content-Type,Authorize,Access-Control-Allow-Origin,X-Requested-With,X-Auth-Token,Content-Length,Accept-Encoding,X-CSRF-Token,Authorization,x-trace-id
+  CORS_ALLOWED_METHODS: GET,HEAD,POST,PUT,PATCH,OPTIONS
+
 services:
-  developers_db:
+  authful_developers_db:
     image: mysql
     #command: --default-authentication-plugin=mysql_native_password
     restart: always  
     volumes:
       - ./db/authful_developers:/docker-entrypoint-initdb.d
     environment: 
-      MYSQL_HOST: &db_dev_host developers_db
+      MYSQL_HOST: &db_dev_host authful_developers_db
       MYSQL_PORT: &db_dev_port 3306
       MYSQL_DATABASE: &db_dev_database authful_developers
       MYSQL_ROOT_PASSWORD: &db_dev_root_password 6oK84adtaaxBRuKV
@@ -26,14 +31,14 @@ services:
     ports:
       - 33062:3306
     command: mysqld --innodb_file_per_table
-  users_db:
+  authful_users_db:
     image: mysql
     #command: --default-authentication-plugin=mysql_native_password
     restart: always
     volumes:
       - ./db/authful_users:/docker-entrypoint-initdb.d
     environment: 
-      MYSQL_HOST: &db_users_host users_db
+      MYSQL_HOST: &db_users_host authful_users_db
       MYSQL_PORT: &db_users_port 3306
       MYSQL_DATABASE: &db_users_database authful_users
       MYSQL_ROOT_PASSWORD: &db_users_root_password 80jqn1uAWnoTjfPw
@@ -42,37 +47,38 @@ services:
     ports:
       - 33061:3306
     command: mysqld --innodb_file_per_table
-  users:
-    image: users
+  authful_users:
+    image: authful-users
     build:
       context: ../users
       dockerfile: ./Dockerfile
     depends_on: 
-      - users_db
+      - authful_users_db
     environment: 
       AUTHFUL_LOG_LEVEL: *log_level
       WEB_SERVER_PORT: 8080
-      SERVICE_ADDRESS: &users_service_address http://users:8080
+      SERVICE_ADDRESS: &users_service_address http://authful_users:8080
       DATABASE_SERVER_DATABASE: *db_users_database
       DATABASE_SERVER_HOST: *db_users_host
       DATABASE_SERVER_PORT: *db_users_port
       DATABASE_SERVER_USERNAME: *db_users_user
       DATABASE_SERVER_PASSWORD: *db_users_password
       <<: *security_password_factor
-      <<: *security_jwt_key    
-    ports:
-      - 8082:8080
-  developers:
-    image: developers
+      <<: *security_jwt_key
+      <<: *cors
+    expose:
+      - 8080
+  authful_developers:
+    image: authful-developers
     build:
       context: ../developers
       dockerfile: ./Dockerfile
     depends_on: 
-      - developers_db
+      - authful_developers_db
     environment: 
       AUTHFUL_LOG_LEVEL: *log_level
       WEB_SERVER_PORT: 8080
-      SERVICE_ADDRESS: &dev_service_address http://developers:8080
+      SERVICE_ADDRESS: &dev_service_address http://authful_developers:8080
       DATABASE_SERVER_DATABASE: *db_dev_database
       DATABASE_SERVER_HOST: *db_dev_host
       DATABASE_SERVER_PORT: *db_dev_port
@@ -80,21 +86,37 @@ services:
       DATABASE_SERVER_PASSWORD: *db_dev_password
       <<: *security_password_factor
       <<: *security_jwt_key
-    ports:
-      - 8083:8080
-  signin:
-    image: signin
+      <<: *cors
+    expose:
+      - 8080
+  authful_proxy:
+    image: authful-proxy
     build:
-      context: ../signin
+      context: ../revproxy
       dockerfile: ./Dockerfile
     depends_on: 
-      - users
-      - developers
+      - authful_users
+      - authful_developers
     environment: 
       AUTHFUL_LOG_LEVEL: *log_level
-      WEB_SERVER_PORT: 8081
+      WEB_SERVER_PORT: 8080
       PROVIDERS_USER_SERVER_URI: *users_service_address
       PROVIDERS_DEVELOPER_SERVER_URI: *dev_service_address
+      <<: *security_password_factor
       <<: *security_jwt_key
+      <<: *cors
     ports:
-      - 8081:8081
+      - 8090:8080
+  authful_web:
+    image: authful-web
+    build:
+      context: ../web
+      dockerfile: ./Dockerfile
+    depends_on: 
+        - authful_proxy
+    environment: 
+      AUTHFUL_LOG_LEVEL: *log_level
+      WEB_SERVER_PORT: 8080
+      SERVICE_ADDRESS: &web_service_address http://authful_web:8080     
+    ports:
+      - 8080:8080
