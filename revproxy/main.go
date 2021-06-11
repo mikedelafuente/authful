@@ -62,6 +62,31 @@ func serveReverseProxy(target string, res http.ResponseWriter, req *http.Request
 	req.Header.Set("X-Forwarded-Host", req.Header.Get("Host"))
 	req.Host = parsedUrl.Host
 
+	logger.Debug(req.Context(), fmt.Sprintf("Request Headers: %v", req.Header))
+
+	origin := req.Header.Get("Origin")
+	if len(origin) == 0 {
+		logger.Warn(req.Context(), "Origin header value is not in request, trying referer")
+		referer := req.Header.Get("Referer")
+		if len(referer) == 0 {
+			logger.Warn(req.Context(), "Refer header value is not in request, trying config values")
+			if len(referer) == 0 {
+				res.Header().Set("Access-Control-Allow-Origin", strings.Join(config.GetConfig().WebServer.CORSOriginAllowed, ","))
+			}
+		} else {
+			res.Header().Set("Access-Control-Allow-Origin", origin)
+		}
+	} else {
+		res.Header().Set("Access-Control-Allow-Origin", origin) // strings.Join(config.GetConfig().WebServer.CORSOriginAllowed, ","))
+	}
+	res.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, PATCH, OPTIONS")
+	res.Header().Set("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, X-Auth-Token, Access-Control-Allow-Origin, Accept, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, x-trace-id, Authorize, cache")
+	res.Header().Set("Access-Control-Allow-Credentials", "true")
+
+	// OPTIONS IS TYPICALLY SENT AS A CORS PREFLIGHT
+	if req.Method == "OPTIONS" {
+		return
+	}
 	// Note that ServeHttp is non blocking and uses a go routine under the hood
 	logger.Verbose(req.Context(), fmt.Sprintf("Sending request to server. Host: %v | Scheme: %v | %v ", parsedUrl.Host, parsedUrl.Scheme, parsedUrl))
 	proxy.ServeHTTP(res, req)
