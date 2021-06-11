@@ -168,7 +168,8 @@ export default {
 
       const axios = require("axios").default;
       var requestUrl = "http://" + window.location.hostname + ":8090/api/v1/account:signup"
-     
+     console.log("Request: " + requestUrl)
+      
       axios
         .post(
           requestUrl,
