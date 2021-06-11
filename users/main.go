@@ -16,7 +16,6 @@ import (
 	"github.com/mikedelafuente/authful/users/internal/controllers"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -53,12 +52,13 @@ func setupRequestHandlers() {
 	logger.Printf("\n\nAuthful: User Server running at %s:%v\n\n", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port)
 	logger.Debug(context.Background(), fmt.Sprintf("CORS Allowed Origins: %v", config.GetConfig().WebServer.CORSOriginAllowed))
 
-	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "X-Auth-Token", "Access-Control-Allow-Origin", "Accept", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "x-trace-id", "Authorize"})
-	originsOk := handlers.AllowedOrigins(config.GetConfig().WebServer.CORSOriginAllowed)
-	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "PATCH", "OPTIONS"})
+	// headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "X-Auth-Token", "Access-Control-Allow-Origin", "Accept", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "x-trace-id", "Authorize"})
+	// originsOk := handlers.AllowedOrigins(config.GetConfig().WebServer.CORSOriginAllowed)
+	// methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "PATCH", "OPTIONS"})
 
 	// START WEB SERVER
-	err := http.ListenAndServe(fmt.Sprintf("%s:%v", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port), handlers.CORS(originsOk, headersOk, methodsOk)(myRouter))
+	// err := http.ListenAndServe(fmt.Sprintf("%s:%v", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port), handlers.CORS(originsOk, headersOk, methodsOk)(myRouter))
+	err := http.ListenAndServe(fmt.Sprintf("%s:%v", config.GetConfig().WebServer.Host, config.GetConfig().WebServer.Port), myRouter)
 
 	logger.Fatal(context.Background(), err)
 }

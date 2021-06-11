@@ -66,22 +66,26 @@ func serveReverseProxy(target string, res http.ResponseWriter, req *http.Request
 
 	origin := req.Header.Get("Origin")
 	if len(origin) == 0 {
-		logger.Warn(req.Context(), "Origin header value is not in request, trying referer")
 		referer := req.Header.Get("Referer")
 		if len(referer) == 0 {
-			logger.Warn(req.Context(), "Refer header value is not in request, trying config values")
 			if len(referer) == 0 {
+				logger.Verbose(req.Context(), "Setting Access-Control-Allow-Origin based on Config setting")
 				res.Header().Set("Access-Control-Allow-Origin", strings.Join(config.GetConfig().WebServer.CORSOriginAllowed, ","))
 			}
 		} else {
-			res.Header().Set("Access-Control-Allow-Origin", origin)
+			logger.Verbose(req.Context(), "Setting Access-Control-Allow-Origin based on Referer header")
+			res.Header().Set("Access-Control-Allow-Origin", referer)
 		}
 	} else {
+		logger.Verbose(req.Context(), "Setting Access-Control-Allow-Origin based on Origin header")
+
 		res.Header().Set("Access-Control-Allow-Origin", origin) // strings.Join(config.GetConfig().WebServer.CORSOriginAllowed, ","))
 	}
 	res.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, PATCH, OPTIONS")
 	res.Header().Set("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, X-Auth-Token, Access-Control-Allow-Origin, Accept, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, x-trace-id, Authorize, cache")
 	res.Header().Set("Access-Control-Allow-Credentials", "true")
+
+	logger.Debug(req.Context(), fmt.Sprintf("Response Headers: %v", res.Header()))
 
 	// OPTIONS IS TYPICALLY SENT AS A CORS PREFLIGHT
 	if req.Method == "OPTIONS" {
