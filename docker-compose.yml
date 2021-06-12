@@ -20,7 +20,7 @@ services:
     #command: --default-authentication-plugin=mysql_native_password
     restart: always  
     volumes:
-      - ./db/authful_developers:/docker-entrypoint-initdb.d
+      - ./db-setup/authful_developers:/docker-entrypoint-initdb.d
     environment: 
       MYSQL_HOST: &db_dev_host authful_developers_db
       MYSQL_PORT: &db_dev_port 3306
@@ -36,7 +36,7 @@ services:
     #command: --default-authentication-plugin=mysql_native_password
     restart: always
     volumes:
-      - ./db/authful_users:/docker-entrypoint-initdb.d
+      - ./db-setup/authful_users:/docker-entrypoint-initdb.d
     environment: 
       MYSQL_HOST: &db_users_host authful_users_db
       MYSQL_PORT: &db_users_port 3306
@@ -50,7 +50,7 @@ services:
   authful_users:
     image: authful-users
     build:
-      context: ../users
+      context: ./users
       dockerfile: ./Dockerfile
     depends_on: 
       - authful_users_db
@@ -71,7 +71,7 @@ services:
   authful_developers:
     image: authful-developers
     build:
-      context: ../developers
+      context: ./developers
       dockerfile: ./Dockerfile
     depends_on: 
       - authful_developers_db
@@ -92,7 +92,7 @@ services:
   authful_proxy:
     image: authful-proxy
     build:
-      context: ../revproxy
+      context: ./revproxy
       dockerfile: ./Dockerfile
     depends_on: 
       - authful_users
@@ -110,7 +110,7 @@ services:
   authful_web:
     image: authful-web
     build:
-      context: ../web
+      context: ./web
       dockerfile: ./Dockerfile
     depends_on: 
         - authful_proxy
