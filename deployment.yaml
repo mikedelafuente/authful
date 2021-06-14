@@ -1,0 +1,474 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert -c --file docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: authful-developers-db
+  name: authful-developers-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: authful-developers-db
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+          convert -c --file docker-compose.yml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: authful-developers-db
+    spec:
+      containers:
+      - args:
+        - mysqld
+        - --innodb_file_per_table
+        env:
+        - name: MYSQL_DATABASE
+          value: authful_developers
+        - name: MYSQL_HOST
+          value: authful-developers-db
+        - name: MYSQL_PASSWORD
+          value: 8FUb9bqVTtLyU2i8
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_ROOT_PASSWORD
+          value: 6oK84adtaaxBRuKV
+        - name: MYSQL_USER
+          value: dev_admin
+        image: mysql/mysql-server
+        imagePullPolicy: ""
+        name: authful-developers-db
+        ports:
+        - containerPort: 3306
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert -c --file docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: authful-developers-db
+  name: authful-developers-db
+spec:
+  ports:
+  - name: "33062"
+    port: 33062
+    targetPort: 3306
+  selector:
+    io.kompose.service: authful-developers-db
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert -c --file docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: authful-users-db
+  name: authful-users-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: authful-users-db
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+          convert -c --file docker-compose.yml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: authful-users-db
+    spec:
+      containers:
+      - args:
+        - mysqld
+        - --innodb_file_per_table
+        env:
+        - name: MYSQL_DATABASE
+          value: authful_users
+        - name: MYSQL_HOST
+          value: authful-users-db
+        - name: MYSQL_PASSWORD
+          value: 8t97tP366iPf7HnC
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_ROOT_PASSWORD
+          value: 80jqn1uAWnoTjfPw
+        - name: MYSQL_USER
+          value: users_admin
+        image: mysql/mysql-server
+        imagePullPolicy: ""
+        name: authful-users-db
+        ports:
+        - containerPort: 3306
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert -c --file docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: authful-users-db
+  name: authful-users-db
+spec:
+  ports:
+  - name: "33061"
+    port: 33061
+    targetPort: 3306
+  selector:
+    io.kompose.service: authful-users-db
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert -c --file docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: authful-developers
+  name: authful-developers
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: authful-developers
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+          convert -c --file docker-compose.yml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: authful-developers
+    spec:
+      containers:
+      - env:
+        - name: AUTHFUL_LOG_LEVEL
+          value: VERBOSE
+        - name: CORS_ALLOWED_HEADERS
+          value: Accept,Cache,Content-Type,Authorize,Access-Control-Allow-Origin,X-Requested-With,X-Auth-Token,Content-Length,Accept-Encoding,X-CSRF-Token,Authorization,x-trace-id
+        - name: CORS_ALLOWED_METHODS
+          value: GET,HEAD,POST,PUT,PATCH,OPTIONS
+        - name: CORS_ORIGIN_ALLOWED
+          value: http://localhost:8080, http://localhost:3000
+        - name: DATABASE_SERVER_DATABASE
+          value: authful_developers
+        - name: DATABASE_SERVER_HOST
+          value: authful-developers-db
+        - name: DATABASE_SERVER_PASSWORD
+          value: 8FUb9bqVTtLyU2i8
+        - name: DATABASE_SERVER_PORT
+          value: "3306"
+        - name: DATABASE_SERVER_USERNAME
+          value: dev_admin
+        - name: SECURITY_JWT_KEY
+          value: JI1PmZvvwLfKPSR97DHogdoA6ahWPBUyr3YaaVgCMm3XGhlF8s306UgJV0YDNx
+        - name: SECURITY_PASSWORD_COST_FACTOR
+          value: "14"
+        - name: SERVICE_ADDRESS
+          value: http://authful-developers:8080
+        - name: WEB_SERVER_PORT
+          value: "8080"
+        image: highfiveboom/authful-developers:latest
+        imagePullPolicy: ""
+        name: authful-developers
+        ports:
+        - containerPort: 8080
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert -c --file docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: authful-developers
+  name: authful-developers
+spec:
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  selector:
+    io.kompose.service: authful-developers
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert -c --file docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: authful-users
+  name: authful-users
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: authful-users
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+          convert -c --file docker-compose.yml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: authful-users
+    spec:
+      containers:
+      - env:
+        - name: AUTHFUL_LOG_LEVEL
+          value: VERBOSE
+        - name: CORS_ALLOWED_HEADERS
+          value: Accept,Cache,Content-Type,Authorize,Access-Control-Allow-Origin,X-Requested-With,X-Auth-Token,Content-Length,Accept-Encoding,X-CSRF-Token,Authorization,x-trace-id
+        - name: CORS_ALLOWED_METHODS
+          value: GET,HEAD,POST,PUT,PATCH,OPTIONS
+        - name: CORS_ORIGIN_ALLOWED
+          value: http://localhost:8080, http://localhost:3000
+        - name: DATABASE_SERVER_DATABASE
+          value: authful_users
+        - name: DATABASE_SERVER_HOST
+          value: authful-users-db
+        - name: DATABASE_SERVER_PASSWORD
+          value: 8t97tP366iPf7HnC
+        - name: DATABASE_SERVER_PORT
+          value: "3306"
+        - name: DATABASE_SERVER_USERNAME
+          value: users_admin
+        - name: SECURITY_JWT_KEY
+          value: JI1PmZvvwLfKPSR97DHogdoA6ahWPBUyr3YaaVgCMm3XGhlF8s306UgJV0YDNx
+        - name: SECURITY_PASSWORD_COST_FACTOR
+          value: "14"
+        - name: SERVICE_ADDRESS
+          value: http://authful-users:8080
+        - name: WEB_SERVER_PORT
+          value: "8080"
+        image: highfiveboom/authful-users:latest
+        imagePullPolicy: ""
+        name: authful-users
+        ports:
+        - containerPort: 8080
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert -c --file docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: authful-users
+  name: authful-users
+spec:
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  selector:
+    io.kompose.service: authful-users
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert -c --file docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: authful-proxy
+  name: authful-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: authful-proxy
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+          convert -c --file docker-compose.yml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: authful-proxy
+    spec:
+      containers:
+      - env:
+        - name: AUTHFUL_LOG_LEVEL
+          value: VERBOSE
+        - name: CORS_ALLOWED_HEADERS
+          value: Accept,Cache,Content-Type,Authorize,Access-Control-Allow-Origin,X-Requested-With,X-Auth-Token,Content-Length,Accept-Encoding,X-CSRF-Token,Authorization,x-trace-id
+        - name: CORS_ALLOWED_METHODS
+          value: GET,HEAD,POST,PUT,PATCH,OPTIONS
+        - name: CORS_ORIGIN_ALLOWED
+          value: http://localhost:8080, http://localhost:3000
+        - name: PROVIDERS_DEVELOPER_SERVER_URI
+          value: http://authful-developers:8080
+        - name: PROVIDERS_USER_SERVER_URI
+          value: http://authful-users:8080
+        - name: SECURITY_JWT_KEY
+          value: JI1PmZvvwLfKPSR97DHogdoA6ahWPBUyr3YaaVgCMm3XGhlF8s306UgJV0YDNx
+        - name: SECURITY_PASSWORD_COST_FACTOR
+          value: "14"
+        - name: WEB_SERVER_PORT
+          value: "8080"
+        image: highfiveboom/authful-proxy:latest
+        imagePullPolicy: ""
+        name: authful-proxy
+        ports:
+        - containerPort: 8080
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert -c --file docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: authful-proxy
+  name: authful-proxy
+spec:
+  ports:
+  - name: "8090"
+    port: 8090
+    targetPort: 8080
+  selector:
+    io.kompose.service: authful-proxy
+status:
+  loadBalancer: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert -c --file docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: authful-web
+  name: authful-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: authful-web
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+          convert -c --file docker-compose.yml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: authful-web
+    spec:
+      containers:
+      - env:
+        - name: AUTHFUL_LOG_LEVEL
+          value: VERBOSE
+        - name: SERVICE_ADDRESS
+          value: http://authful-web:8080
+        - name: WEB_SERVER_PORT
+          value: "8080"
+        image: highfiveboom/authful-web:latest
+        imagePullPolicy: ""
+        name: authful-web
+        ports:
+        - containerPort: 8080
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert -c --file docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: authful-web
+  name: authful-web
+spec:
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  selector:
+    io.kompose.service: authful-web
+status:
+  loadBalancer: {}
+---

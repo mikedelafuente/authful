@@ -15,14 +15,14 @@ x-cors: &cors
   CORS_ALLOWED_METHODS: GET,HEAD,POST,PUT,PATCH,OPTIONS
 
 services:
-  authful_developers_db:
-    image: mysql
+  authful-developers-db:
+    image: mysql/mysql-server
     #command: --default-authentication-plugin=mysql_native_password
     restart: always  
     volumes:
-      - ./db/authful_developers:/docker-entrypoint-initdb.d
+      - ./db-setup/authful_developers:/docker-entrypoint-initdb.d
     environment: 
-      MYSQL_HOST: &db_dev_host authful_developers_db
+      MYSQL_HOST: &db_dev_host authful-developers-db
       MYSQL_PORT: &db_dev_port 3306
       MYSQL_DATABASE: &db_dev_database authful_developers
       MYSQL_ROOT_PASSWORD: &db_dev_root_password 6oK84adtaaxBRuKV
@@ -31,14 +31,14 @@ services:
     ports:
       - 33062:3306
     command: mysqld --innodb_file_per_table
-  authful_users_db:
-    image: mysql
+  authful-users-db:
+    image: mysql/mysql-server
     #command: --default-authentication-plugin=mysql_native_password
     restart: always
     volumes:
-      - ./db/authful_users:/docker-entrypoint-initdb.d
+      - ./db-setup/authful_users:/docker-entrypoint-initdb.d
     environment: 
-      MYSQL_HOST: &db_users_host authful_users_db
+      MYSQL_HOST: &db_users_host authful-users-db
       MYSQL_PORT: &db_users_port 3306
       MYSQL_DATABASE: &db_users_database authful_users
       MYSQL_ROOT_PASSWORD: &db_users_root_password 80jqn1uAWnoTjfPw
@@ -47,17 +47,17 @@ services:
     ports:
       - 33061:3306
     command: mysqld --innodb_file_per_table
-  authful_users:
-    image: authful-users
+  authful-users:
+    image: authful-users:latest
     build:
-      context: ../users
+      context: ./users
       dockerfile: ./Dockerfile
     depends_on: 
-      - authful_users_db
+      - authful-users-db
     environment: 
       AUTHFUL_LOG_LEVEL: *log_level
       WEB_SERVER_PORT: 8080
-      SERVICE_ADDRESS: &users_service_address http://authful_users:8080
+      SERVICE_ADDRESS: &users_service_address http://authful-users:8080
       DATABASE_SERVER_DATABASE: *db_users_database
       DATABASE_SERVER_HOST: *db_users_host
       DATABASE_SERVER_PORT: *db_users_port
@@ -68,17 +68,17 @@ services:
       <<: *cors
     expose:
       - 8080
-  authful_developers:
-    image: authful-developers
+  authful-developers:
+    image: authful-developers:latest
     build:
-      context: ../developers
+      context: ./developers
       dockerfile: ./Dockerfile
     depends_on: 
-      - authful_developers_db
+      - authful-developers-db
     environment: 
       AUTHFUL_LOG_LEVEL: *log_level
       WEB_SERVER_PORT: 8080
-      SERVICE_ADDRESS: &dev_service_address http://authful_developers:8080
+      SERVICE_ADDRESS: &dev_service_address http://authful-developers:8080
       DATABASE_SERVER_DATABASE: *db_dev_database
       DATABASE_SERVER_HOST: *db_dev_host
       DATABASE_SERVER_PORT: *db_dev_port
@@ -89,14 +89,14 @@ services:
       <<: *cors
     expose:
       - 8080
-  authful_proxy:
-    image: authful-proxy
+  authful-proxy:
+    image: authful-proxy:latest
     build:
-      context: ../revproxy
+      context: ./revproxy
       dockerfile: ./Dockerfile
     depends_on: 
-      - authful_users
-      - authful_developers
+      - authful-users
+      - authful-developers
     environment: 
       AUTHFUL_LOG_LEVEL: *log_level
       WEB_SERVER_PORT: 8080
@@ -107,16 +107,17 @@ services:
       <<: *cors
     ports:
       - 8090:8080
-  authful_web:
-    image: authful-web
+  authful-web:
+    image: authful-web:latest
     build:
-      context: ../web
+      context: ./web
       dockerfile: ./Dockerfile
     depends_on: 
-        - authful_proxy
+        - authful-proxy
     environment: 
       AUTHFUL_LOG_LEVEL: *log_level
       WEB_SERVER_PORT: 8080
-      SERVICE_ADDRESS: &web_service_address http://authful_web:8080     
+      SERVICE_ADDRESS: &web_service_address http://authful-web:8080     
     ports:
       - 8080:8080
+  
