@@ -48,7 +48,7 @@ services:
       - 33061:3306
     command: mysqld --innodb_file_per_table
   authful_users:
-    image: authful-users
+    image: authful-users:latest
     build:
       context: ./users
       dockerfile: ./Dockerfile
@@ -69,7 +69,7 @@ services:
     expose:
       - 8080
   authful_developers:
-    image: authful-developers
+    image: authful-developers:latest
     build:
       context: ./developers
       dockerfile: ./Dockerfile
@@ -90,7 +90,7 @@ services:
     expose:
       - 8080
   authful_proxy:
-    image: authful-proxy
+    image: authful-proxy:latest
     build:
       context: ./revproxy
       dockerfile: ./Dockerfile
@@ -108,7 +108,7 @@ services:
     ports:
       - 8090:8080
   authful_web:
-    image: authful-web
+    image: authful-web:latest
     build:
       context: ./web
       dockerfile: ./Dockerfile
@@ -120,3 +120,4 @@ services:
       SERVICE_ADDRESS: &web_service_address http://authful_web:8080     
     ports:
       - 8080:8080
+  
