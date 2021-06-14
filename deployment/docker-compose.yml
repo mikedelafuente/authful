@@ -50,7 +50,7 @@ services:
   authful_users:
     image: authful-users:latest
     build:
-      context: ./users
+      context: ../users
       dockerfile: ./Dockerfile
     depends_on: 
       - authful_users_db
@@ -71,7 +71,7 @@ services:
   authful_developers:
     image: authful-developers:latest
     build:
-      context: ./developers
+      context: ../developers
       dockerfile: ./Dockerfile
     depends_on: 
       - authful_developers_db
@@ -92,7 +92,7 @@ services:
   authful_proxy:
     image: authful-proxy:latest
     build:
-      context: ./revproxy
+      context: ../revproxy
       dockerfile: ./Dockerfile
     depends_on: 
       - authful_users
@@ -110,7 +110,7 @@ services:
   authful_web:
     image: authful-web:latest
     build:
-      context: ./web
+      context: ../web
       dockerfile: ./Dockerfile
     depends_on: 
         - authful_proxy
