@@ -1,35 +1,124 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: authful-web-service
-spec:
-  selector:
-    app: authful-web
-  ports:
-  - protocol: "TCP"
-    port: 3030
-    targetPort: 8080
-  type: LoadBalancer
-
----
-
 apiVersion: apps/v1
-kind: Deployment
+kind: Deployment                 # Type of Kubernetes resource
 metadata:
-  name: authful-web
+  name: authful-web-app           # Name of the Kubernetes resource
 spec:
+  replicas: 3                    # Number of pods to run at any given time
   selector:
     matchLabels:
-      app: authful-web
-  replicas: 5
-  template:
+      app: authful-web-pod       # This deployment applies to any Pods matching the specified label
+  template:                      # This deployment will create a set of pods using the configurations in this template
     metadata:
-      labels:
-        app: authful-web
-    spec:
+      labels:                    # The labels that will be applied to all of the pods in this deployment
+        app: authful-web-pod 
+    spec:                        # Spec for the container which will run in the Pod
       containers:
       - name: authful-web
-        image: authful-web
+        image: highfiveboom/authful-web:latest
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 5000
+          - containerPort: 8080  # Should match the port number that the Go application listens on
+        # livenessProbe:           # To check the health of the Pod
+        #   httpGet:
+        #     path: /health
+        #     port: 8080
+        #     scheme: HTTP
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 15
+        #   timeoutSeconds: 5
+        # readinessProbe:          # To check if the Pod is ready to serve traffic or not
+        #   httpGet:
+        #     path: /readiness
+        #     port: 8080
+        #     scheme: HTTP
+        #   initialDelaySeconds: 5
+        #   timeoutSeconds: 1    
+
+---
+apiVersion: apps/v1
+kind: Deployment                 # Type of Kubernetes resource
+metadata:
+  name: authful-developers-app           # Name of the Kubernetes resource
+spec:
+  replicas: 3                    # Number of pods to run at any given time
+  selector:
+    matchLabels:
+      app: authful-developers-pod       # This deployment applies to any Pods matching the specified label
+  template:                      # This deployment will create a set of pods using the configurations in this template
+    metadata:
+      labels:                    # The labels that will be applied to all of the pods in this deployment
+        app: authful-developers-pod 
+    spec:                        # Spec for the container which will run in the Pod
+      containers:
+      - name: authful-developers
+        image: highfiveboom/authful-developers:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8080  # Should match the port number that the Go application listens on
+        # livenessProbe:           # To check the health of the Pod
+        #   httpGet:
+        #     path: /health
+        #     port: 8080
+        #     scheme: HTTP
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 15
+        #   timeoutSeconds: 5
+        # readinessProbe:          # To check if the Pod is ready to serve traffic or not
+        #   httpGet:
+        #     path: /readiness
+        #     port: 8080
+        #     scheme: HTTP
+        #   initialDelaySeconds: 5
+        #   timeoutSeconds: 1    
+
+---
+apiVersion: apps/v1
+kind: Deployment                 # Type of Kubernetes resource
+metadata:
+  name: authful-users-app           # Name of the Kubernetes resource
+spec:
+  replicas: 3                    # Number of pods to run at any given time
+  selector:
+    matchLabels:
+      app: authful-users-pod       # This deployment applies to any Pods matching the specified label
+  template:                      # This deployment will create a set of pods using the configurations in this template
+    metadata:
+      labels:                    # The labels that will be applied to all of the pods in this deployment
+        app: authful-users-pod 
+    spec:                        # Spec for the container which will run in the Pod
+      containers:
+      - name: authful-users
+        image: highfiveboom/authful-developers:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8080  # Should match the port number that the Go application listens on
+        # livenessProbe:           # To check the health of the Pod
+        #   httpGet:
+        #     path: /health
+        #     port: 8080
+        #     scheme: HTTP
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 15
+        #   timeoutSeconds: 5
+        # readinessProbe:          # To check if the Pod is ready to serve traffic or not
+        #   httpGet:
+        #     path: /readiness
+        #     port: 8080
+        #     scheme: HTTP
+        #   initialDelaySeconds: 5
+        #   timeoutSeconds: 1    
+
+
+---
+apiVersion: v1
+kind: Service                    # Type of kubernetes resource
+metadata:
+  name: authful-web-service   # Name of the resource
+spec:
+  type: NodePort                 # A port is opened on each node in your cluster via Kube proxy.
+  ports:                         # Take incoming HTTP requests on port 9090 and forward them to the targetPort of 8080
+  - name: http
+    port: 9090
+    targetPort: 8080
+  selector:
+    app: authful-web-pod         # Map any pod with label `app=go-hello-world` to this service
