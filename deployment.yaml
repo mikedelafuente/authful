@@ -12,6 +12,13 @@ spec:
       labels:
         app: authful-developers-db-template
     spec:
+      initContainers:
+      - name: fetch
+        image: mwendler/wget
+        command: ["wget","--no-check-certificate","https://raw.githubusercontent.com/mikedelafuente/authful/main/db-setup/authful_developers/a_developer_schema.sql","-O","/docker-entrypoint-initdb.d/a_developer_schema.sql"]
+        volumeMounts:
+          - mountPath: /docker-entrypoint-initdb.d
+            name: mysql-initdb
       containers:
       - args:
         - mysqld
@@ -34,8 +41,21 @@ spec:
         name: authful-developers-db
         ports:
         - containerPort: 3306
-      restartPolicy: Always
-      volumes: null
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+        - name: mysql-initdb
+          mountPath: /docker-entrypoint-initdb.d # we are mounting init-script volume in this directory. so init.sql file will be available here. 
+      volumes:
+      - name: data # this volume will be used for database storage.
+        hostPath:
+            path: /data/developers
+            type: DirectoryOrCreate         
+      - name: mysql-initdb # this volume holds init.sql file.
+        hostPath:
+          path: /data/init/developers
+          type: DirectoryOrCreate          
+      restartPolicy: Always 
 
 ---
 apiVersion: v1
@@ -69,6 +89,13 @@ spec:
       labels:
         app: authful-users-db-template
     spec:
+      initContainers:
+      - name: fetch
+        image: mwendler/wget
+        command: ["wget","--no-check-certificate","https://raw.githubusercontent.com/mikedelafuente/authful/main/db-setup/authful_users/a_user_schema.sql","-O","/docker-entrypoint-initdb.d/a_user_schema.sql"]
+        volumeMounts:
+          - mountPath: /docker-entrypoint-initdb.d
+            name: mysql-initdb
       containers:
       - args:
         - mysqld
@@ -91,9 +118,26 @@ spec:
         name: authful-users-db
         ports:
         - containerPort: 3306
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+        - name: mysql-initdb
+          mountPath: /docker-entrypoint-initdb.d # we are mounting init-script volume in this directory. so init.sql file will be available here. 
+      volumes:
+      - name: data # this volume will be used for database storage.
+        hostPath:
+            path: /data/users
+            type: DirectoryOrCreate         
+      - name: mysql-initdb # this volume holds init.sql file.
+        hostPath:
+          path: /data/init/users
+          type: DirectoryOrCreate  
       restartPolicy: Always
       serviceAccountName: ""
-      volumes: null
+ 
+
+
+      
 ---
 apiVersion: v1
 kind: Service
