@@ -1,29 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-      convert -c --file docker-compose.yml
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: authful-developers-db
-  name: authful-developers-db
+  name: authful-developers-db-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: authful-developers-db
-  strategy: {}
+      app: authful-developers-db-template
   template:
     metadata:
-      annotations:
-        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-          convert -c --file docker-compose.yml
-        kompose.version: 1.21.0 (992df58d8)
-      creationTimestamp: null
       labels:
-        io.kompose.service: authful-developers-db
+        app: authful-developers-db-template
     spec:
       containers:
       - args:
@@ -47,60 +34,40 @@ spec:
         name: authful-developers-db
         ports:
         - containerPort: 3306
-        resources: {}
       restartPolicy: Always
-      serviceAccountName: ""
       volumes: null
-status: {}
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-      convert -c --file docker-compose.yml
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: authful-developers-db
   name: authful-developers-db
 spec:
+  type: ClusterIP
   ports:
-  - name: "33062"
-    port: 33062
+  - port: 3306
     targetPort: 3306
   selector:
-    io.kompose.service: authful-developers-db
-status:
-  loadBalancer: {}
+    app: authful-developers-db-template
+
+
+
+
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-      convert -c --file docker-compose.yml
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: authful-users-db
-  name: authful-users-db
+  name: authful-users-db-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: authful-users-db
-  strategy: {}
+      app: authful-users-db-template
   template:
     metadata:
-      annotations:
-        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-          convert -c --file docker-compose.yml
-        kompose.version: 1.21.0 (992df58d8)
-      creationTimestamp: null
       labels:
-        io.kompose.service: authful-users-db
+        app: authful-users-db-template
     spec:
       containers:
       - args:
@@ -124,59 +91,39 @@ spec:
         name: authful-users-db
         ports:
         - containerPort: 3306
-        resources: {}
       restartPolicy: Always
       serviceAccountName: ""
       volumes: null
-status: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-      convert -c --file docker-compose.yml
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: authful-users-db
   name: authful-users-db
 spec:
+  type: ClusterIP
   ports:
-  - name: "33061"
-    port: 33061
+  - port: 3306
     targetPort: 3306
   selector:
-    io.kompose.service: authful-users-db
-status:
-  loadBalancer: {}
+    app: authful-users-db-template
+
+
+
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-      convert -c --file docker-compose.yml
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: authful-developers
-  name: authful-developers
+  name: authful-developers-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: authful-developers
-  strategy: {}
+      app: authful-developers-template
   template:
     metadata:
-      annotations:
-        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-          convert -c --file docker-compose.yml
-        kompose.version: 1.21.0 (992df58d8)
-      creationTimestamp: null
       labels:
-        io.kompose.service: authful-developers
+        app: authful-developers-template
     spec:
       containers:
       - env:
@@ -210,60 +157,37 @@ spec:
         imagePullPolicy: ""
         name: authful-developers
         ports:
-        - containerPort: 8080
-        resources: {}
+        - containerPort: 8080        
       restartPolicy: Always
-      serviceAccountName: ""
-      volumes: null
-status: {}
+
 --- 
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-      convert -c --file docker-compose.yml
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: authful-developers
   name: authful-developers
 spec:
+  type: ClusterIP
   ports:
   - name: "8080"
     port: 8080
     targetPort: 8080
   selector:
-    io.kompose.service: authful-developers
-status:
-  loadBalancer: {}
+    app: authful-developers-template
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-      convert -c --file docker-compose.yml
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: authful-users
-  name: authful-users
+  name: authful-users-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: authful-users
-  strategy: {}
+      app: authful-users-template
   template:
     metadata:
-      annotations:
-        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-          convert -c --file docker-compose.yml
-        kompose.version: 1.21.0 (992df58d8)
-      creationTimestamp: null
-      labels:
-        io.kompose.service: authful-users
+       labels:
+        app: authful-users-template
     spec:
       containers:
       - env:
@@ -298,59 +222,36 @@ spec:
         name: authful-users
         ports:
         - containerPort: 8080
-        resources: {}
       restartPolicy: Always
       serviceAccountName: ""
       volumes: null
-status: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-      convert -c --file docker-compose.yml
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: authful-users
   name: authful-users
 spec:
+  type: ClusterIP
   ports:
   - name: "8080"
     port: 8080
     targetPort: 8080
   selector:
-    io.kompose.service: authful-users
-status:
-  loadBalancer: {}
+    app: authful-users-template
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-      convert -c --file docker-compose.yml
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: authful-proxy
-  name: authful-proxy
+  name: authful-proxy-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: authful-proxy
-  strategy: {}
+      app: authful-proxy-template
   template:
     metadata:
-      annotations:
-        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-          convert -c --file docker-compose.yml
-        kompose.version: 1.21.0 (992df58d8)
-      creationTimestamp: null
       labels:
-        io.kompose.service: authful-proxy
+        app: authful-proxy-template
     spec:
       containers:
       - env:
@@ -377,60 +278,37 @@ spec:
         name: authful-proxy
         ports:
         - containerPort: 8080
-        resources: {}
       restartPolicy: Always
       serviceAccountName: ""
       volumes: null
-status: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-      convert -c --file docker-compose.yml
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: authful-proxy
   name: authful-proxy
 spec:
+  type: NodePort
   ports:
-  - name: "8090"
-    port: 8090
+  - port: 8080
     targetPort: 8080
+    nodePort: 30100   
   selector:
-    io.kompose.service: authful-proxy
-status:
-  loadBalancer: {}
+    app: authful-proxy-template
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-      convert -c --file docker-compose.yml
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: authful-web
-  name: authful-web
+  name: authful-web-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: authful-web
-  strategy: {}
+      app: authful-web-template
   template:
     metadata:
-      annotations:
-        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-          convert -c --file docker-compose.yml
-        kompose.version: 1.21.0 (992df58d8)
-      creationTimestamp: null
       labels:
-        io.kompose.service: authful-web
+        app: authful-web-template
     spec:
       containers:
       - env:
@@ -445,30 +323,20 @@ spec:
         name: authful-web
         ports:
         - containerPort: 8080
-        resources: {}
       restartPolicy: Always
       serviceAccountName: ""
       volumes: null
-status: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
-      convert -c --file docker-compose.yml
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: authful-web
   name: authful-web
 spec:
+  type: NodePort
   ports:
-  - name: "8080"
-    port: 8080
+  - port: 8080
     targetPort: 8080
+    nodePort: 30000    
   selector:
-    io.kompose.service: authful-web
-status:
-  loadBalancer: {}
+    app: authful-web-template
 ---
